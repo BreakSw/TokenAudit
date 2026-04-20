@@ -1,0 +1,6 @@
+{
+  "supported_token_types": ["api_key", "jwt", "oauth2", "custom"],
+  "jwt": {
+    "check_exp": true
+  }
+}

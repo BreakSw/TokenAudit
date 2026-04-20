@@ -8,6 +8,7 @@ public class AuditStartRequest {
     @NotNull
     private Long tokenId;
     private List<String> exportFormats;
+    private List<String> auditDimensions;
 
     public Long getTokenId() {
         return tokenId;
@@ -23,5 +24,13 @@ public class AuditStartRequest {
 
     public void setExportFormats(List<String> exportFormats) {
         this.exportFormats = exportFormats;
+    }
+
+    public List<String> getAuditDimensions() {
+        return auditDimensions;
+    }
+
+    public void setAuditDimensions(List<String> auditDimensions) {
+        this.auditDimensions = auditDimensions;
     }
 }

@@ -1,0 +1,7 @@
+{
+  "patterns": {
+    "phone": "\\b1\\d{10}\\b",
+    "id_card": "\\b\\d{17}[0-9Xx]\\b",
+    "password": "(?i)password\\s*[:=]"
+  }
+}

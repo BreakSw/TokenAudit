@@ -41,17 +41,21 @@ public class AuditService {
         this.env = env;
     }
 
-    public AuditResponse startAudit(Long tokenId, List<String> exportFormats) {
+    public AuditResponse startAudit(Long tokenId, List<String> exportFormats, List<String> auditDimensions) {
         TokenInfo token = tokenService.getEntity(tokenId);
         String auditTime = DateUtil.now();
 
         Map<String, Object> input = new LinkedHashMap<>();
+        input.put("token_id", tokenId);
         input.put("audited_token", token.getToken());
         input.put("platform", token.getPlatform());
         input.put("token_base_url", token.getTokenBaseUrl());
         input.put("claimed_model", token.getClaimedModel());
         input.put("non_claimed_model", token.getNonClaimedModel());
         input.put("audit_time", auditTime);
+        if (auditDimensions != null && !auditDimensions.isEmpty()) {
+            input.put("audit_dimensions", auditDimensions);
+        }
 
         List<String> formats = exportFormats;
         if (formats == null || formats.isEmpty()) {

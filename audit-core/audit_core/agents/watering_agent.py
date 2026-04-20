@@ -41,7 +41,14 @@ class WateringAgent:
             )
             log_event(
                 "token_call_end",
-                {"phase": "watering", "index": i, "status_code": resp["status_code"], "elapsed_ms": resp["elapsed_ms"]},
+                {
+                    "phase": "watering",
+                    "index": i,
+                    "status_code": resp["status_code"],
+                    "elapsed_ms": resp["elapsed_ms"],
+                    "endpoint": resp.get("endpoint"),
+                    "url": resp.get("url"),
+                },
             )
             feat = extract_features(resp).to_dict()
             calls.append(
@@ -51,10 +58,32 @@ class WateringAgent:
                     "status_code": resp["status_code"],
                     "elapsed_ms": resp["elapsed_ms"],
                     "ok": resp["ok"],
+                    "endpoint": resp.get("endpoint"),
+                    "url": resp.get("url"),
                     "response_preview": _preview(resp),
                     "features": feat,
                 }
             )
+
+        if calls and all(c.get("status_code") in (0, 503) for c in calls):
+            judge_obj = {
+                "deepseek_watering": "无法判断",
+                "conclusion": "模型不可用",
+                "evidence": {
+                    "reason": "all_calls_failed",
+                    "hint": "通常为模型名不支持/未开通，或中转站当前服务不可用",
+                    "claimed_model": inp.claimed_model,
+                    "status_codes": [c.get("status_code") for c in calls],
+                },
+            }
+            log_event("phase_end", {"phase": "watering", "agent": self.name})
+            return {
+                "agent": self.name,
+                "tests": calls,
+                "deepseek_judgement": judge_obj,
+                "conclusion": judge_obj["conclusion"],
+                "evidence": judge_obj["evidence"],
+            }
 
         judge_prompt = _build_deepseek_prompt(inp=inp, calls=calls)
         log_event("deepseek_call_start", {"phase": "watering", "model": config.deepseek_model})
@@ -79,6 +108,13 @@ class WateringAgent:
 def _preview(resp: dict[str, Any], limit: int = 240) -> str:
     data = resp.get("response") or {}
     if isinstance(data, dict):
+        err = data.get("error")
+        if isinstance(err, dict) and isinstance(err.get("message"), str) and err.get("message"):
+            return err["message"][:limit]
+        if isinstance(err, str) and err:
+            return err[:limit]
+        if isinstance(data.get("message"), str) and data.get("message"):
+            return data["message"][:limit]
         choices = data.get("choices")
         if isinstance(choices, list) and choices:
             msg = choices[0].get("message") if isinstance(choices[0], dict) else None

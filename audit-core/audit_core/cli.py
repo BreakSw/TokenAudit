@@ -23,12 +23,14 @@ def main() -> int:
     audit_time = inp_obj.get("audit_time") or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     orch_inp = OrchestratorInput(
+        token_id=inp_obj.get("token_id"),
         audited_token=str(inp_obj.get("audited_token") or ""),
         platform=str(inp_obj.get("platform") or ""),
         token_base_url=str(inp_obj.get("token_base_url") or ""),
         claimed_model=str(inp_obj.get("claimed_model") or ""),
         non_claimed_model=str(inp_obj.get("non_claimed_model") or "gpt-4o-mini"),
         audit_time=audit_time,
+        audit_dimensions=inp_obj.get("audit_dimensions"),
         front_end_url=inp_obj.get("front_end_url"),
         back_end_url=inp_obj.get("back_end_url"),
     )

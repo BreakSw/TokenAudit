@@ -33,7 +33,14 @@ class PermissionAgent:
         )
         log_event(
             "token_call_end",
-            {"phase": "permission", "scenario": "claimed_model", "status_code": claimed["status_code"], "elapsed_ms": claimed["elapsed_ms"]},
+            {
+                "phase": "permission",
+                "scenario": "claimed_model",
+                "status_code": claimed["status_code"],
+                "elapsed_ms": claimed["elapsed_ms"],
+                "endpoint": claimed.get("endpoint"),
+                "url": claimed.get("url"),
+            },
         )
 
         log_event("token_call_start", {"phase": "permission", "scenario": "non_claimed_model", "model": inp.non_claimed_model})
@@ -46,7 +53,14 @@ class PermissionAgent:
         )
         log_event(
             "token_call_end",
-            {"phase": "permission", "scenario": "non_claimed_model", "status_code": non_claimed["status_code"], "elapsed_ms": non_claimed["elapsed_ms"]},
+            {
+                "phase": "permission",
+                "scenario": "non_claimed_model",
+                "status_code": non_claimed["status_code"],
+                "elapsed_ms": non_claimed["elapsed_ms"],
+                "endpoint": non_claimed.get("endpoint"),
+                "url": non_claimed.get("url"),
+            },
         )
 
         log_event("token_call_start", {"phase": "permission", "scenario": "anonymous_call", "model": inp.claimed_model})
@@ -59,7 +73,14 @@ class PermissionAgent:
         )
         log_event(
             "token_call_end",
-            {"phase": "permission", "scenario": "anonymous_call", "status_code": anonymous["status_code"], "elapsed_ms": anonymous["elapsed_ms"]},
+            {
+                "phase": "permission",
+                "scenario": "anonymous_call",
+                "status_code": anonymous["status_code"],
+                "elapsed_ms": anonymous["elapsed_ms"],
+                "endpoint": anonymous.get("endpoint"),
+                "url": anonymous.get("url"),
+            },
         )
 
         tests = [
@@ -69,6 +90,8 @@ class PermissionAgent:
                 "status_code": claimed["status_code"],
                 "ok": claimed["ok"],
                 "elapsed_ms": claimed["elapsed_ms"],
+                "endpoint": claimed.get("endpoint"),
+                "url": claimed.get("url"),
                 "response_preview": _preview(claimed),
             },
             {
@@ -77,6 +100,8 @@ class PermissionAgent:
                 "status_code": non_claimed["status_code"],
                 "ok": non_claimed["ok"],
                 "elapsed_ms": non_claimed["elapsed_ms"],
+                "endpoint": non_claimed.get("endpoint"),
+                "url": non_claimed.get("url"),
                 "response_preview": _preview(non_claimed),
             },
             {
@@ -85,6 +110,8 @@ class PermissionAgent:
                 "status_code": anonymous["status_code"],
                 "ok": anonymous["ok"],
                 "elapsed_ms": anonymous["elapsed_ms"],
+                "endpoint": anonymous.get("endpoint"),
+                "url": anonymous.get("url"),
                 "response_preview": _preview(anonymous),
             },
         ]
@@ -117,6 +144,13 @@ class PermissionAgent:
 def _preview(resp: dict[str, Any], limit: int = 240) -> str:
     data = resp.get("response") or {}
     if isinstance(data, dict):
+        err = data.get("error")
+        if isinstance(err, dict) and isinstance(err.get("message"), str) and err.get("message"):
+            return err["message"][:limit]
+        if isinstance(err, str) and err:
+            return err[:limit]
+        if isinstance(data.get("message"), str) and data.get("message"):
+            return data["message"][:limit]
         choices = data.get("choices")
         if isinstance(choices, list) and choices:
             msg = choices[0].get("message") if isinstance(choices[0], dict) else None

@@ -4,20 +4,18 @@
     <el-header class="app-header">
       <div class="header-left">
         <div class="brand">
-          <div class="brand-title">TokenAudit</div>
-          <div class="brand-subtitle">多Agent · DeepSeek判定 · 证据可回溯</div>
+          <div class="brand-mark">
+            <img src="/favicon.svg" alt="TokenAudit" />
+          </div>
+          <div class="brand-text">
+            <div class="brand-title gradient-text">TokenAudit</div>
+            <div class="brand-subtitle">多Agent · DeepSeek判定 · 证据可回溯</div>
+          </div>
         </div>
       </div>
       <div class="header-right">
-        <el-input
-          v-model="backendApiKey"
-          placeholder="后端X-API-KEY（可选）"
-          size="small"
-          class="apikey-input"
-          clearable
-          @change="saveKey"
-        />
-        <el-button size="small" type="primary" @click="saveKey">保存</el-button>
+        <div class="header-pill">Local</div>
+        <el-button size="small" type="primary" plain @click="openSettings">设置</el-button>
       </div>
     </el-header>
     <el-container class="app-body">
@@ -38,6 +36,24 @@
         </div>
       </el-main>
     </el-container>
+
+    <el-drawer v-model="settingsOpen" size="420px" title="设置" :with-header="true">
+      <div class="settings-wrap">
+        <div class="settings-title">后端访问</div>
+        <div class="settings-subtitle">如果后端开启了 X-API-KEY 校验，在这里填写即可（会保存在浏览器本地）。</div>
+        <el-input
+          v-model="backendApiKey"
+          placeholder="后端 X-API-KEY（可选）"
+          size="large"
+          clearable
+          @change="saveKey"
+        />
+        <div class="settings-actions">
+          <el-button size="large" @click="settingsOpen = false">关闭</el-button>
+          <el-button size="large" type="primary" @click="saveKey">保存</el-button>
+        </div>
+      </div>
+    </el-drawer>
   </el-container>
 </template>
 
@@ -45,9 +61,14 @@
 import { ref } from "vue"
 
 const backendApiKey = ref(localStorage.getItem("backendApiKey") || "")
+const settingsOpen = ref(false)
 
 function saveKey() {
   localStorage.setItem("backendApiKey", backendApiKey.value || "")
+}
+
+function openSettings() {
+  settingsOpen.value = true
 }
 </script>
 
@@ -95,6 +116,33 @@ body {
   gap: 12px;
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.12);
+}
+
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
 .brand-title {
   font-weight: 800;
   letter-spacing: 0.2px;
@@ -114,8 +162,17 @@ body {
   gap: 10px;
 }
 
-.apikey-input {
-  width: 320px;
+.header-pill {
+  height: 30px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(15, 23, 42, 0.72);
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 .app-body {
@@ -179,6 +236,30 @@ body {
   margin: 0 auto;
 }
 
+.settings-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-title {
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.settings-subtitle {
+  font-size: 12px;
+  color: rgba(15, 23, 42, 0.62);
+  margin-bottom: 6px;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
 .el-card {
   border-radius: 14px;
   border: 1px solid rgba(17, 24, 39, 0.08);
@@ -197,9 +278,6 @@ body {
 @media (max-width: 920px) {
   .app-aside {
     display: none;
-  }
-  .apikey-input {
-    width: 220px;
   }
 }
 </style>

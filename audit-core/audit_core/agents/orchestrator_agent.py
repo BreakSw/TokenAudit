@@ -6,21 +6,28 @@ from typing import Any
 
 from audit_core.agents.compliance_stability_agent import ComplianceStabilityAgent, ComplianceStabilityInput
 from audit_core.agents.permission_agent import PermissionAgent, PermissionInput
+from audit_core.agents.security_agent import SecurityAgent, SecurityInput
+from audit_core.agents.summary_agent import SummaryAgent, SummaryInput
 from audit_core.agents.validity_agent import ValidityAgent, ValidityInput
 from audit_core.agents.watering_agent import WateringAgent, WateringInput
 from audit_core.config import AuditConfig
 from audit_core.scripts import deepseek_chat
+from audit_core.scripts.langgraph_schedule import run_langgraph
 from audit_core.utils import coerce_json_object, log_event
+from audit_core.utils.error_util import run_with_retry
+from audit_core.utils.log_util import log_agent_result
 
 
 @dataclass(frozen=True)
 class OrchestratorInput:
+    token_id: int | None
     audited_token: str
     platform: str
     token_base_url: str
     claimed_model: str
     non_claimed_model: str
     audit_time: str
+    audit_dimensions: list[str] | None = None
     front_end_url: str | None = None
     back_end_url: str | None = None
 
@@ -30,50 +37,179 @@ class OrchestratorAgent:
 
     def run(self, *, config: AuditConfig, inp: OrchestratorInput) -> dict[str, Any]:
         log_event("phase_start", {"phase": "orchestrator", "agent": self.name})
-        validity = ValidityAgent().run(
-            config=config,
-            inp=ValidityInput(
-                token_base_url=inp.token_base_url,
-                audited_token=inp.audited_token,
-                claimed_model=inp.claimed_model,
-            ),
-        )
-        permission = PermissionAgent().run(
-            config=config,
-            inp=PermissionInput(
-                token_base_url=inp.token_base_url,
-                audited_token=inp.audited_token,
-                claimed_model=inp.claimed_model,
-                non_claimed_model=inp.non_claimed_model,
-            ),
-        )
-        watering = WateringAgent().run(
-            config=config,
-            inp=WateringInput(
-                token_base_url=inp.token_base_url,
-                audited_token=inp.audited_token,
-                claimed_model=inp.claimed_model,
-            ),
-        )
-        cs = ComplianceStabilityAgent().run(
-            config=config,
-            inp=ComplianceStabilityInput(
-                token_base_url=inp.token_base_url,
-                audited_token=inp.audited_token,
-                claimed_model=inp.claimed_model,
-            ),
-        )
+        dims = [d.strip().lower() for d in (inp.audit_dimensions or []) if str(d).strip()]
+        if not dims:
+            dims = ["validity", "permission", "watering", "compliance", "stability", "security"]
 
-        sections = {
-            "validity": validity,
-            "permission": permission,
-            "watering": watering,
-            "compliance": cs["compliance"],
-            "stability": cs["stability"],
-        }
+        task_allocation: list[dict[str, Any]] = []
+        agent_results: list[dict[str, Any]] = []
 
-        overall = self._overall_judge(config=config, inp=inp, sections=sections)
-        report_markdown = build_report_markdown(inp=inp, sections=sections, overall=overall, deepseek_key_masked="已配置(脱敏)")
+        def run_dim(name: str, fn, audit_dimension: str) -> Any:
+            log_event("phase_start", {"phase": audit_dimension, "agent": name})
+            ok, result, err = run_with_retry(fn, timeout_s=0, retries=2, retry_delay_s=5)
+            status = "success" if ok else "error"
+            task_allocation.append({"agent_name": name, "audit_dimension": audit_dimension, "status": status})
+            out = _wrap_agent_output(
+                agent_name=name,
+                audit_time=inp.audit_time,
+                token_id=inp.token_id,
+                audit_dimension=audit_dimension,
+                status="success" if ok else "error",
+                result=result if ok else None,
+                error_msg="" if ok else (err[:50] if err else "error"),
+            )
+            agent_results.append(out)
+            log_agent_result(out)
+            log_event("phase_end", {"phase": audit_dimension, "agent": name, "status": status})
+            return result if ok else None
+
+        sections: dict[str, Any] = {}
+
+        nodes: dict[str, Any] = {}
+        edges: list[tuple[str, str]] = []
+
+        if "validity" in dims:
+            nodes["validity"] = lambda _: {"validity": run_dim("ValidityAgent", lambda: ValidityAgent().run(
+                config=config,
+                inp=ValidityInput(token_base_url=inp.token_base_url, audited_token=inp.audited_token, claimed_model=inp.claimed_model),
+            ), "validity")}
+        if "permission" in dims:
+            nodes["permission"] = lambda _: {"permission": run_dim("PermissionAgent", lambda: PermissionAgent().run(
+                config=config,
+                inp=PermissionInput(
+                    token_base_url=inp.token_base_url,
+                    audited_token=inp.audited_token,
+                    claimed_model=inp.claimed_model,
+                    non_claimed_model=inp.non_claimed_model,
+                ),
+            ), "permission")}
+        if "watering" in dims:
+            nodes["watering"] = lambda _: {"watering": run_dim("WateringAgent", lambda: WateringAgent().run(
+                config=config,
+                inp=WateringInput(token_base_url=inp.token_base_url, audited_token=inp.audited_token, claimed_model=inp.claimed_model),
+            ), "watering")}
+        if "compliance" in dims or "stability" in dims:
+            def run_cs() -> dict[str, Any] | None:
+                name = "ComplianceStabilityAgent"
+                audit_dimension = "compliance_stability"
+                log_event("phase_start", {"phase": audit_dimension, "agent": name})
+                ok, result, err = run_with_retry(
+                    lambda: ComplianceStabilityAgent().run(
+                        config=config,
+                        inp=ComplianceStabilityInput(token_base_url=inp.token_base_url, audited_token=inp.audited_token, claimed_model=inp.claimed_model),
+                    ),
+                    timeout_s=0,
+                    retries=2,
+                    retry_delay_s=5,
+                )
+                status = "success" if ok else "error"
+                log_event("phase_end", {"phase": audit_dimension, "agent": name, "status": status})
+                if not ok or not isinstance(result, dict):
+                    msg = err[:50] if err else "error"
+                    if "compliance" in dims:
+                        task_allocation.append({"agent_name": name, "audit_dimension": "compliance", "status": "error"})
+                        out = _wrap_agent_output(
+                            agent_name=name,
+                            audit_time=inp.audit_time,
+                            token_id=inp.token_id,
+                            audit_dimension="compliance",
+                            status="error",
+                            result=None,
+                            error_msg=msg,
+                        )
+                        agent_results.append(out)
+                        log_agent_result(out)
+                    if "stability" in dims:
+                        task_allocation.append({"agent_name": name, "audit_dimension": "stability", "status": "error"})
+                        out = _wrap_agent_output(
+                            agent_name=name,
+                            audit_time=inp.audit_time,
+                            token_id=inp.token_id,
+                            audit_dimension="stability",
+                            status="error",
+                            result=None,
+                            error_msg=msg,
+                        )
+                        agent_results.append(out)
+                        log_agent_result(out)
+                    return None
+
+                if "compliance" in dims:
+                    task_allocation.append({"agent_name": name, "audit_dimension": "compliance", "status": "success"})
+                    out = _wrap_agent_output(
+                        agent_name=name,
+                        audit_time=inp.audit_time,
+                        token_id=inp.token_id,
+                        audit_dimension="compliance",
+                        status="success",
+                        result=result.get("compliance"),
+                        error_msg="",
+                    )
+                    agent_results.append(out)
+                    log_agent_result(out)
+
+                if "stability" in dims:
+                    task_allocation.append({"agent_name": name, "audit_dimension": "stability", "status": "success"})
+                    out = _wrap_agent_output(
+                        agent_name=name,
+                        audit_time=inp.audit_time,
+                        token_id=inp.token_id,
+                        audit_dimension="stability",
+                        status="success",
+                        result=result.get("stability"),
+                        error_msg="",
+                    )
+                    agent_results.append(out)
+                    log_agent_result(out)
+                return result
+
+            nodes["compliance_stability"] = lambda _: {"compliance_stability": run_cs()}
+        if "security" in dims:
+            nodes["security"] = lambda _: {"security": run_dim(
+                "SecurityAgent",
+                lambda: SecurityAgent().run(
+                    config=config,
+                    inp=SecurityInput(
+                        token_id=inp.token_id,
+                        token_value=inp.audited_token,
+                        token_base_url=inp.token_base_url,
+                        claimed_model=inp.claimed_model,
+                        audit_time=inp.audit_time,
+                    ),
+                ),
+                "security",
+            )}
+
+        order = list(nodes.keys())
+        start = order[0] if order else "validity"
+        for i in range(len(order) - 1):
+            edges.append((order[i], order[i + 1]))
+
+        state = run_langgraph(nodes=nodes, edges=edges, start=start) if nodes else {}
+        if isinstance(state, dict):
+            if "validity" in state:
+                sections["validity"] = state["validity"]
+            if "permission" in state:
+                sections["permission"] = state["permission"]
+            if "watering" in state:
+                sections["watering"] = state["watering"]
+            if "security" in state:
+                sections["security"] = state["security"]
+            cs = state.get("compliance_stability")
+            if isinstance(cs, dict):
+                if "compliance" in dims and "compliance" in cs:
+                    sections["compliance"] = cs["compliance"]
+                if "stability" in dims and "stability" in cs:
+                    sections["stability"] = cs["stability"]
+
+        normalized_sections: dict[str, Any] = {}
+        for k, v in sections.items():
+            if isinstance(v, dict):
+                normalized_sections[k] = _normalize_section(v)
+
+        overall = self._overall_judge(config=config, inp=inp, sections=normalized_sections)
+        report_markdown = build_report_markdown(inp=inp, sections=normalized_sections, overall=overall, deepseek_key_masked="已配置(脱敏)")
+        summary = SummaryAgent().run(inp=SummaryInput(token_id=inp.token_id, audit_time=inp.audit_time, agent_results=agent_results))
 
         log_event("phase_end", {"phase": "orchestrator", "agent": self.name})
         return {
@@ -85,18 +221,43 @@ class OrchestratorAgent:
                 "front_end_url": inp.front_end_url,
                 "back_end_url": inp.back_end_url,
             },
-            "sections": {
-                "validity": _normalize_section(validity),
-                "permission": _normalize_section(permission),
-                "watering": _normalize_section(watering),
-                "compliance": _normalize_section(cs["compliance"]),
-                "stability": _normalize_section(cs["stability"]),
+            "orchestrator": {
+                "agent_name": "OrchestratorAgent",
+                "audit_time": inp.audit_time,
+                "token_id": inp.token_id,
+                "status": "success",
+                "task_allocation": task_allocation,
+                "error_msg": "",
             },
+            "agent_results": agent_results,
+            "summary": summary,
+            "sections": normalized_sections,
             "overall": overall,
             "report_markdown": report_markdown,
         }
 
     def _overall_judge(self, *, config: AuditConfig, inp: OrchestratorInput, sections: dict[str, Any]) -> dict[str, Any]:
+        if _looks_like_model_unavailable(sections):
+            return {
+                "deepseek_judgement": None,
+                "overall_conclusion": (
+                    "综合判定：宣称模型调用全部失败（多为503/网络错误），更像是“模型名不支持/未开通”或中转站当前不可用，"
+                    "不应直接等同于Token失效。建议先用中转站支持的模型名重试（例如 claude-opus-4-6），或通过 /v1/models 查询可用模型列表。"
+                ),
+                "risk_warnings": ["宣称模型不可用或服务不可用：请核对模型名是否存在、是否已开通、是否需要白名单/余额/配额。"],
+                "usage_suggestions": ["优先使用中转站已开通的模型名完成审计，再判断越权/掺水等风险。"],
+            }
+        if _looks_like_auth_ok_but_model_down(sections):
+            return {
+                "deepseek_judgement": None,
+                "overall_conclusion": (
+                    "综合判定：匿名调用返回401（网关可达且鉴权生效），但带Token的模型调用全部503/失败。"
+                    "更像是该Token对当前宣称模型未开通/分组不匹配/配额不足/上游熔断，而不是Token本身完全失效。"
+                    "建议用 /v1/models 验证模型是否在该Token可见列表中，并改用列表里精确模型ID重试。"
+                ),
+                "risk_warnings": ["模型路由/配额/分组异常会导致大面积503，需在中转后台确认该Token的可用模型与分组。"],
+                "usage_suggestions": ["宣称模型与非宣称模型都建议从该Token的 /v1/models 返回列表里选择精确ID。"],
+            }
         judge_prompt = [
             {
                 "role": "system",
@@ -135,6 +296,110 @@ def _normalize_section(section: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _wrap_agent_output(
+    *,
+    agent_name: str,
+    audit_time: str,
+    token_id: int | None,
+    audit_dimension: str,
+    status: str,
+    result: Any,
+    error_msg: str,
+) -> dict[str, Any]:
+    return {
+        "agent_name": agent_name,
+        "audit_time": audit_time,
+        "token_id": token_id,
+        "audit_dimension": audit_dimension,
+        "status": status,
+        "result": result,
+        "error_msg": error_msg,
+    }
+
+
+def _looks_like_model_unavailable(sections: dict[str, Any]) -> bool:
+    if not isinstance(sections, dict) or not sections:
+        return False
+
+    all_codes: list[int] = []
+    for s in sections.values():
+        if not isinstance(s, dict):
+            continue
+        tests = s.get("tests")
+        all_codes.extend(_collect_status_codes(tests))
+
+    if not all_codes:
+        return False
+    return all(c in (0, 503) for c in all_codes)
+
+
+def _looks_like_auth_ok_but_model_down(sections: dict[str, Any]) -> bool:
+    codes_by_scenario: dict[str, list[int]] = {}
+    any_anonymous_401 = False
+    any_authed_codes: list[int] = []
+
+    for s in sections.values():
+        if not isinstance(s, dict):
+            continue
+        tests = s.get("tests")
+        for item in _iter_test_items(tests):
+            if not isinstance(item, dict):
+                continue
+            code = item.get("status_code")
+            if not isinstance(code, int):
+                continue
+            scenario = item.get("scenario") if isinstance(item.get("scenario"), str) else ""
+            if scenario:
+                codes_by_scenario.setdefault(scenario, []).append(code)
+            if scenario == "anonymous_call" and code == 401:
+                any_anonymous_401 = True
+            if scenario != "anonymous_call":
+                any_authed_codes.append(code)
+
+    if not any_anonymous_401 or not any_authed_codes:
+        return False
+    return all(c in (0, 503) for c in any_authed_codes)
+
+
+def _iter_test_items(tests: Any) -> list[Any]:
+    if isinstance(tests, list):
+        return tests
+    if isinstance(tests, dict):
+        items: list[Any] = []
+        for v in tests.values():
+            if isinstance(v, list):
+                items.extend(v)
+            else:
+                items.append(v)
+        calls = tests.get("calls")
+        if isinstance(calls, list):
+            items.extend(calls)
+        return items
+    return []
+
+
+def _collect_status_codes(tests: Any) -> list[int]:
+    codes: list[int] = []
+    if isinstance(tests, list):
+        for t in tests:
+            if isinstance(t, dict) and isinstance(t.get("status_code"), int):
+                codes.append(t["status_code"])
+    elif isinstance(tests, dict):
+        for v in tests.values():
+            if isinstance(v, dict) and isinstance(v.get("status_code"), int):
+                codes.append(v["status_code"])
+            if isinstance(v, list):
+                for it in v:
+                    if isinstance(it, dict) and isinstance(it.get("status_code"), int):
+                        codes.append(it["status_code"])
+        calls = tests.get("calls") if isinstance(tests.get("calls"), list) else None
+        if isinstance(calls, list):
+            for c in calls:
+                if isinstance(c, dict) and isinstance(c.get("status_code"), int):
+                    codes.append(c["status_code"])
+    return codes
+
+
 def _extract_deepseek_content(data: Any) -> str:
     if isinstance(data, dict):
         choices = data.get("choices")
@@ -167,11 +432,12 @@ def build_report_markdown(
     front_url = inp.front_end_url or ""
     back_url = inp.back_end_url or ""
 
-    v = sections["validity"]
-    p = sections["permission"]
-    w = sections["watering"]
-    c = sections["compliance"]
-    s = sections["stability"]
+    v = sections.get("validity") or {}
+    p = sections.get("permission") or {}
+    w = sections.get("watering") or {}
+    c = sections.get("compliance") or {}
+    s = sections.get("stability") or {}
+    sec = sections.get("security") or {}
 
     md = f"""# TokenAudit 完整审计报告（含前后端+多Agent架构关联）
 ## 1. 审计基础信息
@@ -237,6 +503,11 @@ def build_report_markdown(
 - DeepSeek判定结果：{s.get("deepseek_judgement")}
 - 审计结论：{s.get("conclusion")}
 - 证据说明：{s.get("evidence")}
+
+### 2.6 Token安全审计
+- 执行Agent：{sec.get("agent")}
+- 审计结论：{sec.get("conclusion")}
+- 证据说明：{sec.get("evidence")}
 
 ## 3. 架构关联说明（贴合前后端+多Agent实现）
 ### 3.1 审计流程与架构联动

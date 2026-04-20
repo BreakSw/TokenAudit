@@ -1,0 +1,4 @@
+{
+  "known_modules": ["chat", "completion", "embedding", "image", "audio"],
+  "illegal_permissions": ["admin", "root"]
+}

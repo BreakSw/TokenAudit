@@ -34,7 +34,7 @@ def export_excel(*, report: dict[str, Any], out_dir: str, basename: str) -> str 
 
     rows: list[dict[str, Any]] = []
     base = report.get("base_info") or {}
-    for section_key in ["validity", "permission", "watering", "compliance", "stability"]:
+    for section_key in ["validity", "permission", "watering", "compliance", "stability", "security"]:
         section = report.get("sections", {}).get(section_key) or {}
         rows.append(
             {

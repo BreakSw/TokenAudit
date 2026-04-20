@@ -40,7 +40,14 @@ class ComplianceStabilityAgent:
         )
         log_event(
             "token_call_end",
-            {"phase": "compliance", "scenario": "token_leak_check", "status_code": resp["status_code"], "elapsed_ms": resp["elapsed_ms"]},
+            {
+                "phase": "compliance",
+                "scenario": "token_leak_check",
+                "status_code": resp["status_code"],
+                "elapsed_ms": resp["elapsed_ms"],
+                "endpoint": resp.get("endpoint"),
+                "url": resp.get("url"),
+            },
         )
         content_preview = _preview(resp, limit=800)
         leak_found = inp.audited_token in content_preview if inp.audited_token else False
@@ -55,7 +62,14 @@ class ComplianceStabilityAgent:
         )
         log_event(
             "token_call_end",
-            {"phase": "compliance", "scenario": "anonymous_call", "status_code": anon["status_code"], "elapsed_ms": anon["elapsed_ms"]},
+            {
+                "phase": "compliance",
+                "scenario": "anonymous_call",
+                "status_code": anon["status_code"],
+                "elapsed_ms": anon["elapsed_ms"],
+                "endpoint": anon.get("endpoint"),
+                "url": anon.get("url"),
+            },
         )
 
         freq_results: list[dict[str, Any]] = []
@@ -70,7 +84,15 @@ class ComplianceStabilityAgent:
             )
             log_event(
                 "token_call_end",
-                {"phase": "compliance", "scenario": "high_frequency_calls", "index": i, "status_code": r["status_code"], "elapsed_ms": r["elapsed_ms"]},
+                {
+                    "phase": "compliance",
+                    "scenario": "high_frequency_calls",
+                    "index": i,
+                    "status_code": r["status_code"],
+                    "elapsed_ms": r["elapsed_ms"],
+                    "endpoint": r.get("endpoint"),
+                    "url": r.get("url"),
+                },
             )
             freq_results.append(
                 {
@@ -83,10 +105,30 @@ class ComplianceStabilityAgent:
             time.sleep(0.2)
 
         tests = {
-            "token_leak_check": {"leak_found": leak_found, "response_preview": content_preview[:240]},
+            "token_leak_check": {"status_code": resp["status_code"], "ok": resp["ok"], "leak_found": leak_found, "response_preview": content_preview[:240]},
             "anonymous_call": {"status_code": anon["status_code"], "ok": anon["ok"]},
             "high_frequency_calls": freq_results,
         }
+
+        if resp["status_code"] in (0, 503) and all(r.get("status_code") in (0, 503) for r in freq_results):
+            judge_obj = {
+                "deepseek_compliance": "无法判断",
+                "conclusion": "模型不可用",
+                "evidence": {
+                    "reason": "all_calls_failed",
+                    "hint": "通常为模型名不支持/未开通，或中转站当前服务不可用",
+                    "claimed_model": inp.claimed_model,
+                    "status_codes": [resp["status_code"]] + [r.get("status_code") for r in freq_results],
+                },
+            }
+            log_event("phase_end", {"phase": "compliance", "agent": self.name})
+            return {
+                "agent": self.name,
+                "tests": tests,
+                "deepseek_judgement": judge_obj,
+                "conclusion": judge_obj["conclusion"],
+                "evidence": judge_obj["evidence"],
+            }
 
         judge_prompt = _build_deepseek_prompt_compliance(tests)
         log_event("deepseek_call_start", {"phase": "compliance", "model": config.deepseek_model})
@@ -123,7 +165,14 @@ class ComplianceStabilityAgent:
             )
             log_event(
                 "token_call_end",
-                {"phase": "stability", "index": i + 1, "status_code": resp["status_code"], "elapsed_ms": resp["elapsed_ms"]},
+                {
+                    "phase": "stability",
+                    "index": i + 1,
+                    "status_code": resp["status_code"],
+                    "elapsed_ms": resp["elapsed_ms"],
+                    "endpoint": resp.get("endpoint"),
+                "url": resp.get("url"),
+                },
             )
             c = _preview(resp, limit=2000)
             contents.append(c)
@@ -133,12 +182,34 @@ class ComplianceStabilityAgent:
                     "status_code": resp["status_code"],
                     "ok": resp["ok"],
                     "elapsed_ms": resp["elapsed_ms"],
+                    "endpoint": resp.get("endpoint"),
+                    "url": resp.get("url"),
                     "content_preview": c[:240],
                 }
             )
 
         similarity = _avg_similarity(contents)
         tests = {"calls": calls, "avg_similarity": similarity}
+
+        if calls and all(c.get("status_code") in (0, 503) for c in calls):
+            judge_obj = {
+                "deepseek_stability": "无法判断",
+                "conclusion": "模型不可用",
+                "evidence": {
+                    "reason": "all_calls_failed",
+                    "hint": "通常为模型名不支持/未开通，或中转站当前服务不可用",
+                    "claimed_model": inp.claimed_model,
+                    "status_codes": [c.get("status_code") for c in calls],
+                },
+            }
+            log_event("phase_end", {"phase": "stability", "agent": self.name})
+            return {
+                "agent": self.name,
+                "tests": tests,
+                "deepseek_judgement": judge_obj,
+                "conclusion": judge_obj["conclusion"],
+                "evidence": judge_obj["evidence"],
+            }
 
         judge_prompt = _build_deepseek_prompt_stability(tests)
         log_event("deepseek_call_start", {"phase": "stability", "model": config.deepseek_model})
@@ -173,6 +244,13 @@ def _avg_similarity(texts: list[str]) -> float:
 def _preview(resp: dict[str, Any], limit: int = 240) -> str:
     data = resp.get("response") or {}
     if isinstance(data, dict):
+        err = data.get("error")
+        if isinstance(err, dict) and isinstance(err.get("message"), str) and err.get("message"):
+            return err["message"][:limit]
+        if isinstance(err, str) and err:
+            return err[:limit]
+        if isinstance(data.get("message"), str) and data.get("message"):
+            return data["message"][:limit]
         choices = data.get("choices")
         if isinstance(choices, list) and choices:
             msg = choices[0].get("message") if isinstance(choices[0], dict) else None

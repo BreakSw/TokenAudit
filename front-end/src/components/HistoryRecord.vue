@@ -70,22 +70,4 @@ onMounted(reload)
 </script>
 
 <style scoped>
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.card-title {
-  font-weight: 900;
-  color: rgba(15, 23, 42, 0.92);
-  line-height: 18px;
-}
-
-.card-subtitle {
-  margin-top: 6px;
-  font-size: 12px;
-  color: rgba(15, 23, 42, 0.62);
-}
 </style>

@@ -45,10 +45,32 @@
             <el-input v-model="form.tokenBaseUrl" placeholder="例如：https://xxx.com" />
           </el-form-item>
           <el-form-item label="宣称模型">
-            <el-input v-model="form.claimedModel" placeholder="例如：gpt-4o" />
+            <el-select
+              v-model="form.claimedModel"
+              filterable
+              allow-create
+              default-first-option
+              placeholder="请选择或输入宣称模型"
+              style="width: 100%"
+            >
+              <el-option-group v-for="g in claimedModelGroups" :key="g.label" :label="g.label">
+                <el-option v-for="m in g.options" :key="m" :label="m" :value="m" />
+              </el-option-group>
+            </el-select>
           </el-form-item>
           <el-form-item label="非宣称模型">
-            <el-input v-model="form.nonClaimedModel" placeholder="例如：gpt-4o-mini" />
+            <el-select
+              v-model="form.nonClaimedModel"
+              filterable
+              allow-create
+              default-first-option
+              placeholder="请选择或输入非宣称模型（越权测试用）"
+              style="width: 100%"
+            >
+              <el-option-group v-for="g in nonClaimedModelGroups" :key="g.label" :label="g.label">
+                <el-option v-for="m in g.options" :key="m" :label="m" :value="m" />
+              </el-option-group>
+            </el-select>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" :loading="saving" @click="save">保存</el-button>
@@ -100,6 +122,21 @@ const tokens = ref([])
 const loading = ref(false)
 const saving = ref(false)
 const openGuide = ref(["guide"])
+
+const claimedModelGroups = [
+  { label: "OpenAI", options: ["gpt-5.4", "gpt-5.3", "gpt-5.2", "o1", "o1-mini", "gpt-4o", "gpt-4o-mini"] },
+  { label: "Anthropic", options: ["claude-opus-4.6", "claude-opus-4-6", "claude-sonnet-4", "claude-3-5-sonnet", "claude-3-opus", "claude-3-sonnet", "claude-3-haiku"] },
+  { label: "Google", options: ["gemini-1.5-pro", "gemini-1.5-flash"] },
+  { label: "Mistral", options: ["mistral-large-latest", "mistral-small-latest", "codestral-latest"] },
+  { label: "Meta", options: ["llama-3.1-405b-instruct", "llama-3.1-70b-instruct", "llama-3.1-8b-instruct"] },
+  { label: "Cohere", options: ["command-r-plus", "command-r"] },
+  { label: "xAI", options: ["grok-2"] }
+]
+
+const nonClaimedModelGroups = [
+  { label: "轻量快速", options: ["gpt-4o-mini", "claude-3-haiku", "gemini-1.5-flash", "mistral-small-latest"] },
+  { label: "强力对照", options: ["o1", "gpt-4o", "claude-3-5-sonnet", "gemini-1.5-pro", "mistral-large-latest"] }
+]
 
 const form = reactive({
   name: "",

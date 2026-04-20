@@ -18,7 +18,7 @@ class AuditConfig:
 def load_config() -> AuditConfig:
     deepseek_base_url = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1/chat/completions")
     deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
-    deepseek_model = os.getenv("DEEPSEEK_MODEL", "deepseek-v2")
+    deepseek_model = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
     deepseek_temperature = float(os.getenv("DEEPSEEK_TEMPERATURE", "0.2"))
     deepseek_max_tokens = int(os.getenv("DEEPSEEK_MAX_TOKENS", "2048"))
     request_timeout_s = float(os.getenv("AUDIT_REQUEST_TIMEOUT_S", "60"))

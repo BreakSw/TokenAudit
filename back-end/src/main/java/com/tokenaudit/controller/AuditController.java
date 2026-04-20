@@ -20,7 +20,7 @@ public class AuditController {
 
     @PostMapping
     public AuditResponse start(@Valid @RequestBody AuditStartRequest req) {
-        return auditService.startAudit(req.getTokenId(), req.getExportFormats());
+        return auditService.startAudit(req.getTokenId(), req.getExportFormats(), req.getAuditDimensions());
     }
 
     @GetMapping("/{id}")
