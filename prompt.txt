@@ -1,7 +1,7 @@
 ### 一、审计基础信息（固定+需补充）
 #### （一）固定审计配置
 - 审计基座模型：DeepSeek（优先使用DeepSeek-V2，兼顾效率与精准度）
-- DeepSeek API Key：sk-57ebd3837be44196a1abf1ec9766a7b3
+- DeepSeek API Key：
 - 审计架构技术栈：
   1.  前端：Vue3 + Element-Plus（负责审计参数录入、报告可视化、Token管理）
   2.  后端：SpringBoot（负责接口封装、Token校验、数据持久化、多Agent调度）
