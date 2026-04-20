@@ -1,0 +1,23 @@
+server:
+  port: 8086
+
+spring:
+  config:
+    import: optional:file:../.env.example[.properties],optional:file:../.env[.properties]
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:../data/database/token_audit.db
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+
+app:
+  apiKey: ${BACKEND_API_KEY:}
+  pythonExecutable: ${PYTHON_EXECUTABLE:python}
+  auditCoreWorkingDir: ${AUDIT_CORE_WORKDIR:../audit-core}
+  auditExportFormats: ${AUDIT_EXPORT_FORMATS:json,md,xlsx}

@@ -1,0 +1,354 @@
+### 一、审计基础信息（固定+需补充）
+#### （一）固定审计配置
+- 审计基座模型：DeepSeek（优先使用DeepSeek-V2，兼顾效率与精准度）
+- DeepSeek API Key：sk-57ebd3837be44196a1abf1ec9766a7b3
+- 审计架构技术栈：
+  1.  前端：Vue3 + Element-Plus（负责审计参数录入、报告可视化、Token管理）
+  2.  后端：SpringBoot（负责接口封装、Token校验、数据持久化、多Agent调度）
+  3.  审计核心：Python（多Agent开发、API调用脚本、特征比对逻辑）
+  4.  协同框架：LangGraph（多Agent任务调度、流程编排）
+
+#### （二）需用户补充信息
+- 待审计Token：{{填写待审计的API Token}}
+- 对应中转平台：{{填写中转平台名称}}
+- 宣称模型：{{填写该Token对应的宣称大模型全称}}
+- 审计时间：{{自动生成当前时间，格式：YYYY-MM-DD HH:MM:SS}}
+- 前端部署地址（可选）：{{填写Vue前端部署地址，如本地调试则填localhost:8080}}
+- 后端服务地址（可选）：{{填写SpringBoot后端部署地址，如本地调试则填localhost:8081}}
+- 审计数据存储地址（可选）：{{填写数据库地址，如SQLite本地路径、MySQL地址}}
+
+### 二、TokenAudit 完整架构设计（前后端+多Agent）
+#### （一）整体架构流程图
+1.  前端层（Vue3 + Element-Plus）：用户录入待审计Token、中转平台、宣称模型等参数，发起审计请求，展示审计报告、Token管理列表、历史审计记录，支持报告导出（PDF/Excel）。
+2.  后端层（SpringBoot）：接收前端请求，封装DeepSeek API调用接口、待审计Token调用接口，实现多Agent调度、数据持久化（存储审计记录、Token信息、报告数据），提供权限控制（避免审计接口滥用）。
+3.  审计核心层（Python + 多Agent + LangGraph）：由5个专用审计Agent组成，通过LangGraph实现任务调度，依托DeepSeek API Key调用DeepSeek模型完成特征比对、逻辑判定，输出审计原始数据。
+4.  数据层：存储审计基础信息、分维度测试记录、综合审计报告、Token生命周期数据，支持历史查询、数据统计。
+
+#### （二）多Agent分工（基于Python + LangGraph实现，依托DeepSeek基座）
+1.  调度Agent（Orchestrator Agent）：核心调度节点，接收后端请求，分配任务给其他审计Agent，汇总各Agent审计结果，提交给DeepSeek模型进行综合判定，确保审计流程有序执行（不可遗漏任何审计项）。
+2.  有效性审计Agent（ValidityAgent）：调用待审计Token对应的中转API，执行3次不同指令调用，记录响应状态码、响应时间，依托DeepSeek模型判断Token有效性、过期状态、封禁情况，输出原始测试数据。
+3.  权限审计Agent（PermissionAgent）：检测待审计Token的调用权限范围，测试“宣称模型调用”“非宣称模型调用”“匿名调用”三种场景，结合DeepSeek模型的逻辑推理能力，判定权限是否正常、是否存在越界/不足。
+4.  掺水审计Agent（WateringAgent）：调用待审计Token获取模型响应，提取响应特征（格式、推理能力、知识截止日期等），与DeepSeek模型中存储的“宣称模型原生特征库”进行比对，判定是否存在掺水、降级、套皮行为。
+5.  合规性与稳定性审计Agent（ComplianceStabilityAgent）：检测Token泄露风险、复用性、调用频率，执行5次同一指令调用测试稳定性，依托DeepSeek模型分析测试数据，输出合规性、稳定性判定结果。
+
+#### （三）核心技术实现要点
+1.  前端（Vue3 + Element-Plus）：
+    - 页面设计：审计参数录入页、审计报告展示页、Token管理页、历史记录页。
+    - 核心功能：参数校验、请求提交、报告可视化、数据导出、异常提示。
+    - 接口对接：与SpringBoot后端对接，调用审计发起接口、报告查询接口、Token管理接口。
+2.  后端（SpringBoot）：
+    - 接口设计：审计发起接口（POST）、报告查询接口（GET）、Token新增/删除/查询接口（CRUD）、多Agent调度接口。
+    - 数据持久化：使用MySQL/SQLite存储审计数据，设计表结构（审计记录表、Token信息表、报告表）。
+    - 权限控制：通过接口签名、Token校验，限制审计接口调用权限，避免非法使用。
+3.  Python核心（多Agent + 脚本）：
+    - Agent开发：每个审计Agent封装独立逻辑，通过LangGraph实现协同调度，调用DeepSeek API（使用指定API Key）完成特征比对、逻辑判定。
+    - 脚本开发：API调用脚本（调用待审计Token、DeepSeek API）、特征提取脚本、报告生成脚本。
+    - 依赖包：langgraph、requests、pandas（数据处理）、PyPDF2（报告导出）。
+4.  DeepSeek基座调用规范：
+    - 调用地址：https://api.deepseek.com/v1/chat/completions
+    - API Key：sk-57ebd3837be44196a1abf1ec9766a7b3
+    - 调用参数：model="deepseek-v2"，temperature=0.2（保证审计判定严谨性），max_tokens=2048。
+    - 核心用途：特征比对、逻辑推理、审计结论综合判定、异常数据校验。
+
+#### （四）完整项目结构框架（含所有所需文件，按模块分类）
+```
+TokenAudit/  # 项目根目录
+├─ front-end/  # 前端模块（Vue3 + Element-Plus）
+│  ├─ public/  # 静态资源目录
+│  │  ├─ index.html  # 前端入口页面
+│  │  └─ favicon.ico  # 网站图标
+│  ├─ src/  # 核心源码目录
+│  │  ├─ assets/  # 静态资源（css、images、icon）
+│  │  ├─ components/  # 公共组件（按钮、表单、弹窗等）
+│  │  │  ├─ AuditForm.vue  # 审计参数录入表单组件
+│  │  │  ├─ ReportView.vue  # 审计报告展示组件
+│  │  │  ├─ TokenManager.vue  # Token管理组件
+│  │  │  └─ HistoryRecord.vue  # 历史审计记录组件
+│  │  ├─ views/  # 页面视图
+│  │  │  ├─ HomeView.vue  # 首页（审计入口）
+│  │  │  ├─ AuditPage.vue  # 审计参数录入页
+│  │  │  ├─ ReportPage.vue  # 审计报告展示页
+│  │  │  ├─ TokenPage.vue  # Token管理页
+│  │  │  └─ HistoryPage.vue  # 历史记录页
+│  │  ├─ router/  # 路由配置
+│  │  │  └─ index.js  # 路由规则配置
+│  │  ├─ request/  # 接口请求封装
+│  │  │  └─ api.js  # 后端接口调用封装（审计、Token、报告相关）
+│  │  ├─ store/  # 状态管理（可选）
+│  │  │  └─ index.js  # 全局状态管理
+│  │  ├─ utils/  # 工具函数
+│  │  │  ├─ format.js  # 数据格式化（时间、报告导出格式）
+│  │  │  └─ validate.js  # 参数校验（Token格式、API地址校验）
+│  │  ├─ App.vue  # 根组件
+│  │  └─ main.js  # 入口文件（初始化Vue、Element-Plus）
+│  ├─ .env.development  # 开发环境配置（后端接口地址等）
+│  ├─ .env.production  # 生产环境配置
+│  ├─ package.json  # 依赖包配置
+│  ├─ vite.config.js  # 构建配置（Vite）
+│  └─ README.md  # 前端模块说明文档
+
+├─ back-end/  # 后端模块（SpringBoot）
+│  ├─ src/
+│  │  ├─ main/
+│  │  │  ├─ java/com/tokenaudit/
+│  │  │  │  ├─ TokenAuditApplication.java  # 后端入口类
+│  │  │  │  ├─ config/  # 配置类
+│  │  │  │  │  ├─ DeepSeekConfig.java  # DeepSeek API配置（API Key、调用地址）
+│  │  │  │  │  ├─ MyBatisConfig.java  # 数据库配置
+│  │  │  │  │  ├─ WebConfig.java  # 跨域配置
+│  │  │  │  │  └─ SecurityConfig.java  # 权限控制配置
+│  │  │  │  ├─ controller/  # 接口控制器
+│  │  │  │  │  ├─ AuditController.java  # 审计相关接口（发起审计、查询报告）
+│  │  │  │  │  ├─ TokenController.java  # Token管理接口（CRUD）
+│  │  │  │  │  └─ AgentController.java  # 多Agent调度接口
+│  │  │  │  ├─ service/  # 业务逻辑层
+│  │  │  │  │  ├─ AuditService.java  # 审计业务逻辑
+│  │  │  │  │  ├─ TokenService.java  # Token管理业务逻辑
+│  │  │  │  │  ├─ AgentService.java  # 多Agent调度业务逻辑
+│  │  │  │  │  └─ impl/  # 业务逻辑实现类
+│  │  │  │  ├─ mapper/  # 数据访问层（MyBatis）
+│  │  │  │  │  ├─ AuditRecordMapper.java  # 审计记录Mapper
+│  │  │  │  │  ├─ TokenInfoMapper.java  # Token信息Mapper
+│  │  │  │  │  └─ ReportMapper.java  # 审计报告Mapper
+│  │  │  │  ├─ entity/  # 实体类
+│  │  │  │  │  ├─ AuditRecord.java  # 审计记录表实体
+│  │  │  │  │  ├─ TokenInfo.java  # Token信息实体
+│  │  │  │  │  └─ Report.java  # 审计报告实体
+│  │  │  │  ├─ dto/  # 数据传输对象
+│  │  │  │  │  ├─ AuditRequestDTO.java  # 审计请求参数DTO
+│  │  │  │  │  ├─ AuditResponseDTO.java  # 审计响应结果DTO
+│  │  │  │  │  └─ TokenDTO.java  # Token传输DTO
+│  │  │  │  ├─ exception/  # 异常处理
+│  │  │  │  │  ├─ GlobalExceptionHandler.java  # 全局异常处理器
+│  │  │  │  │  ├─ ApiException.java  # 自定义API异常
+│  │  │  │  │  └─ TokenException.java  # Token相关异常
+│  │  │  │  └─ util/  # 工具类
+│  │  │  │     ├─ HttpUtil.java  # HTTP请求工具（调用DeepSeek API、待审计Token API）
+│  │  │  │     ├─ JsonUtil.java  # JSON解析工具
+│  │  │  │     └─ DateUtil.java  # 时间格式化工具
+│  │  │  └─ resources/
+│  │  │     ├─ application.yml  # 后端核心配置（数据库、端口、DeepSeek API等）
+│  │  │     ├─ application-dev.yml  # 开发环境配置
+│  │  │     ├─ application-prod.yml  # 生产环境配置
+│  │  │     └─ mybatis/  # MyBatis配置
+│  │  │        └─ mapper/  # Mapper.xml文件
+│  │  └─ test/  # 测试类目录
+│  ├─ pom.xml  # 依赖管理
+│  └─ README.md  # 后端模块说明文档
+
+├─ audit-core/  # 审计核心模块（Python + 多Agent + LangGraph）
+│  ├─ agents/  # 多Agent实现目录
+│  │  ├─ __init__.py
+│  │  ├─ orchestrator_agent.py  # 调度Agent
+│  │  ├─ validity_agent.py  # 有效性审计Agent
+│  │  ├─ permission_agent.py  # 权限审计Agent
+│  │  ├─ watering_agent.py  # 掺水审计Agent
+│  │  └─ compliance_stability_agent.py  # 合规性与稳定性审计Agent
+│  ├─ scripts/  # 核心脚本目录
+│  │  ├─ __init__.py
+│  │  ├─ deepseek_api.py  # DeepSeek API调用脚本（含指定API Key配置）
+│  │  ├─ token_api.py  # 待审计Token API调用脚本
+│  │  ├─ feature_extract.py  # 模型响应特征提取脚本
+│  │  ├─ report_generate.py  # 审计报告生成脚本（支持PDF/Excel导出）
+│  │  └─ langgraph_schedule.py  # LangGraph多Agent调度脚本
+│  ├─ config/  # 配置目录
+│  │  ├─ __init__.py
+│  │  └─ config.py  # 核心配置（DeepSeek调用参数、API地址、Agent配置）
+│  ├─ utils/  # 工具函数目录
+│  │  ├─ __init__.py
+│  │  ├─ data_process.py  # 审计数据处理工具
+│  │  └─ log_util.py  # 日志工具（记录审计过程）
+│  ├─ requirements.txt  # Python依赖包清单（langgraph、requests等）
+│  └─ README.md  # 审计核心模块说明文档
+
+├─ data/  # 数据存储目录
+│  ├─ database/  # 数据库文件（SQLite）
+│  │  └─ token_audit.db  # SQLite数据库文件（若使用MySQL则无需此文件）
+│  └─ report/  # 审计报告存储目录（PDF/Excel格式）
+
+├─ docs/  # 文档目录
+│  ├─ 架构设计文档.md  # 项目整体架构设计说明
+│  ├─ 审计流程说明.md  # 审计执行流程详细说明
+│  ├─ 部署文档.md  # 前后端、多Agent部署步骤
+│  └─ 常见问题排查.md  # 项目部署、审计过程中常见问题及解决方案
+
+└─ README.md  # 项目整体说明文档（项目介绍、部署步骤、使用说明）
+```
+#### （五）关键文件说明（核心必选文件，避免遗漏）
+1.  前端核心必选文件：
+    - src/views/AuditPage.vue（审计参数录入页，核心交互页面）
+    - src/request/api.js（后端接口封装，确保前后端通信）
+    - src/utils/validate.js（参数校验，避免非法参数提交）
+    - package.json（依赖配置，确保Element-Plus、axios等依赖安装）
+2.  后端核心必选文件：
+    - TokenAuditApplication.java（后端入口，启动服务）
+    - application.yml（核心配置，数据库、DeepSeek API、端口配置）
+    - controller/AuditController.java（审计接口，接收前端请求）
+    - service/impl/AuditServiceImpl.java（审计业务逻辑实现）
+    - entity/AuditRecord.java、TokenInfo.java、Report.java（核心实体类，对应数据库表）
+3.  审计核心（Python）必选文件：
+    - agents/下所有Agent文件（5个专用Agent，确保审计任务执行）
+    - scripts/deepseek_api.py（DeepSeek API调用，含指定API Key配置）
+    - scripts/token_api.py（待审计Token API调用，核心审计脚本）
+    - config/config.py（核心配置，关联DeepSeek调用参数）
+    - requirements.txt（依赖包清单，确保langgraph、requests等安装）
+4.  数据与文档必选文件：
+    - data/database/token_audit.db（SQLite数据库，存储审计数据，若用MySQL可替换为数据库配置）
+    - docs/部署文档.md（确保项目可正常部署）
+    - README.md（项目整体说明，方便团队协作）
+
+### 三、核心审计任务（必须全部执行，不可遗漏，依托架构落地）
+1.  Token有效性审计（由有效性审计Agent执行，DeepSeek辅助判定）：
+    - 测试逻辑：通过Python脚本调用待审计Token对应的中转API，执行3次不同指令（基础指令、代码指令、长文本指令），记录每次调用的响应状态码、响应时间、响应内容。
+    - 辅助判定：将测试记录提交给DeepSeek模型，由DeepSeek结合状态码、响应信息，判定Token是否有效、是否过期、是否被封禁。
+2.  Token权限审计（由权限审计Agent执行，DeepSeek辅助判定）：
+    - 测试逻辑：分别调用“宣称模型”“非宣称模型”，尝试匿名调用（不携带Token），记录调用结果。
+    - 辅助判定：DeepSeek模型根据测试结果，判定权限是否与宣称一致，是否存在越界、不足、匿名权限异常。
+3.  Token掺水检测关联审计（由掺水审计Agent执行，DeepSeek核心判定）：
+    - 测试逻辑：调用待审计Token获取模型响应，提取响应特征（格式、推理能力、知识截止日期、输出风格），与DeepSeek模型中存储的“宣称模型原生特征库”比对。
+    - 核心判定：DeepSeek模型分析特征差异，判定是否存在“高价Token对应低价模型”“掺水调用”“混合模型调用”等异常。
+4.  Token使用合规性审计（由合规性与稳定性审计Agent执行，DeepSeek辅助判定）：
+    - 测试逻辑：检测API响应中是否包含待审计Token本身，测试多设备复用Token是否成功，短时间内高频调用（10次/分钟）观察是否异常。
+    - 辅助判定：DeepSeek模型根据测试结果，判定Token使用是否合规，是否存在泄露、非法复用风险。
+5.  Token稳定性审计（由合规性与稳定性审计Agent执行，DeepSeek辅助判定）：
+    - 测试逻辑：连续5次调用同一指令（如“请输出当前模型名称”），记录每次响应时间、响应结果、是否报错。
+    - 辅助判定：DeepSeek模型分析响应时间波动、输出一致性、报错频率，判定Token对应的API服务是否稳定。
+
+### 四、审计判定标准（结合DeepSeek判定结果，精准可落地）
+#### （一）Token有效性判定
+- 有效：3次调用均成功（状态码200），响应时间正常（≤3s），无过期、封禁提示，DeepSeek判定为有效；
+- 无效：调用失败（状态码401/403/500等），提示Token过期、无效或封禁，DeepSeek判定为无效；
+- 异常：部分调用成功，部分失败，响应时间波动极大（＞5s），DeepSeek判定为异常。
+
+#### （二）Token权限判定
+- 权限正常：调用权限与宣称一致，无越界、无不足，DeepSeek判定为权限正常；
+- 权限异常：权限越界（可调用未宣称模型）、权限不足（无法调用宣称模型），DeepSeek判定为权限异常；
+- 匿名权限异常：无需Token即可调用，或Token无校验机制，DeepSeek判定为匿名权限异常。
+
+#### （三）Token掺水关联判定
+- 无掺水：Token调用的实际模型与宣称模型完全匹配，响应特征、能力一致，DeepSeek判定为无掺水；
+- 疑似掺水：部分调用匹配宣称模型，部分调用为低等级模型，响应特征不稳定，DeepSeek判定为疑似掺水；
+- 确认掺水：所有调用均为低等级模型，与宣称模型差异极大，存在明显降级、套皮，DeepSeek判定为确认掺水。
+
+#### （四）合规性判定
+- 合规：无Token泄露，无非法复用，调用频率正常，DeepSeek判定为合规；
+- 不合规：响应中泄露Token、Token可被多设备复用、调用频率异常（疑似共享），DeepSeek判定为不合规。
+
+#### （五）稳定性判定
+- 稳定：5次调用均成功，响应时间波动≤1s，输出一致，无报错，DeepSeek判定为稳定；
+- 不稳定：存在1-2次报错/超时，响应时间波动＞2s，输出存在轻微差异，DeepSeek判定为不稳定；
+- 极不稳定：3次及以上报错/超时，响应时间波动＞3s，输出差异极大，DeepSeek判定为极不稳定。
+
+### 五、审计报告输出要求（严格遵循格式，不可修改，含架构关联说明）
+# TokenAudit 完整审计报告（含前后端+多Agent架构关联）
+## 1. 审计基础信息
+- 待审计Token：{{填写}}
+- 中转平台：{{填写}}
+- 宣称模型：{{填写}}
+- 审计时间：{{填写}}
+- 审计执行项：5项全维度审计
+- 审计方式：API调用测试+特征比对+多Agent协同+DeepSeek基座判定
+- 审计架构技术栈：Vue3+Element-Plus（前端）、SpringBoot（后端）、Python+LangGraph（多Agent）
+- DeepSeek API Key：sk-57ebd3837be44196a1abf1ec9766a7b3（审计基座）
+- 前端部署地址：{{填写}}
+- 后端服务地址：{{填写}}
+
+## 2. 分维度审计结果与证据（含Agent执行记录、DeepSeek判定依据）
+### 2.1 Token有效性审计
+- 执行Agent：有效性审计Agent
+- 调用测试记录（3次）：
+  1.  调用指令：{{填写测试指令1}}，响应状态码：{{填写}}，响应时间：{{填写}}，响应结果：{{简要记录}}
+  2.  调用指令：{{填写测试指令2}}，响应状态码：{{填写}}，响应时间：{{填写}}，响应结果：{{简要记录}}
+  3.  调用指令：{{填写测试指令3}}，响应状态码：{{填写}}，响应时间：{{填写}}，响应结果：{{简要记录}}
+- DeepSeek判定结果：{{填写DeepSeek给出的有效性判定}}
+- 审计结论：{{有效/无效/异常}}
+- 证据说明：{{详细说明判定依据，结合测试记录和DeepSeek判定结果，如“3次调用均返回200状态码，响应时间均在2s内，无过期提示，DeepSeek判定为有效，因此判定为有效”}}
+
+### 2.2 Token权限审计
+- 执行Agent：权限审计Agent
+- 权限测试记录：
+  1.  测试调用宣称模型：{{填写测试指令}}，结果：{{填写}}
+  2.  测试调用非宣称模型：{{填写测试指令}}，结果：{{填写}}
+  3.  匿名调用测试：{{填写测试指令}}，结果：{{填写}}
+- DeepSeek判定结果：{{填写DeepSeek给出的权限判定}}
+- 审计结论：{{权限正常/权限异常/匿名权限异常}}
+- 证据说明：{{详细说明判定依据，结合测试记录和DeepSeek判定结果，如“仅能调用宣称的GPT-5.4模型，无法调用其他模型，DeepSeek判定为权限正常，因此判定为正常”}}
+
+### 2.3 Token掺水关联审计
+- 执行Agent：掺水审计Agent
+- 掺水测试记录（结合模型检测结果）：
+  1.  模型响应特征比对：{{填写实际响应特征与宣称模型的差异/一致性}}
+  2.  多轮调用特征稳定性：{{填写是否存在特征波动，是否出现低等级模型响应}}
+  3.  DeepSeek特征比对结果：{{填写DeepSeek给出的特征比对结论}}
+- 审计结论：{{无掺水/疑似掺水/确认掺水}}
+- 证据说明：{{详细说明判定依据，结合特征比对记录和DeepSeek判定结果，如“多轮调用均符合GPT-5.4原生特征，DeepSeek判定无掺水，因此判定为无掺水”}}
+
+### 2.4 Token使用合规性审计
+- 执行Agent：合规性与稳定性审计Agent
+- 合规性测试记录：
+  1.  Token泄露检测：{{填写响应中是否包含Token，是否存在泄露风险}}
+  2.  复用性检测：{{填写多设备调用是否成功，是否存在非法复用}}
+  3.  调用频率检测：{{填写短时间内高频调用情况，是否异常}}
+- DeepSeek判定结果：{{填写DeepSeek给出的合规性判定}}
+- 审计结论：{{合规/不合规}}
+- 证据说明：{{详细说明判定依据，结合测试记录和DeepSeek判定结果，如“响应中未包含Token，多设备调用需重新验证，调用频率正常，DeepSeek判定为合规，因此判定为合规”}}
+
+### 2.5 Token稳定性审计
+- 执行Agent：合规性与稳定性审计Agent
+- 稳定性测试记录（5次同一指令调用）：
+  1.  调用1：响应时间{{填写}}，结果{{填写成功/失败}}，输出一致性{{填写}}
+  2.  调用2：响应时间{{填写}}，结果{{填写成功/失败}}，输出一致性{{填写}}
+  3.  调用3：响应时间{{填写}}，结果{{填写成功/失败}}，输出一致性{{填写}}
+  4.  调用4：响应时间{{填写}}，结果{{填写成功/失败}}，输出一致性{{填写}}
+  5.  调用5：响应时间{{填写}}，结果{{填写成功/失败}}，输出一致性{{填写}}
+- DeepSeek判定结果：{{填写DeepSeek给出的稳定性判定}}
+- 审计结论：{{稳定/不稳定/极不稳定}}
+- 证据说明：{{详细说明判定依据，结合测试记录和DeepSeek判定结果，如“5次调用均成功，响应时间波动0.5s，输出完全一致，DeepSeek判定为稳定，因此判定为稳定”}}
+
+## 3. 架构关联说明（贴合前后端+多Agent实现）
+### 3.1 审计流程与架构联动
+1.  前端发起审计请求，将待审计参数提交至SpringBoot后端；
+2.  后端调度LangGraph框架，启动多Agent协同审计流程；
+3.  各审计Agent执行对应审计任务，调用待审计Token API和DeepSeek API（使用指定Key）；
+4.  调度Agent汇总各Agent结果，提交给DeepSeek模型进行综合判定；
+5.  后端将审计结果存储至数据库，同时返回给前端，由前端可视化展示并支持导出。
+
+### 3.2 潜在架构优化建议
+- 前端：增加Token加密存储、审计进度实时展示功能，优化报告可视化效果；
+- 后端：增加接口限流、异常重试机制，优化多Agent调度效率，扩大数据存储容量；
+- 多Agent：增加Agent异常处理逻辑，优化DeepSeek API调用容错机制，提升审计效率；
+- 安全：对DeepSeek API Key、待审计Token进行加密处理，避免明文泄露。
+
+## 4. 综合审计结论
+{{明确说明该Token的整体情况，是否有效、是否合规、是否存在掺水/权限异常/稳定性问题，结合架构联动效果，给出明确、客观的综合结论，无主观臆断，同时说明DeepSeek审计基座的判定可靠性}}
+
+## 5. 风险警示与建议（含架构层面+Token使用层面）
+### 5.1 风险警示
+{{针对审计中发现的问题，明确列出风险点，如“Token存在掺水风险，实际调用模型为低等级，可能导致项目开发效率低下、成本浪费；后端接口未做限流，可能存在滥用风险；DeepSeek API Key未加密，存在泄露风险”}}
+
+### 5.2 使用建议
+1.  Token使用层面：{{结合审计结果，给出可落地的使用建议，如“建议更换Token，选择正规中转平台；定期检测Token有效性，避免使用过期/异常Token；妥善保管Token，防止泄露”}}
+2.  架构层面：{{结合架构优化建议，给出落地建议，如“前端增加Token加密存储功能，后端添加接口限流机制，多Agent增加异常处理逻辑，对DeepSeek API Key进行加密管理”}}
+3.  审计层面：{{建议定期使用本审计流程（依托DeepSeek基座+多Agent）对Token进行审计，留存审计记录，及时发现异常问题}}
+
+备注：本审计报告基于本次测试结果、多Agent协同审计及DeepSeek模型判定生成，审计证据可回溯，仅针对该Token当前状态及对应架构联动效果，不包含未来使用风险；DeepSeek API Key（sk-57ebd3837be44196a1abf1ec9766a7b3）仅用于本次审计，建议妥善保管，避免泄露。
+
+### 六、使用说明（含架构部署+审计执行）
+1.  架构部署：
+    - 前端：下载Vue3+Element-Plus项目模板，配置后端接口地址，部署至服务器或本地调试；
+    - 后端：启动SpringBoot服务，配置数据库、DeepSeek API Key，确保与前端、Python多Agent正常通信；
+    - Python多Agent：安装依赖包（langgraph、requests等），配置DeepSeek API Key、后端接口地址，启动LangGraph调度服务。
+2.  审计前准备：
+    - 补充“审计基础信息”中的待审计Token、中转平台、宣称模型等参数；
+    - 确保前端、后端、Python多Agent、DeepSeek API均能正常运行，接口通信正常；
+    - 确认DeepSeek API Key（sk-57ebd3837be44196a1abf1ec9766a7b3）有效，无调用限制。
+3.  审计执行：
+    - 前端录入参数，发起审计请求；
+    - 后端调度多Agent执行审计任务，各Agent调用DeepSeek API完成判定；
+    - 审计完成后，前端展示完整报告，可导出PDF/Excel留存。
+4.  注意事项：
+    - 审计过程中，需如实记录每一次测试的结果，确保证据真实、可回溯；
+    - 审计结论需严格对照“审计判定标准”，结合DeepSeek判定结果，不夸大、不遗漏问题；
+    - 适用于所有海外大模型中转API Token审计，可根据具体模型调整测试指令，不改变整体格式、架构和审计维度；
+    - 妥善保管DeepSeek API Key、待审计Token，避免泄露，定期更换API Key，降低安全风险；
+    - 定期维护前后端及多Agent架构，确保审计流程稳定运行，及时处理接口异常、Agent调度异常等问题。
