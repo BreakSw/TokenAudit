@@ -46,7 +46,7 @@
     - 依赖包：langgraph、requests、pandas（数据处理）、PyPDF2（报告导出）。
 4.  DeepSeek基座调用规范：
     - 调用地址：https://api.deepseek.com/v1/chat/completions
-    - API Key：sk-57ebd3837be44196a1abf1ec9766a7b3
+    - API Key：
     - 调用参数：model="deepseek-v2"，temperature=0.2（保证审计判定严谨性），max_tokens=2048。
     - 核心用途：特征比对、逻辑推理、审计结论综合判定、异常数据校验。
 
@@ -249,7 +249,7 @@ TokenAudit/  # 项目根目录
 - 审计执行项：5项全维度审计
 - 审计方式：API调用测试+特征比对+多Agent协同+DeepSeek基座判定
 - 审计架构技术栈：Vue3+Element-Plus（前端）、SpringBoot（后端）、Python+LangGraph（多Agent）
-- DeepSeek API Key：sk-57ebd3837be44196a1abf1ec9766a7b3（审计基座）
+- DeepSeek API Key：-57ebd3837be44196a1abf1ec9766a7b3（审计基座）
 - 前端部署地址：{{填写}}
 - 后端服务地址：{{填写}}
 
@@ -331,7 +331,7 @@ TokenAudit/  # 项目根目录
 2.  架构层面：{{结合架构优化建议，给出落地建议，如“前端增加Token加密存储功能，后端添加接口限流机制，多Agent增加异常处理逻辑，对DeepSeek API Key进行加密管理”}}
 3.  审计层面：{{建议定期使用本审计流程（依托DeepSeek基座+多Agent）对Token进行审计，留存审计记录，及时发现异常问题}}
 
-备注：本审计报告基于本次测试结果、多Agent协同审计及DeepSeek模型判定生成，审计证据可回溯，仅针对该Token当前状态及对应架构联动效果，不包含未来使用风险；DeepSeek API Key（sk-57ebd3837be44196a1abf1ec9766a7b3）仅用于本次审计，建议妥善保管，避免泄露。
+备注：本审计报告基于本次测试结果、多Agent协同审计及DeepSeek模型判定生成，审计证据可回溯，仅针对该Token当前状态及对应架构联动效果，不包含未来使用风险；DeepSeek API Key仅用于本次审计，建议妥善保管，避免泄露。
 
 ### 六、使用说明（含架构部署+审计执行）
 1.  架构部署：
@@ -341,7 +341,7 @@ TokenAudit/  # 项目根目录
 2.  审计前准备：
     - 补充“审计基础信息”中的待审计Token、中转平台、宣称模型等参数；
     - 确保前端、后端、Python多Agent、DeepSeek API均能正常运行，接口通信正常；
-    - 确认DeepSeek API Key（sk-57ebd3837be44196a1abf1ec9766a7b3）有效，无调用限制。
+    - 确认DeepSeek API Key有效，无调用限制。
 3.  审计执行：
     - 前端录入参数，发起审计请求；
     - 后端调度多Agent执行审计任务，各Agent调用DeepSeek API完成判定；
