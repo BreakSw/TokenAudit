@@ -1,4 +1,4 @@
-# TokenAudit
+# TokenAudit（简单的骨架）
 
 TokenAudit 是一个「Token 审计工具」示例项目：前端（Vue3 + Element Plus）负责录入 Token / 发起审计 / 展示报告与进度；后端（Spring Boot + MyBatis + SQLite）负责持久化与调度；审计核心（Python 多 Agent）负责对中转平台 Token 做 5 个维度审计，并用 DeepSeek 做判定与汇总。
 
