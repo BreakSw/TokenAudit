@@ -38,3 +38,6 @@ data/report/
 
 ## prompt
 prompt.txt
+
+## Local worktrees
+.worktrees/
