@@ -25,7 +25,10 @@
   },
   "overrides": {
     "@vue/test-utils": {
-      "js-beautify": "2.0.3"
+      "js-beautify": {
+        ".": "2.0.3",
+        "nopt": "9.0.0"
+      }
     }
   }
 }
