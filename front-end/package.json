@@ -21,6 +21,11 @@
     "@vue/test-utils": "^2.4.11",
     "jsdom": "^25.0.1",
     "vite": "^5.2.12",
-    "vitest": "^2.1.9"
+    "vitest": "^3.2.7"
+  },
+  "overrides": {
+    "@vue/test-utils": {
+      "js-beautify": "2.0.3"
+    }
   }
 }

@@ -1,5 +1,7 @@
-import { afterEach } from "vitest"
-import { config } from "@vue/test-utils"
+import { afterEach, vi } from "vitest"
+import { config, enableAutoUnmount } from "@vue/test-utils"
+
+enableAutoUnmount(afterEach)
 
 config.global.stubs = {
   transition: false,
@@ -22,6 +24,8 @@ Object.defineProperty(window, "matchMedia", {
 })
 
 afterEach(() => {
+  vi.restoreAllMocks()
+  vi.useRealTimers()
   document.body.innerHTML = ""
   localStorage.clear()
 })
