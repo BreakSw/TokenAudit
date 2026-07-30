@@ -96,3 +96,29 @@ body {
   justify-content: space-between;
   gap: 12px;
 }
+
+.reveal-block {
+  opacity: 0;
+  filter: blur(4px);
+  transform: translate3d(0, 24px, 0);
+  transition:
+    opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 500ms ease;
+  transition-delay: var(--reveal-stagger, 0ms);
+}
+
+.reveal-block.is-revealed {
+  opacity: 1;
+  filter: blur(0);
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-block {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    transition: none;
+  }
+}
