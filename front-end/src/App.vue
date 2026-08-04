@@ -23,6 +23,7 @@
           :to="item.path"
           class="nav-item"
           :class="{ 'is-active': activePath === item.path }"
+          :aria-current="activePath === item.path ? 'page' : undefined"
         >
           <span class="nav-index">{{ item.index }}</span>
           <span>{{ item.label }}</span>
@@ -61,6 +62,7 @@
           :to="item.path"
           class="mobile-nav-item"
           :class="{ 'is-active': activePath === item.path }"
+          :aria-current="activePath === item.path ? 'page' : undefined"
         >
           <span>{{ item.index }}</span>
           <span>{{ item.shortLabel }}</span>
@@ -80,6 +82,7 @@
       size="420px"
       title="控制台设置"
       :with-header="true"
+      @closed="discardSettings"
     >
       <div class="settings-wrap">
         <div>
@@ -98,8 +101,11 @@
           size="large"
           clearable
           show-password
-          @change="saveKey"
         />
+
+        <p v-if="storageError" class="settings-error" role="alert" aria-live="assertive">
+          {{ storageError }}
+        </p>
 
         <div class="settings-note">
           请求发出时会从 <span class="mono">backendApiKey</span> 读取，并写入
@@ -108,7 +114,7 @@
 
         <div class="settings-actions">
           <el-button size="large" @click="clearKey">清除</el-button>
-          <el-button size="large" @click="settingsOpen = false">关闭</el-button>
+          <el-button size="large" @click="closeSettings">关闭</el-button>
           <el-button size="large" type="primary" @click="saveKey">保存</el-button>
         </div>
       </div>
@@ -129,8 +135,9 @@ const navigation = [
 ]
 
 const route = useRoute()
-const backendApiKey = ref(localStorage.getItem("backendApiKey") || "")
+const backendApiKey = ref("")
 const settingsOpen = ref(false)
+const storageError = ref("")
 
 const isReportRoute = computed(() => route.path.startsWith("/report/"))
 const activePath = computed(() => (isReportRoute.value ? "/history" : route.path))
@@ -139,17 +146,42 @@ const currentTitle = computed(() => (isReportRoute.value ? "审计报告" : curr
 const sectionIndex = computed(() => (isReportRoute.value ? "REPORT" : currentNavigation.value?.index || "00"))
 
 function saveKey() {
-  localStorage.setItem("backendApiKey", backendApiKey.value || "")
+  storageError.value = ""
+  try {
+    if (backendApiKey.value.trim()) {
+      localStorage.setItem("backendApiKey", backendApiKey.value)
+    } else {
+      localStorage.removeItem("backendApiKey")
+    }
+  } catch {
+    storageError.value = "无法访问浏览器本地存储，设置未保存。"
+  }
 }
 
 function clearKey() {
   backendApiKey.value = ""
-  localStorage.removeItem("backendApiKey")
+  storageError.value = ""
 }
 
 function openSettings() {
-  backendApiKey.value = localStorage.getItem("backendApiKey") || ""
+  storageError.value = ""
+  try {
+    backendApiKey.value = localStorage.getItem("backendApiKey") || ""
+  } catch {
+    backendApiKey.value = ""
+    storageError.value = "无法访问浏览器本地存储，设置不会保存。"
+  }
   settingsOpen.value = true
+}
+
+function discardSettings() {
+  backendApiKey.value = ""
+  storageError.value = ""
+}
+
+function closeSettings() {
+  settingsOpen.value = false
+  discardSettings()
 }
 </script>
 
@@ -167,6 +199,7 @@ function openSettings() {
   flex-direction: column;
   box-sizing: border-box;
   padding: 22px 14px 16px;
+  overflow-y: auto;
   background: var(--ta-sidebar);
   border-right: 1px solid var(--ta-line);
 }
@@ -426,6 +459,17 @@ function openSettings() {
   line-height: 1.6;
 }
 
+.settings-error {
+  margin: 0;
+  padding: 10px 12px;
+  color: #ffaaa7;
+  background: rgba(255, 125, 121, 0.07);
+  border: 1px solid rgba(255, 125, 121, 0.2);
+  border-radius: var(--ta-radius);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
 .settings-actions {
   display: flex;
   justify-content: flex-end;
@@ -508,6 +552,11 @@ function openSettings() {
 }
 
 @media (max-width: 520px) {
+  .mobile-nav {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 22px), transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 22px), transparent);
+  }
+
   .header-eyebrow {
     display: none;
   }
