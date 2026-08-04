@@ -99,12 +99,7 @@
             <div v-else class="stage-placeholder">开始审计后，这里会显示实时进度与当前审计阶段</div>
           </div>
           <el-steps v-if="auditId" :active="activeStepIndex" align-center class="stage-steps">
-            <el-step title="有效性" />
-            <el-step title="权限" />
-            <el-step title="掺水" />
-            <el-step title="合规" />
-            <el-step title="稳定" />
-            <el-step title="综合判定" />
+            <el-step v-for="stage in AUDIT_STAGES" :key="stage.key" :title="stage.label" />
           </el-steps>
           <div class="progress-meta">
             <div>审计ID：{{ auditId || "-" }}</div>
@@ -169,6 +164,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue"
 import { useRouter } from "vue-router"
 import { ElMessage } from "element-plus"
 import { getAudit, listAuditEvents, listTokens, startAudit } from "../request/api"
+import { AUDIT_STAGES, stageIndex, stageLabel } from "../constants/auditStages"
 
 const router = useRouter()
 const tokens = ref([])
@@ -188,43 +184,25 @@ const LAST_AUDIT_ID_KEY = "lastAuditId"
 
 const displayEvents = computed(() => events.value.slice(-200))
 
-const activeStepIndex = computed(() => {
-  const p = currentStage.value
-  if (p === "validity") return 0
-  if (p === "permission") return 1
-  if (p === "watering") return 2
-  if (p === "compliance") return 3
-  if (p === "stability") return 4
-  if (p === "overall") return 5
-  return 0
+const currentStage = computed(() => {
+  const validPhases = new Set(AUDIT_STAGES.map((stage) => stage.key))
+  for (let i = events.value.length - 1; i >= 0; i -= 1) {
+    const e = events.value[i]
+    const phase = e?.payload?.phase
+    if (e?.event === "phase_start" && validPhases.has(phase)) return phase
+    if (e?.event === "deepseek_call_start" && phase === "overall") return "overall"
+  }
+  return ""
 })
+
+const activeStepIndex = computed(() => stageIndex(currentStage.value))
 
 const sideActiveStep = computed(() => {
   const idx = activeStepIndex.value
   return Math.min(idx, 4)
 })
 
-const currentStage = computed(() => {
-  const phaseOrder = new Set(["validity", "permission", "watering", "compliance", "stability", "overall"])
-  for (let i = events.value.length - 1; i >= 0; i -= 1) {
-    const e = events.value[i]
-    const phase = e?.payload?.phase
-    if (e?.event === "phase_start" && phaseOrder.has(phase)) return phase
-    if (e?.event === "deepseek_call_start" && phase === "overall") return "overall"
-  }
-  return ""
-})
-
-const currentStageLabel = computed(() => {
-  const p = currentStage.value
-  if (p === "validity") return "有效性审计"
-  if (p === "permission") return "权限审计"
-  if (p === "watering") return "掺水审计"
-  if (p === "compliance") return "合规性审计"
-  if (p === "stability") return "稳定性审计"
-  if (p === "overall") return "综合判定"
-  return "-"
-})
+const currentStageLabel = computed(() => stageLabel(currentStage.value))
 
 const statusText = computed(() => {
   if (status.value === "running") return "审计中"
