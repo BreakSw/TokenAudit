@@ -125,6 +125,7 @@
 <script setup>
 import { computed, ref } from "vue"
 import { RouterLink, useRoute } from "vue-router"
+import { readStorage, removeStorage, writeStorage } from "./utils/storage"
 
 const navigation = [
   { path: "/", label: "审计控制台", shortLabel: "控制台", index: "00" },
@@ -147,13 +148,10 @@ const sectionIndex = computed(() => (isReportRoute.value ? "REPORT" : currentNav
 
 function saveKey() {
   storageError.value = ""
-  try {
-    if (backendApiKey.value.trim()) {
-      localStorage.setItem("backendApiKey", backendApiKey.value)
-    } else {
-      localStorage.removeItem("backendApiKey")
-    }
-  } catch {
+  const result = backendApiKey.value.trim()
+    ? writeStorage("backendApiKey", backendApiKey.value)
+    : removeStorage("backendApiKey")
+  if (!result.ok) {
     storageError.value = "无法访问浏览器本地存储，设置未保存。"
   }
 }
@@ -165,10 +163,9 @@ function clearKey() {
 
 function openSettings() {
   storageError.value = ""
-  try {
-    backendApiKey.value = localStorage.getItem("backendApiKey") || ""
-  } catch {
-    backendApiKey.value = ""
+  const result = readStorage("backendApiKey")
+  backendApiKey.value = result.value || ""
+  if (!result.ok) {
     storageError.value = "无法访问浏览器本地存储，设置不会保存。"
   }
   settingsOpen.value = true

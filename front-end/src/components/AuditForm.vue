@@ -165,6 +165,7 @@ import { useRouter } from "vue-router"
 import { ElMessage } from "element-plus"
 import { getAudit, listAuditEvents, listTokens, startAudit } from "../request/api"
 import { AUDIT_STAGES, stageIndex, stageLabel } from "../constants/auditStages"
+import { readStorage, removeStorage, writeStorage } from "../utils/storage"
 
 const router = useRouter()
 const tokens = ref([])
@@ -239,7 +240,7 @@ async function reloadTokens() {
 }
 
 function loadLastAuditId() {
-  const v = localStorage.getItem(LAST_AUDIT_ID_KEY)
+  const { value: v } = readStorage(LAST_AUDIT_ID_KEY)
   if (!v) return null
   const n = Number(v)
   if (!Number.isFinite(n) || n <= 0) return null
@@ -247,11 +248,11 @@ function loadLastAuditId() {
 }
 
 function saveLastAuditId(id) {
-  localStorage.setItem(LAST_AUDIT_ID_KEY, String(id))
+  writeStorage(LAST_AUDIT_ID_KEY, String(id))
 }
 
 function clearLastAuditId() {
-  localStorage.removeItem(LAST_AUDIT_ID_KEY)
+  removeStorage(LAST_AUDIT_ID_KEY)
 }
 
 function startPolling(id) {

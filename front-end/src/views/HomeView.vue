@@ -182,9 +182,9 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 800;
-  color: rgba(37, 99, 235, 0.92);
-  background: rgba(37, 99, 235, 0.12);
-  border: 1px solid rgba(37, 99, 235, 0.18);
+  color: var(--ta-green);
+  background: transparent;
+  border: 1px solid var(--ta-line);
 }
 
 .hero-title {
@@ -236,9 +236,9 @@
 .badge {
   font-size: 12px;
   font-weight: 700;
-  color: rgba(15, 23, 42, 0.7);
-  background: rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  color: var(--ta-muted);
+  background: transparent;
+  border: 1px solid var(--ta-line);
   border-radius: 999px;
   padding: 6px 10px;
 }
@@ -297,13 +297,13 @@
 .visual-progress-label {
   font-size: 12px;
   font-weight: 800;
-  color: rgba(15, 23, 42, 0.66);
+  color: var(--ta-muted);
 }
 
 .visual-progress-value {
   font-size: 12px;
   font-weight: 900;
-  color: rgba(15, 23, 42, 0.78);
+  color: var(--ta-text);
 }
 
 .visual-phases {
@@ -316,17 +316,17 @@
 .phase {
   font-size: 12px;
   font-weight: 800;
-  color: rgba(15, 23, 42, 0.62);
-  background: rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  color: var(--ta-muted);
+  background: transparent;
+  border: 1px solid var(--ta-line);
   border-radius: 999px;
   padding: 6px 10px;
 }
 
 .phase.active {
-  color: rgba(37, 99, 235, 0.92);
-  background: rgba(37, 99, 235, 0.12);
-  border: 1px solid rgba(37, 99, 235, 0.18);
+  color: var(--ta-green);
+  background: transparent;
+  border: 1px solid var(--ta-green);
 }
 
 .visual-stats {

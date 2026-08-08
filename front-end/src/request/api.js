@@ -1,4 +1,5 @@
 import axios from "axios"
+import { readStorage } from "../utils/storage"
 
 const http = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_BASE_URL || "http://localhost:8081",
@@ -6,7 +7,7 @@ const http = axios.create({
 })
 
 http.interceptors.request.use((config) => {
-  const key = localStorage.getItem("backendApiKey")
+  const { value: key } = readStorage("backendApiKey")
   if (key) {
     config.headers["X-API-KEY"] = key
   }
