@@ -6,6 +6,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import AuditForm from "./AuditForm.vue"
 import { getAudit, listAuditEvents, listTokens, startAudit } from "../request/api"
 
+const wrappers = []
+
+function deferred() {
+  let resolve
+  let reject
+  const promise = new Promise((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise
+    reject = rejectPromise
+  })
+  return { promise, resolve, reject }
+}
+
 vi.mock("../request/api", () => ({
   getAudit: vi.fn(),
   listAuditEvents: vi.fn(),
@@ -25,7 +37,7 @@ async function mountAuditForm() {
   })
   await router.push("/audit")
   await router.isReady()
-  return mount(AuditForm, {
+  const wrapper = mount(AuditForm, {
     attachTo: document.body,
     global: {
       plugins: [router, ElementPlus],
@@ -34,6 +46,8 @@ async function mountAuditForm() {
       }
     }
   })
+  wrappers.push(wrapper)
+  return wrapper
 }
 
 function buttonWithText(wrapper, text) {
@@ -50,9 +64,173 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  wrappers.splice(0).forEach((wrapper) => wrapper.unmount())
+  vi.clearAllTimers()
+  vi.useRealTimers()
   document.body.innerHTML = ""
   vi.restoreAllMocks()
   vi.clearAllMocks()
+})
+
+describe("AuditForm polling lifecycle", () => {
+  it("coalesces consecutive refreshes for the same audit", async () => {
+    vi.useFakeTimers()
+    const auditResponse = deferred()
+    vi.mocked(getAudit).mockReturnValue(auditResponse.promise)
+    vi.mocked(startAudit).mockResolvedValue({ auditId: 42 })
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    await wrapper.get(".configuration-actions button").trigger("click")
+    await flushPromises()
+    await vi.advanceTimersByTimeAsync(2400)
+
+    expect(getAudit).toHaveBeenCalledTimes(1)
+    expect(getAudit).toHaveBeenCalledWith(42)
+
+    auditResponse.resolve({ status: "running", progress: 12 })
+    await flushPromises()
+    expect(listAuditEvents).toHaveBeenCalledTimes(1)
+    expect(listAuditEvents).toHaveBeenCalledWith(42)
+  })
+
+  it("keeps an old audit response from overwriting or stopping a newly submitted audit", async () => {
+    vi.useFakeTimers()
+    localStorage.setItem("lastAuditId", "42")
+    const oldAuditResponse = deferred()
+    vi.mocked(getAudit).mockImplementation((id) => {
+      if (id === 42) return oldAuditResponse.promise
+      return Promise.resolve({ status: "running", progress: 17 })
+    })
+    vi.mocked(listAuditEvents).mockImplementation((id) =>
+      Promise.resolve([{ ts: `2026-08-08T08:16:3${id === 42 ? 2 : 9}.123Z`, event: "audit_start", payload: { auditId: id } }])
+    )
+    vi.mocked(startAudit).mockResolvedValue({ auditId: 99 })
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    await wrapper.get(".configuration-actions button").trigger("click")
+    await flushPromises()
+
+    expect(getAudit).toHaveBeenCalledWith(42)
+    expect(getAudit).toHaveBeenCalledWith(99)
+    expect(listAuditEvents).toHaveBeenCalledWith(99)
+    expect(wrapper.text()).toContain("17%")
+
+    oldAuditResponse.resolve({ status: "completed", progress: 95 })
+    await flushPromises()
+
+    expect(listAuditEvents).toHaveBeenCalledWith(42)
+    expect(wrapper.text()).toContain("17%")
+    expect(wrapper.text()).toContain("99")
+    expect(localStorage.getItem("lastAuditId")).toBe("99")
+
+    const callsBeforeNextPoll = vi.mocked(getAudit).mock.calls.filter(([id]) => id === 99).length
+    await vi.advanceTimersByTimeAsync(1200)
+    await flushPromises()
+    expect(vi.mocked(getAudit).mock.calls.filter(([id]) => id === 99)).toHaveLength(callsBeforeNextPoll + 1)
+  })
+
+  it("does not continue a pending refresh after unmount", async () => {
+    localStorage.setItem("lastAuditId", "42")
+    const auditResponse = deferred()
+    vi.mocked(getAudit).mockReturnValue(auditResponse.promise)
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    wrapper.unmount()
+    auditResponse.resolve({ status: "running", progress: 80 })
+    await flushPromises()
+
+    expect(listAuditEvents).not.toHaveBeenCalled()
+  })
+})
+
+describe("AuditForm stage state derivation", () => {
+  it("marks an ended phase completed and leaves no stage running when a later audit failure has no active phase", async () => {
+    localStorage.setItem("lastAuditId", "42")
+    vi.mocked(getAudit).mockResolvedValue({ status: "failed", progress: 54 })
+    vi.mocked(listAuditEvents).mockResolvedValue([
+      { ts: "2026-08-08T08:16:30.000Z", event: "phase_start", payload: { phase: "security" } },
+      {
+        ts: "2026-08-08T08:16:31.000Z",
+        event: "token_call_start",
+        payload: { model: "gpt-security-1", scenario: "prompt-injection" }
+      },
+      {
+        ts: "2026-08-08T08:16:32.000Z",
+        event: "token_call_end",
+        payload: { status_code: 200, elapsed_ms: 684 }
+      },
+      { ts: "2026-08-08T08:16:33.000Z", event: "phase_end", payload: { phase: "security" } },
+      { ts: "2026-08-08T08:16:34.000Z", event: "audit_failed", payload: { error: "report failed" } }
+    ])
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    const stages = wrapper.findAll('[data-testid="audit-stage"]')
+
+    expect(stages[5].classes()).toContain("audit-stage--completed")
+    expect(wrapper.findAll(".audit-stage--running")).toHaveLength(0)
+    expect(wrapper.findAll(".audit-stage--failed")).toHaveLength(0)
+  })
+
+  it("marks the overall stage completed after a DeepSeek start/end pair", async () => {
+    localStorage.setItem("lastAuditId", "42")
+    vi.mocked(listAuditEvents).mockResolvedValue([
+      {
+        ts: "2026-08-08T08:16:35.000Z",
+        event: "deepseek_call_start",
+        payload: { phase: "overall", model: "deepseek-chat" }
+      },
+      {
+        ts: "2026-08-08T08:16:36.000Z",
+        event: "deepseek_call_end",
+        payload: { phase: "overall", status_code: 200, elapsed_ms: 912 }
+      }
+    ])
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    const stages = wrapper.findAll('[data-testid="audit-stage"]')
+
+    expect(stages[6].classes()).toContain("audit-stage--completed")
+    expect(wrapper.findAll(".audit-stage--running")).toHaveLength(0)
+  })
+})
+
+describe("AuditForm token loading states", () => {
+  it("distinguishes loading from a genuinely empty token list", async () => {
+    const tokensResponse = deferred()
+    vi.mocked(listTokens).mockReturnValue(tokensResponse.promise)
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    expect(wrapper.get('.token-field [role="status"]').text()).toContain("正在加载")
+
+    tokensResponse.resolve([])
+    await flushPromises()
+    expect(wrapper.get('.token-field [role="status"]').text()).toContain("暂无可用 Token")
+    expect(wrapper.text()).not.toContain("正在加载")
+  })
+
+  it("keeps a token error visible and retries successfully", async () => {
+    const tokensResponse = deferred()
+    vi.mocked(listTokens).mockReturnValueOnce(tokensResponse.promise).mockResolvedValueOnce([
+      { id: 8, name: "Recovery Token", tokenMasked: "tok-***" }
+    ])
+
+    const wrapper = await mountAuditForm()
+    tokensResponse.reject(new Error("token service unavailable"))
+    await flushPromises()
+
+    expect(wrapper.get('.token-field [role="alert"]').text()).toContain("token service unavailable")
+    await wrapper.get('[data-testid="retry-tokens"]').trigger("click")
+    await flushPromises()
+    expect(listTokens).toHaveBeenCalledTimes(2)
+    expect(wrapper.text()).toContain("Recovery Token")
+    expect(wrapper.find('.token-field [role="alert"]').exists()).toBe(false)
+  })
 })
 
 describe("AuditForm presentation", () => {
@@ -83,17 +261,26 @@ describe("AuditForm presentation", () => {
     expect(wrapper.text()).not.toContain("新手教程")
   })
 
-  it("shows timestamp, tag, explanation, status, latency, model and phase for terminal events", async () => {
+  it("renders schema-accurate event details, list semantics, parseable time, and falsy payload values", async () => {
     localStorage.setItem("lastAuditId", "42")
     vi.mocked(listAuditEvents).mockResolvedValue([
+      {
+        ts: "2026-08-08T08:16:30.123Z",
+        event: "phase_start",
+        payload: { phase: "security" }
+      },
+      {
+        ts: "2026-08-08T08:16:31.123Z",
+        event: "token_call_start",
+        payload: { model: "gpt-security-1", scenario: "prompt-injection" }
+      },
       {
         ts: "2026-08-08T08:16:32.123Z",
         event: "token_call_end",
         payload: {
-          status_code: 200,
+          status_code: 0,
           elapsed_ms: 684,
-          model: "gpt-security-1",
-          phase: "security"
+          status: false
         }
       }
     ])
@@ -103,14 +290,23 @@ describe("AuditForm presentation", () => {
 
     expect(getAudit).toHaveBeenCalledWith(42)
     expect(listAuditEvents).toHaveBeenCalledWith(42)
-    const row = wrapper.get('[data-testid="terminal-event"]')
-    expect(row.get('[data-testid="event-timestamp"]').text()).toContain("2026-08-08")
-    expect(row.get('[data-testid="event-tag"]').text()).toBe("token_call_end")
-    expect(row.get('[data-testid="event-explanation"]').text()).toContain("中转返回")
-    expect(row.text()).toContain("HTTP 200")
-    expect(row.text()).toContain("684 ms")
-    expect(row.text()).toContain("gpt-security-1")
-    expect(row.text()).toContain("安全性")
+    expect(wrapper.get(".terminal-window").element.tagName).toBe("OL")
+    const rows = wrapper.findAll('[data-testid="terminal-event"]')
+    expect(rows.every((row) => row.element.tagName === "LI")).toBe(true)
+    const startRow = rows.find((row) => row.get('[data-testid="event-tag"]').text() === "token_call_start")
+    const endRow = rows.find((row) => row.get('[data-testid="event-tag"]').text() === "token_call_end")
+    const timestamp = endRow.get('[data-testid="event-timestamp"]')
+    expect(timestamp.text()).toContain("2026-08-08")
+    expect(Number.isNaN(Date.parse(timestamp.attributes("datetime")))).toBe(false)
+    expect(endRow.get('[data-testid="event-explanation"]').text()).toContain("中转返回")
+    expect(endRow.text()).toContain("网络错误")
+    expect(endRow.text()).not.toContain("HTTP 0")
+    expect(endRow.text()).toContain("684 ms")
+    expect(endRow.text()).toContain("RESULT")
+    expect(endRow.text()).toContain("false")
+    expect(startRow.text()).toContain("gpt-security-1")
+    expect(startRow.text()).toContain("prompt-injection")
+    expect(rows[0].text()).toContain("安全性")
   })
 })
 

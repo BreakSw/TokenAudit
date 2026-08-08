@@ -37,7 +37,7 @@
           <el-select
             id="audit-token-select"
             v-model="tokenId"
-            :disabled="!tokens.length"
+            :disabled="loadingTokens || !tokens.length"
             filterable
             placeholder="选择一个可用 Token"
           >
@@ -48,7 +48,12 @@
               :value="token.id"
             />
           </el-select>
-          <p v-if="tokens.length" class="field-help">已载入 {{ tokens.length }} 个 Token，密钥仅显示脱敏标识。</p>
+          <p v-if="loadingTokens" class="field-help" role="status">正在加载 Token…</p>
+          <p v-else-if="tokenError" class="field-help field-help--warning" role="alert">
+            {{ tokenError }}
+            <el-button data-testid="retry-tokens" link type="primary" @click="reloadTokens">重试</el-button>
+          </p>
+          <p v-else-if="tokens.length" class="field-help">已载入 {{ tokens.length }} 个 Token，密钥仅显示脱敏标识。</p>
           <p v-else class="field-help field-help--warning" role="status">
             暂无可用 Token。请先前往“管理 Token”录入凭据，再刷新列表。
           </p>
@@ -98,7 +103,7 @@
         </div>
         <div class="pipeline-controls">
           <span class="status-chip" :class="`status-chip--${status || 'ready'}`">{{ statusText }}</span>
-          <el-button size="small" :loading="refreshing" :disabled="!auditId" @click="refreshOnce">
+          <el-button size="small" :loading="refreshing" :disabled="!auditId" @click="refreshOnce()">
             刷新进度
           </el-button>
         </div>
@@ -164,16 +169,16 @@
         </div>
       </header>
 
-      <div class="terminal-window" role="log" aria-live="polite" aria-label="审计实时事件">
-        <div v-if="!displayEvents.length" class="terminal-empty">
+      <ol class="terminal-window" role="log" aria-live="polite" aria-label="审计实时事件">
+        <li v-if="!displayEvents.length" class="terminal-empty">
           <span class="terminal-prompt">$</span>
           <div>
             <strong>暂无审计事件</strong>
             <p>{{ auditId ? "等待后端返回下一条审计证据…" : "启动审计后，调用状态与耗时将在这里逐行显示。" }}</p>
           </div>
-        </div>
+        </li>
 
-        <article
+        <li
           v-for="(row, index) in displayEvents"
           v-else
           :key="`${row.ts || 'event'}-${index}`"
@@ -181,7 +186,7 @@
           data-testid="terminal-event"
         >
           <div class="event-lead">
-            <time data-testid="event-timestamp">{{ row.ts || "—" }}</time>
+            <time :datetime="eventDatetime(row.ts)" data-testid="event-timestamp">{{ row.ts || "—" }}</time>
             <el-tag data-testid="event-tag" size="small" :type="eventTagType(row.event)">
               {{ row.event || "unknown_event" }}
             </el-tag>
@@ -193,8 +198,8 @@
               <dd>{{ detail.value }}</dd>
             </div>
           </dl>
-        </article>
-      </div>
+        </li>
+      </ol>
     </section>
   </div>
 </template>
@@ -204,14 +209,15 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue"
 import { useRouter } from "vue-router"
 import { ElMessage } from "element-plus"
 import { getAudit, listAuditEvents, listTokens, startAudit } from "../request/api"
-import { AUDIT_STAGES, stageIndex, stageLabel } from "../constants/auditStages"
+import { AUDIT_STAGES, stageLabel } from "../constants/auditStages"
 import { readStorage, removeStorage, writeStorage } from "../utils/storage"
 
 const router = useRouter()
 const tokens = ref([])
 const tokenId = ref(null)
 const exportFormats = ref(["json", "md", "xlsx"])
-const loadingTokens = ref(false)
+const loadingTokens = ref(true)
+const tokenError = ref("")
 const submitting = ref(false)
 
 const auditId = ref(null)
@@ -220,22 +226,52 @@ const progress = ref(0)
 const refreshing = ref(false)
 const events = ref([])
 let pollTimer = null
+let componentAlive = true
+let auditGeneration = 0
+let refreshSequence = 0
+let latestAppliedSequence = 0
+let tokenRequestSequence = 0
+const inFlightRefreshes = new Map()
 const LAST_AUDIT_ID_KEY = "lastAuditId"
+const validPhases = new Set(AUDIT_STAGES.map((stage) => stage.key))
 
 const displayEvents = computed(() => events.value.slice(-200))
 
-const currentStage = computed(() => {
-  const validPhases = new Set(AUDIT_STAGES.map((stage) => stage.key))
-  for (let i = events.value.length - 1; i >= 0; i -= 1) {
-    const e = events.value[i]
-    const phase = e?.payload?.phase
-    if (e?.event === "phase_start" && validPhases.has(phase)) return phase
-    if (e?.event === "deepseek_call_start" && phase === "overall") return "overall"
+const stageProgress = computed(() => {
+  const states = Object.fromEntries(
+    AUDIT_STAGES.map((stage) => [stage.key, auditId.value ? "pending" : "ready"])
+  )
+  let activePhase = ""
+  let latestPhase = ""
+
+  for (const row of events.value) {
+    const phase = row?.payload?.phase
+    if (!validPhases.has(phase)) continue
+
+    if (row.event === "phase_start" || (row.event === "deepseek_call_start" && phase === "overall")) {
+      activePhase = phase
+      latestPhase = phase
+      continue
+    }
+
+    if (row.event === "phase_end" || (row.event === "deepseek_call_end" && phase === "overall")) {
+      states[phase] = "completed"
+      latestPhase = phase
+      if (activePhase === phase) activePhase = ""
+    }
   }
-  return ""
+
+  if (status.value === "completed") {
+    for (const stage of AUDIT_STAGES) states[stage.key] = "completed"
+    activePhase = ""
+  } else if (activePhase) {
+    states[activePhase] = status.value === "failed" ? "failed" : "running"
+  }
+
+  return { states, activePhase, latestPhase }
 })
 
-const activeStepIndex = computed(() => stageIndex(currentStage.value))
+const currentStage = computed(() => stageProgress.value.activePhase || stageProgress.value.latestPhase)
 
 const currentStageLabel = computed(() => stageLabel(currentStage.value))
 
@@ -260,13 +296,7 @@ const progressHint = computed(() => {
 })
 
 function stageState(index) {
-  if (!auditId.value) return "ready"
-  if (status.value === "completed") return "completed"
-  if (index < activeStepIndex.value) return "completed"
-  if (currentStage.value && index === activeStepIndex.value) {
-    return status.value === "failed" ? "failed" : "running"
-  }
-  return "pending"
+  return stageProgress.value.states[AUDIT_STAGES[index].key]
 }
 
 function stageStateText(index) {
@@ -284,7 +314,8 @@ function eventDetails(row) {
   const payload = row?.payload || {}
   const details = []
   if (payload.status_code !== undefined && payload.status_code !== null) {
-    details.push({ key: "status_code", label: "STATUS", value: `HTTP ${payload.status_code}` })
+    const statusValue = payload.status_code === 0 ? "网络错误" : `HTTP ${payload.status_code}`
+    details.push({ key: "status_code", label: "STATUS", value: statusValue })
   }
   if (payload.elapsed_ms !== undefined && payload.elapsed_ms !== null) {
     details.push({ key: "elapsed_ms", label: "LATENCY", value: `${payload.elapsed_ms} ms` })
@@ -295,21 +326,29 @@ function eventDetails(row) {
     details.push({ key: "phase", label: "PHASE", value: phaseName === "-" ? payload.phase : phaseName })
   }
   if (payload.scenario) details.push({ key: "scenario", label: "SCENARIO", value: payload.scenario })
-  if (payload.status) details.push({ key: "status", label: "RESULT", value: payload.status })
+  if (payload.status !== undefined && payload.status !== null) {
+    details.push({ key: "status", label: "RESULT", value: payload.status })
+  }
   return details
 }
 
 async function reloadTokens() {
+  const requestSequence = ++tokenRequestSequence
   loadingTokens.value = true
+  tokenError.value = ""
   try {
-    tokens.value = await listTokens()
+    const loadedTokens = await listTokens()
+    if (!componentAlive || requestSequence !== tokenRequestSequence) return
+    tokens.value = loadedTokens || []
     if (!tokenId.value && tokens.value.length) {
       tokenId.value = tokens.value[0].id
     }
   } catch (e) {
-    ElMessage.error(e?.response?.data?.error || e?.message || "加载失败")
+    if (!componentAlive || requestSequence !== tokenRequestSequence) return
+    tokenError.value = e?.response?.data?.error || e?.message || "加载失败"
+    ElMessage.error(tokenError.value)
   } finally {
-    loadingTokens.value = false
+    if (componentAlive && requestSequence === tokenRequestSequence) loadingTokens.value = false
   }
 }
 
@@ -329,12 +368,12 @@ function clearLastAuditId() {
   removeStorage(LAST_AUDIT_ID_KEY)
 }
 
-function startPolling(id) {
+function startPolling(id, generation, refreshImmediately = true) {
   stopPolling()
   pollTimer = setInterval(() => {
-    refreshOnce()
+    refreshOnce(id, generation)
   }, 1200)
-  refreshOnce()
+  if (refreshImmediately) refreshOnce(id, generation)
 }
 
 function stopPolling() {
@@ -344,31 +383,51 @@ function stopPolling() {
   }
 }
 
-async function refreshOnce() {
-  if (!auditId.value) return
-  refreshing.value = true
-  try {
-    const a = await getAudit(auditId.value)
-    status.value = a.status
-    progress.value = a.progress ?? 0
-    const e = await listAuditEvents(auditId.value)
-    events.value = e || []
+function refreshOnce(targetAuditId = auditId.value, targetGeneration = auditGeneration) {
+  if (!targetAuditId || !componentAlive) return Promise.resolve()
+  const existing = inFlightRefreshes.get(targetAuditId)
+  if (existing?.generation === targetGeneration) return existing.promise
 
-    if (status.value === "completed") {
-      progress.value = 100
-      stopPolling()
-      clearLastAuditId()
+  const sequence = ++refreshSequence
+  refreshing.value = true
+  let promise
+  promise = (async () => {
+    try {
+      const audit = await getAudit(targetAuditId)
+      if (!componentAlive) return
+      const auditEvents = await listAuditEvents(targetAuditId)
+      const isCurrent =
+        componentAlive &&
+        auditId.value === targetAuditId &&
+        auditGeneration === targetGeneration &&
+        sequence > latestAppliedSequence
+      if (!isCurrent) return
+
+      latestAppliedSequence = sequence
+      status.value = audit.status
+      progress.value = audit.progress ?? 0
+      events.value = auditEvents || []
+
+      if (audit.status === "completed" || audit.status === "failed") {
+        progress.value = 100
+        stopPolling()
+        clearLastAuditId()
+      }
+    } catch (e) {
+      if (componentAlive && auditId.value === targetAuditId && auditGeneration === targetGeneration) {
+        ElMessage.error(e?.response?.data?.error || e?.message || "刷新失败")
+      }
+    } finally {
+      const entry = inFlightRefreshes.get(targetAuditId)
+      if (entry?.promise === promise) inFlightRefreshes.delete(targetAuditId)
+      if (componentAlive) {
+        const current = inFlightRefreshes.get(auditId.value)
+        refreshing.value = Boolean(current && current.generation === auditGeneration)
+      }
     }
-    if (status.value === "failed") {
-      progress.value = 100
-      stopPolling()
-      clearLastAuditId()
-    }
-  } catch (e) {
-    ElMessage.error(e?.response?.data?.error || e?.message || "刷新失败")
-  } finally {
-    refreshing.value = false
-  }
+  })()
+  inFlightRefreshes.set(targetAuditId, { generation: targetGeneration, promise })
+  return promise
 }
 
 async function submit() {
@@ -379,13 +438,16 @@ async function submit() {
   submitting.value = true
   try {
     const res = await startAudit({ tokenId: tokenId.value, exportFormats: exportFormats.value })
+    if (!componentAlive) return
+    stopPolling()
+    auditGeneration += 1
     auditId.value = res.auditId
     saveLastAuditId(auditId.value)
     status.value = "running"
     progress.value = 0
     events.value = []
     ElMessage.success("已开始审计，正在实时更新进度")
-    startPolling(auditId.value)
+    startPolling(auditId.value, auditGeneration)
   } catch (e) {
     ElMessage.error(e?.response?.data?.error || e?.message || "审计失败")
   } finally {
@@ -403,7 +465,13 @@ function eventTagType(ev) {
   if (ev === "audit_failed") return "danger"
   if (ev === "audit_completed") return "success"
   if (ev === "phase_start") return "warning"
-  return "default"
+  return "info"
+}
+
+function eventDatetime(value) {
+  if (!value) return undefined
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString()
 }
 
 function eventText(row) {
@@ -425,15 +493,26 @@ onMounted(reloadTokens)
 onMounted(async () => {
   const lastId = loadLastAuditId()
   if (!lastId) return
+  auditGeneration += 1
+  const restoredGeneration = auditGeneration
   auditId.value = lastId
-  await refreshOnce()
-  if (status.value === "running") {
-    startPolling(auditId.value)
+  await refreshOnce(lastId, restoredGeneration)
+  if (
+    componentAlive &&
+    auditGeneration === restoredGeneration &&
+    auditId.value === lastId &&
+    status.value === "running"
+  ) {
+    startPolling(lastId, restoredGeneration, false)
   }
 })
 
 onBeforeUnmount(() => {
+  componentAlive = false
+  auditGeneration += 1
+  tokenRequestSequence += 1
   stopPolling()
+  inFlightRefreshes.clear()
 })
 </script>
 
@@ -829,11 +908,14 @@ onBeforeUnmount(() => {
 .terminal-window {
   max-height: 520px;
   overflow: auto;
+  margin: 0;
+  padding: 0;
   background:
     linear-gradient(rgba(67, 224, 162, 0.018) 1px, transparent 1px),
     var(--ta-code);
   background-size: 100% 28px;
   font-family: var(--ta-mono);
+  list-style: none;
 }
 
 .terminal-empty {
@@ -942,11 +1024,7 @@ onBeforeUnmount(() => {
   }
 }
 
-@media (max-width: 840px) {
-  .audit-heading {
-    align-items: flex-start;
-  }
-
+@media (max-width: 900px) {
   .configuration-grid {
     grid-template-columns: 1fr;
   }
@@ -954,6 +1032,12 @@ onBeforeUnmount(() => {
   .format-field {
     border-top: 1px solid var(--ta-line);
     border-left: 0;
+  }
+}
+
+@media (max-width: 840px) {
+  .audit-heading {
+    align-items: flex-start;
   }
 
   .stage-list {
