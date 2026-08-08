@@ -1,515 +1,665 @@
 <template>
-  <div class="landing">
-    <el-card class="hero-card">
-      <div class="hero">
-        <div class="hero-copy">
-          <div class="hero-kicker">Token 风险体检平台</div>
-          <div class="hero-title">
-            更快定位 Token
-            <span class="gradient-text">有效性/权限/掺水</span>
-            与合规风险
-          </div>
-          <div class="hero-desc">
-            一次点击，自动触发多 Agent 协作审计与 DeepSeek 判定。全程输出真实事件流与证据链，可追溯、可复盘、可导出。
-          </div>
-          <div class="hero-cta">
-            <div class="hero-actions">
-              <el-button type="primary" size="large" @click="$router.push('/audit')">开始审计</el-button>
-              <el-button size="large" @click="$router.push('/tokens')">先录入Token</el-button>
-              <el-button size="large" plain @click="$router.push('/history')">查看历史</el-button>
-            </div>
-            <div class="hero-badges">
-              <div class="badge">实时进度</div>
-              <div class="badge">事件流</div>
-              <div class="badge">Markdown/JSON/Excel/PDF</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="hero-visual">
-          <div class="visual-card">
-            <div class="visual-top">
-              <div class="visual-title">实时审计面板</div>
-              <div class="visual-pill">Live</div>
-            </div>
-            <div class="visual-progress">
-              <div class="visual-progress-head">
-                <div class="visual-progress-label">进度</div>
-                <div class="visual-progress-value">72%</div>
-              </div>
-              <el-progress :percentage="72" :stroke-width="10" />
-              <div class="visual-phases">
-                <div class="phase active">validity</div>
-                <div class="phase active">permission</div>
-                <div class="phase active">watering</div>
-                <div class="phase">compliance</div>
-                <div class="phase">stability</div>
-                <div class="phase">security</div>
-                <div class="phase">overall</div>
-              </div>
-            </div>
-
-            <div class="mock-card">
-              <div class="mock-head">
-                <div class="dot red" />
-                <div class="dot yellow" />
-                <div class="dot green" />
-                <div class="mock-title">审计过程（节选）</div>
-              </div>
-              <div class="mock-body">
-                <div class="mock-line"><span class="tag">phase_start</span> validity</div>
-                <div class="mock-line"><span class="tag">token_call</span> claude-opus-4-6</div>
-                <div class="mock-line"><span class="tag">phase_start</span> permission</div>
-                <div class="mock-line"><span class="tag">token_call</span> non-claimed model</div>
-                <div class="mock-line"><span class="tag">deepseek_call</span> overall judge</div>
-                <div class="mock-line"><span class="tag ok">completed</span> report exported</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="visual-stats">
-            <div class="stat-card">
-              <div class="stat-value">6</div>
-              <div class="stat-label">审计维度</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value">多Agent</div>
-              <div class="stat-label">调度 + 重试 + 汇总</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value">证据链</div>
-              <div class="stat-label">可回溯事件与报告</div>
-            </div>
-          </div>
-        </div>
+  <main class="dashboard">
+    <header v-reveal class="dashboard-header">
+      <div>
+        <p class="eyebrow">OPERATIONS / TOKEN AUDIT</p>
+        <h1>审计控制台</h1>
+        <p class="dashboard-description">集中查看 Token 资产、审计任务和执行状态。</p>
       </div>
-    </el-card>
+      <div class="update-time">
+        <span class="status-dot" />
+        <span>{{ updatedAt ? `数据更新于 ${updatedAt}` : loading ? "正在同步数据" : "数据暂不可用" }}</span>
+      </div>
+    </header>
 
-    <el-row :gutter="16" style="margin-top: 16px">
-      <el-col :span="8">
-        <el-card>
-          <div class="feature-title">真实进度</div>
-          <div class="feature-desc">后端实时采集 Python stderr 事件流，前端展示阶段、耗时与调用记录。</div>
-        </el-card>
-      </el-col>
-      <el-col :span="8">
-        <el-card>
-          <div class="feature-title">可追溯证据</div>
-          <div class="feature-desc">每一步都留痕：token_call / deepseek_call / phase_start，报告可复盘。</div>
-        </el-card>
-      </el-col>
-      <el-col :span="8">
-        <el-card>
-          <div class="feature-title">面向部署</div>
-          <div class="feature-desc">前后端分离，SQLite 轻量存储，.env 配置即可跑通本地与服务器。</div>
-        </el-card>
-      </el-col>
-    </el-row>
+    <section v-if="loading" v-reveal class="state-panel" aria-live="polite">
+      <span class="state-code">LOADING</span>
+      <div>
+        <h2>正在加载审计数据</h2>
+        <p>正在同步 Token 与审计任务，请稍候。</p>
+      </div>
+    </section>
 
-    <el-row :gutter="16" style="margin-top: 16px">
-      <el-col :span="10">
-        <el-card>
-          <div class="side-title">快速开始</div>
-          <el-steps direction="vertical" :active="2" class="steps">
-            <el-step title="录入Token" description="配置平台/Base URL/宣称模型/非宣称模型" />
-            <el-step title="发起审计" description="选择Token与导出格式，一键跑完整流程" />
-            <el-step title="查看报告" description="Markdown + 结构化JSON + 事件流，支持历史追溯" />
-          </el-steps>
-          <el-alert
-            style="margin-top: 12px"
-            type="info"
-            show-icon
-            :closable="false"
-            title="提示"
-            description="Token Base URL 填域名根，例如 https://xxx.com（系统会自动请求 /v1/chat/completions）"
-          />
-        </el-card>
-      </el-col>
-      <el-col :span="14">
-        <el-card class="guide-card">
-          <div class="guide-title">你会得到什么</div>
-          <div class="guide-grid">
-            <div class="guide-item">
-              <div class="guide-k">异常定位</div>
-              <div class="guide-v">失败时可按事件定位到具体阶段与请求</div>
+    <section v-else-if="error" v-reveal class="state-panel state-panel--error" role="alert">
+      <span class="state-code">ERROR</span>
+      <div>
+        <h2>仪表盘数据加载失败</h2>
+        <p>{{ error }}</p>
+        <el-button type="primary" @click="loadDashboard">重新加载</el-button>
+      </div>
+    </section>
+
+    <template v-else-if="dashboardData">
+      <section v-reveal class="metrics" aria-label="审计指标">
+        <article
+          v-for="(metric, index) in metrics"
+          :key="metric.label"
+          v-reveal="{ stagger: index * 45 }"
+          class="metric-card"
+          :class="metric.tone"
+        >
+          <div class="metric-head">
+            <span>{{ metric.label }}</span>
+            <span class="metric-key">{{ metric.key }}</span>
+          </div>
+          <strong>{{ metric.value }}</strong>
+          <p>{{ metric.detail }}</p>
+        </article>
+      </section>
+
+      <section
+        v-if="dashboardData.tokenCount === 0 && dashboardData.auditCount === 0"
+        v-reveal="{ stagger: 80 }"
+        class="empty-banner"
+      >
+        <div>
+          <span class="state-code">EMPTY</span>
+          <h2>当前没有可展示的审计数据</h2>
+          <p>先录入 Token，再发起第一项审计任务。</p>
+        </div>
+        <el-button type="primary" @click="router.push('/tokens')">录入 Token</el-button>
+      </section>
+
+      <section v-reveal="{ stagger: 100 }" class="workspace-grid">
+        <article class="panel recent-panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-index">01 / RECENT</span>
+              <h2>最近审计任务</h2>
             </div>
-            <div class="guide-item">
-              <div class="guide-k">越权检测</div>
-              <div class="guide-v">对比宣称模型/非宣称模型/匿名调用</div>
+            <el-button text @click="router.push('/history')">全部历史 →</el-button>
+          </div>
+
+          <div v-if="dashboardData.latestAudit" class="audit-record">
+            <div class="audit-record__top">
+              <div>
+                <span class="record-label">AUDIT ID</span>
+                <strong>#{{ dashboardData.latestAudit.id }}</strong>
+              </div>
+              <el-tag :type="statusType(dashboardData.latestAudit.status)" effect="plain">
+                {{ dashboardData.latestAudit.status || "unknown" }}
+              </el-tag>
             </div>
-            <div class="guide-item">
-              <div class="guide-k">稳定性画像</div>
-              <div class="guide-v">多次调用一致性与波动分析</div>
-            </div>
-            <div class="guide-item">
-              <div class="guide-k">导出归档</div>
-              <div class="guide-v">JSON/Markdown/Excel/PDF，便于审计留存</div>
+            <dl class="record-grid">
+              <div>
+                <dt>审计时间</dt>
+                <dd>{{ dashboardData.latestAudit.auditTime || "未记录" }}</dd>
+              </div>
+              <div>
+                <dt>Token ID</dt>
+                <dd>{{ dashboardData.latestAudit.tokenId ?? "未记录" }}</dd>
+              </div>
+              <div class="record-grid__wide">
+                <dt>综合结论</dt>
+                <dd>
+                  {{
+                    dashboardData.latestAudit.overallConclusion ||
+                    dashboardData.latestAudit.conclusion ||
+                    "暂无综合结论"
+                  }}
+                </dd>
+              </div>
+            </dl>
+            <el-button
+              v-if="dashboardData.latestAudit.id != null"
+              type="primary"
+              @click="router.push(`/report/${dashboardData.latestAudit.id}`)"
+            >
+              查看审计报告
+            </el-button>
+          </div>
+
+          <div v-else class="panel-empty">
+            <span class="state-code">NO AUDITS</span>
+            <h3>暂无审计任务</h3>
+            <p>选择已录入的 Token 发起审计，执行记录会显示在这里。</p>
+            <el-button type="primary" @click="router.push('/audit')">发起审计</el-button>
+          </div>
+        </article>
+
+        <aside class="panel quick-panel">
+          <div class="panel-header">
+            <div>
+              <span class="section-index">02 / ACTIONS</span>
+              <h2>快速操作</h2>
             </div>
           </div>
-        </el-card>
-      </el-col>
-    </el-row>
-  </div>
+          <button class="action-link" type="button" @click="router.push('/audit')">
+            <span>
+              <strong>发起审计</strong>
+              <small>选择 Token 并执行完整审计流程</small>
+            </span>
+            <span aria-hidden="true">→</span>
+          </button>
+          <button class="action-link" type="button" @click="router.push('/tokens')">
+            <span>
+              <strong>管理 Token</strong>
+              <small>录入、检查或移除 Token 资产</small>
+            </span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </aside>
+      </section>
+
+      <section v-reveal="{ stagger: 140 }" class="panel stages-panel">
+        <div class="panel-header">
+          <div>
+            <span class="section-index">03 / COVERAGE</span>
+            <h2>审计维度</h2>
+          </div>
+          <span class="panel-note">6 个检查阶段</span>
+        </div>
+        <div class="stage-list">
+          <article v-for="(stage, index) in auditDimensions" :key="stage.key" class="stage-row">
+            <span class="stage-number">{{ String(index + 1).padStart(2, "0") }}</span>
+            <div class="stage-copy">
+              <strong>{{ stage.label }}</strong>
+              <p>{{ stage.detail }}</p>
+            </div>
+            <code>{{ stage.key }}</code>
+          </article>
+        </div>
+      </section>
+    </template>
+  </main>
 </template>
 
+<script setup>
+import { computed, onMounted, ref } from "vue"
+import { useRouter } from "vue-router"
+import { AUDIT_STAGES } from "../constants/auditStages"
+import { listAudits, listTokens } from "../request/api"
+import { summarizeDashboard } from "../utils/dashboard"
+
+const router = useRouter()
+const loading = ref(true)
+const error = ref("")
+const updatedAt = ref("")
+const dashboardData = ref(null)
+
+const auditDimensions = AUDIT_STAGES.filter((stage) => stage.key !== "overall")
+
+const metrics = computed(() => {
+  if (!dashboardData.value) return []
+
+  return [
+    {
+      label: "Token 数",
+      key: "TOKENS",
+      value: dashboardData.value.tokenCount,
+      detail: "当前已录入资产",
+      tone: ""
+    },
+    {
+      label: "审计任务",
+      key: "AUDITS",
+      value: dashboardData.value.auditCount,
+      detail: "累计任务总数",
+      tone: ""
+    },
+    {
+      label: "运行中",
+      key: "RUNNING",
+      value: dashboardData.value.runningCount,
+      detail: "正在执行的任务",
+      tone: "metric-card--running"
+    },
+    {
+      label: "失败任务",
+      key: "FAILED",
+      value: dashboardData.value.failedCount,
+      detail: "需要排查的任务",
+      tone: "metric-card--failed"
+    }
+  ]
+})
+
+async function loadDashboard() {
+  loading.value = true
+  error.value = ""
+  dashboardData.value = null
+  updatedAt.value = ""
+
+  try {
+    const [tokens, audits] = await Promise.all([listTokens(), listAudits()])
+    dashboardData.value = summarizeDashboard(tokens, audits)
+    updatedAt.value = new Date().toLocaleString("zh-CN", { hour12: false })
+  } catch (cause) {
+    const detail = cause?.response?.data?.error || cause?.message
+    error.value = detail ? `无法从服务端获取真实数据：${detail}` : "无法从服务端获取真实数据，请检查连接后重试。"
+  } finally {
+    loading.value = false
+  }
+}
+
+function statusType(status) {
+  if (status === "completed") return "success"
+  if (status === "running") return "warning"
+  if (status === "failed") return "danger"
+  return "info"
+}
+
+onMounted(loadDashboard)
+</script>
+
 <style scoped>
-.landing {
+.dashboard {
   display: flex;
   flex-direction: column;
+  gap: 16px;
 }
 
-.hero-card {
-  overflow: hidden;
-}
-
-.hero {
-  display: grid;
-  grid-template-columns: 1.25fr 1fr;
-  gap: 18px;
-  align-items: stretch;
+.dashboard-header {
+  display: flex;
+  align-items: flex-end;
   justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--ta-line);
 }
 
-.hero-copy {
-  min-width: 260px;
+.eyebrow,
+.section-index,
+.state-code,
+.metric-key,
+.record-label,
+.stage-number,
+.stage-row code {
+  font-family: var(--ta-mono);
+  letter-spacing: 0.08em;
 }
 
-.hero-kicker {
-  display: inline-flex;
-  align-items: center;
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
+.eyebrow {
+  margin: 0 0 6px;
   color: var(--ta-green);
-  background: transparent;
-  border: 1px solid var(--ta-line);
+  font-size: 11px;
 }
 
-.hero-title {
-  margin-top: 10px;
-  font-size: 30px;
-  font-weight: 900;
-  color: #0f172a;
-  letter-spacing: 0.3px;
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 5px;
+  color: var(--ta-text);
+  font-size: clamp(24px, 3vw, 32px);
   line-height: 1.15;
 }
 
-.hero-desc {
-  margin-top: 10px;
-  color: rgba(15, 23, 42, 0.68);
-  line-height: 1.6;
+.dashboard-description {
+  margin-bottom: 0;
+  color: var(--ta-muted);
+  font-size: 13px;
 }
 
-.hero-cta {
-  margin-top: 18px;
-  width: fit-content;
-  padding: 10px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(17, 24, 39, 0.08);
-  box-shadow: 0 18px 50px rgba(17, 24, 39, 0.08);
-  backdrop-filter: blur(8px);
+.update-time {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.hero-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.hero-actions :deep(.el-button) {
-  height: 40px;
-  border-radius: 12px;
-}
-
-.hero-badges {
-  display: flex;
+  align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  color: var(--ta-faint);
+  font-family: var(--ta-mono);
+  font-size: 11px;
+  white-space: nowrap;
 }
 
-.badge {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ta-muted);
-  background: transparent;
-  border: 1px solid var(--ta-line);
-  border-radius: 999px;
-  padding: 6px 10px;
+.status-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--ta-green);
+  border-radius: 50%;
 }
 
-.hero-visual {
+.state-panel,
+.empty-banner {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 320px;
-}
-
-.visual-card {
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(17, 24, 39, 0.08);
-  box-shadow: 0 18px 50px rgba(17, 24, 39, 0.08);
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.visual-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.visual-title {
-  font-weight: 900;
-  color: rgba(15, 23, 42, 0.92);
-}
-
-.visual-pill {
-  height: 28px;
-  padding: 0 10px;
-  display: inline-flex;
-  align-items: center;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-  color: rgba(16, 185, 129, 0.92);
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.18);
-}
-
-.visual-progress-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.visual-progress-label {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--ta-muted);
-}
-
-.visual-progress-value {
-  font-size: 12px;
-  font-weight: 900;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 22px;
   color: var(--ta-text);
-}
-
-.visual-phases {
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.phase {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--ta-muted);
-  background: transparent;
+  background: var(--ta-panel);
   border: 1px solid var(--ta-line);
-  border-radius: 999px;
-  padding: 6px 10px;
+  border-radius: var(--ta-radius);
 }
 
-.phase.active {
+.state-panel--error {
+  border-color: var(--ta-danger);
+}
+
+.state-code {
+  flex: 0 0 auto;
+  padding: 4px 6px;
   color: var(--ta-green);
-  background: transparent;
-  border: 1px solid var(--ta-green);
+  background: var(--ta-code);
+  border: 1px solid var(--ta-line-strong);
+  border-radius: 4px;
+  font-size: 10px;
 }
 
-.visual-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
+.state-panel--error .state-code,
+.metric-card--failed .metric-key {
+  color: var(--ta-danger);
 }
 
-.stat-card {
-  border-radius: 12px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(17, 24, 39, 0.08);
+.state-panel h2,
+.empty-banner h2 {
+  margin-bottom: 6px;
+  font-size: 17px;
 }
 
-.stat-value {
-  font-weight: 900;
-  color: rgba(15, 23, 42, 0.92);
-}
-
-.stat-label {
-  margin-top: 4px;
-  font-size: 12px;
-  color: rgba(15, 23, 42, 0.6);
-}
-
-.mock-card {
-  border-radius: 12px;
-  overflow: hidden;
-  background: rgba(15, 23, 42, 0.92);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-}
-
-.mock-head {
-  height: 40px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 12px;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-}
-
-.dot.red {
-  background: #ef4444;
-}
-
-.dot.yellow {
-  background: #f59e0b;
-}
-
-.dot.green {
-  background: #10b981;
-}
-
-.mock-title {
-  margin-left: 6px;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.mock-body {
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-family:
-    ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    Monaco,
-    Consolas,
-    "Liberation Mono",
-    "Courier New",
-    monospace;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.mock-line {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  height: 20px;
-  padding: 0 8px;
-  border-radius: 999px;
-  font-weight: 800;
-  background: rgba(37, 99, 235, 0.22);
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.tag.ok {
-  background: rgba(16, 185, 129, 0.25);
-}
-
-.feature-title {
-  font-weight: 900;
-  color: rgba(15, 23, 42, 0.9);
-}
-
-.feature-desc {
-  margin-top: 8px;
-  color: rgba(15, 23, 42, 0.62);
+.state-panel p,
+.empty-banner p,
+.panel-empty p {
+  margin-bottom: 14px;
+  color: var(--ta-muted);
   line-height: 1.6;
 }
 
-.side-title {
-  font-weight: 800;
-  color: rgba(15, 23, 42, 0.88);
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.metric-card {
+  min-width: 0;
+  padding: 15px;
+  background: var(--ta-panel);
+  border: 1px solid var(--ta-line);
+  border-radius: var(--ta-radius);
+}
+
+.metric-card--running {
+  border-color: var(--ta-line-strong);
+}
+
+.metric-card--failed {
+  border-color: var(--ta-line-strong);
+}
+
+.metric-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--ta-muted);
+  font-size: 12px;
+}
+
+.metric-key {
+  color: var(--ta-faint);
+  font-size: 9px;
+}
+
+.metric-card--running .metric-key {
+  color: var(--ta-amber);
+}
+
+.metric-card strong {
+  display: block;
+  margin-top: 12px;
+  color: var(--ta-text);
+  font-family: var(--ta-mono);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.metric-card p {
+  margin: 8px 0 0;
+  color: var(--ta-faint);
+  font-size: 11px;
+}
+
+.empty-banner {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.empty-banner .state-code {
+  display: inline-block;
   margin-bottom: 10px;
 }
 
-.steps {
-  padding-right: 8px;
+.empty-banner p {
+  margin-bottom: 0;
 }
 
-.guide-card {
-  overflow: hidden;
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  gap: 12px;
 }
 
-.guide-title {
-  font-weight: 900;
-  color: rgba(15, 23, 42, 0.92);
-  margin-bottom: 12px;
+.panel {
+  min-width: 0;
+  padding: 18px;
+  background: var(--ta-panel);
+  border: 1px solid var(--ta-line);
+  border-radius: var(--ta-radius);
 }
 
-.guide-grid {
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid var(--ta-line);
+}
+
+.section-index {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--ta-green);
+  font-size: 9px;
+}
+
+.panel-header h2 {
+  margin-bottom: 0;
+  color: var(--ta-text);
+  font-size: 17px;
+}
+
+.panel-note {
+  color: var(--ta-faint);
+  font-size: 11px;
+}
+
+.audit-record {
+  padding: 15px;
+  background: var(--ta-panel-raised);
+  border: 1px solid var(--ta-line);
+  border-radius: 4px;
+}
+
+.audit-record__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.record-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ta-faint);
+  font-size: 9px;
+}
+
+.audit-record__top strong {
+  color: var(--ta-text);
+  font-family: var(--ta-mono);
+  font-size: 21px;
+}
+
+.record-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 14px;
+  margin: 18px 0;
 }
 
-.guide-item {
-  border-radius: 12px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(17, 24, 39, 0.08);
+.record-grid div {
+  min-width: 0;
 }
 
-.guide-k {
-  font-weight: 900;
-  color: rgba(15, 23, 42, 0.92);
+.record-grid__wide {
+  grid-column: 1 / -1;
+  padding-top: 12px;
+  border-top: 1px solid var(--ta-line);
 }
 
-.guide-v {
-  margin-top: 6px;
+.record-grid dt {
+  margin-bottom: 5px;
+  color: var(--ta-faint);
+  font-size: 11px;
+}
+
+.record-grid dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--ta-muted);
+  line-height: 1.5;
+}
+
+.panel-empty {
+  padding: 24px 8px 8px;
+  text-align: center;
+}
+
+.panel-empty h3 {
+  margin: 12px 0 6px;
+  color: var(--ta-text);
+}
+
+.quick-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.action-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 14px 12px;
+  color: var(--ta-text);
+  text-align: left;
+  background: var(--ta-panel-raised);
+  border: 1px solid var(--ta-line);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.action-link + .action-link {
+  margin-top: 10px;
+}
+
+.action-link:hover,
+.action-link:focus-visible {
+  border-color: var(--ta-green);
+}
+
+.action-link strong,
+.action-link small {
+  display: block;
+}
+
+.action-link small {
+  margin-top: 5px;
+  color: var(--ta-faint);
+  line-height: 1.4;
+}
+
+.action-link > span:last-child {
+  color: var(--ta-green);
+  font-family: var(--ta-mono);
+}
+
+.stage-list {
+  border-top: 1px solid var(--ta-line);
+}
+
+.stage-row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) minmax(110px, auto);
+  align-items: center;
+  gap: 16px;
+  min-height: 66px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--ta-line);
+}
+
+.stage-number {
+  color: var(--ta-decorative);
+  font-size: 11px;
+}
+
+.stage-copy strong {
+  color: var(--ta-text);
+}
+
+.stage-copy p {
+  margin: 4px 0 0;
+  color: var(--ta-muted);
   font-size: 12px;
-  color: rgba(15, 23, 42, 0.62);
-  line-height: 1.6;
 }
 
-@media (max-width: 920px) {
-  .hero {
+.stage-row code {
+  justify-self: end;
+  padding: 4px 6px;
+  color: var(--ta-green);
+  background: var(--ta-code);
+  border: 1px solid var(--ta-line);
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+@media (max-width: 900px) {
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-grid {
     grid-template-columns: 1fr;
   }
-  .hero-cta {
-    width: 100%;
+}
+
+@media (max-width: 600px) {
+  .dashboard-header,
+  .empty-banner {
+    align-items: flex-start;
+    flex-direction: column;
   }
-  .hero-actions {
-    width: 100%;
-  }
-  .hero-actions :deep(.el-button) {
-    flex: 1;
-  }
-  .hero-visual {
-    min-width: auto;
-  }
-  .visual-stats {
+
+  .metrics {
     grid-template-columns: 1fr;
   }
-  .guide-grid {
+
+  .state-panel {
+    flex-direction: column;
+  }
+
+  .record-grid {
     grid-template-columns: 1fr;
+  }
+
+  .record-grid__wide {
+    grid-column: auto;
+  }
+
+  .stage-row {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .stage-row code {
+    grid-column: 2;
+    justify-self: start;
   }
 }
 </style>
