@@ -56,12 +56,12 @@
         <section id="configure" v-reveal>
           <h2><a href="#configure">配置环境变量</a></h2>
           <p>
-            在仓库根目录创建或修改 <code>.env</code>。<code>DEEPSEEK_API_KEY</code> 用于审计判定；
-            <code>BACKEND_API_KEY</code> 留空时不启用后端访问密钥。
+            在仓库根目录创建或修改 <code>.env</code>，供 Spring 后端和 Python 审计核心读取。
+            <code>DEEPSEEK_API_KEY</code> 用于审计判定；<code>BACKEND_API_KEY</code> 留空时不启用后端访问密钥。
           </p>
           <div class="code-shell" data-testid="copy-environment">
             <div class="code-toolbar">
-              <span>.env</span>
+              <span>.env（仓库根目录）</span>
               <button type="button" @click="copyCode('environment', codeSamples.environment)">复制</button>
               <span
                 v-if="copyState.environment"
@@ -73,8 +73,28 @@
             <pre><code>{{ codeSamples.environment }}</code></pre>
           </div>
           <p>
-            前端通过 <code>VITE_BACKEND_BASE_URL</code> 连接 API。若设置了
-            <code>BACKEND_API_KEY</code>，请求时可选传入 <code>X-API-KEY</code>；应用设置页也会自动添加该请求头。
+            Vite 默认不会读取仓库根目录的 <code>.env</code>。请将前端变量写入
+            <code>front-end/.env.development</code>，也可在启动 Vite 前通过进程环境设置。
+          </p>
+          <div class="code-shell" data-testid="copy-frontend-environment">
+            <div class="code-toolbar">
+              <span>front-end/.env.development</span>
+              <button
+                type="button"
+                @click="copyCode('frontEnvironment', codeSamples.frontEnvironment)"
+              >复制</button>
+              <span
+                v-if="copyState.frontEnvironment"
+                class="copy-feedback"
+                :role="copyState.frontEnvironment.role"
+                aria-live="polite"
+              >{{ copyState.frontEnvironment.message }}</span>
+            </div>
+            <pre><code>{{ codeSamples.frontEnvironment }}</code></pre>
+          </div>
+          <p data-testid="api-key-rule">
+            <code>BACKEND_API_KEY</code> 未启用时可省略 <code>X-API-KEY</code>；启用后每个 API 请求必须携带
+            <code>X-API-KEY</code>（浏览器的 <code>OPTIONS</code> 预检除外）。应用设置页保存密钥后会自动添加该请求头。
           </p>
         </section>
 
@@ -256,8 +276,8 @@ const codeSamples = {
   environment: `DEEPSEEK_API_KEY=<your-deepseek-key>
 DEEPSEEK_BASE_URL=https://api.deepseek.com/v1/chat/completions
 DEEPSEEK_MODEL=deepseek-chat
-BACKEND_API_KEY=
-VITE_BACKEND_BASE_URL=http://localhost:8086`,
+BACKEND_API_KEY=`,
+  frontEnvironment: `VITE_BACKEND_BASE_URL=http://localhost:8086`,
   start: `# 终端 1：审计核心
 cd audit-core
 pip install -r requirements.txt
@@ -271,43 +291,30 @@ mvn spring-boot:run
 cd front-end
 npm install
 npm run dev`,
-  health: `GET /api/agents/health HTTP/1.1
-Host: localhost:8086
+  health: `# GET /api/agents/health
+# BACKEND_API_KEY 未启用时可删除 -H 参数
+curl http://localhost:8086/api/agents/health -H "X-API-KEY: <backend-key>"
 
 HTTP/1.1 200 OK
 Content-Type: application/json
 
 {"status":"ok"}`,
-  token: `POST /api/tokens HTTP/1.1
-Host: localhost:8086
-Content-Type: application/json
-
-{
-  "name": "production-relay",
-  "token": "sk-...",
-  "platform": "relay",
-  "tokenBaseUrl": "https://api.example.com",
-  "claimedModel": "claude-opus-4-6",
-  "nonClaimedModel": "gpt-4o-mini"
-}`,
-  audit: `POST /api/audits HTTP/1.1
-Host: localhost:8086
-Content-Type: application/json
-X-API-KEY: <optional-backend-key>
-
-{
-  "tokenId": 12,
-  "exportFormats": ["json", "md"],
-  "auditDimensions": [
-    "validity", "permission", "watering",
-    "compliance", "stability", "security"
-  ]
-}
+  token: `# POST /api/tokens；BACKEND_API_KEY 未启用时可删除 X-API-KEY 请求头
+curl --request POST http://localhost:8086/api/tokens \\
+  --header "Content-Type: application/json" \\
+  --header "X-API-KEY: <backend-key>" \\
+  --data '{"name":"production-relay","token":"sk-...","platform":"relay","tokenBaseUrl":"https://api.example.com","claimedModel":"claude-opus-4-6","nonClaimedModel":"gpt-4o-mini"}'`,
+  audit: `# POST /api/audits；BACKEND_API_KEY 未启用时可删除 X-API-KEY 请求头
+curl --request POST http://localhost:8086/api/audits \\
+  --header "Content-Type: application/json" \\
+  --header "X-API-KEY: <backend-key>" \\
+  --data '{"tokenId":12,"exportFormats":["json","md"],"auditDimensions":["validity","permission","watering","compliance","stability","security"]}'
 
 HTTP/1.1 200 OK
 {"auditId":42,"report":null}`,
-  events: `GET /api/audits/42/events HTTP/1.1
-Host: localhost:8086
+  events: `# GET /api/audits/{id}/events
+# BACKEND_API_KEY 未启用时可删除 -H 参数
+curl http://localhost:8086/api/audits/42/events -H "X-API-KEY: <backend-key>"
 
 HTTP/1.1 200 OK
 [
@@ -318,8 +325,9 @@ HTTP/1.1 200 OK
     "payload": {"phase":"validity","agent":"有效性审计Agent"}
   }
 ]`,
-  report: `GET /api/audits/42 HTTP/1.1
-Host: localhost:8086
+  report: `# GET /api/audits/{id}
+# BACKEND_API_KEY 未启用时可删除 -H 参数
+curl http://localhost:8086/api/audits/42 -H "X-API-KEY: <backend-key>"
 
 HTTP/1.1 200 OK
 {

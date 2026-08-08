@@ -54,6 +54,28 @@ describe("GuideView", () => {
     }
   })
 
+  it("separates backend and Vite env files and states the API key rule", () => {
+    const wrapper = mountGuide()
+
+    expect(wrapper.text()).toContain("front-end/.env.development")
+    expect(wrapper.get('[data-testid="copy-environment"]').text()).not.toContain(
+      "VITE_BACKEND_BASE_URL"
+    )
+    expect(wrapper.get('[data-testid="copy-frontend-environment"]').text()).toContain(
+      "VITE_BACKEND_BASE_URL=http://localhost:8086"
+    )
+
+    const rule = wrapper.get('[data-testid="api-key-rule"]').text()
+    expect(rule).toContain("未启用时可省略")
+    expect(rule).toContain("启用后每个 API 请求必须携带")
+
+    for (const sample of ["health", "token", "audit", "events", "report"]) {
+      const code = wrapper.get(`[data-testid="copy-${sample}"]`).text()
+      expect(code).toContain("curl")
+      expect(code).toContain("X-API-KEY")
+    }
+  })
+
   it("copies code and reports success accessibly", async () => {
     const wrapper = mountGuide()
 
