@@ -1,5 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils"
-import ElementPlus from "element-plus"
+import ElementPlus, { ElMessage } from "element-plus"
 import { createMemoryHistory, createRouter } from "vue-router"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -12,8 +12,12 @@ const wrappers = []
 
 function deferred() {
   let resolve
-  const promise = new Promise((resolvePromise) => { resolve = resolvePromise })
-  return { promise, resolve }
+  let reject
+  const promise = new Promise((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise
+    reject = rejectPromise
+  })
+  return { promise, resolve, reject }
 }
 
 async function mountHistoryRecord() {
@@ -109,5 +113,63 @@ describe("HistoryRecord", () => {
     expect(listAudits).toHaveBeenCalledTimes(2)
     expect(wrapper.find('[data-testid="history-error"]').exists()).toBe(false)
     expect(wrapper.get(".status-badge--running").text()).toContain("running")
+  })
+
+  it("ignores an older reload that resolves after the latest result", async () => {
+    const older = deferred()
+    const latest = deferred()
+    vi.mocked(listAudits)
+      .mockResolvedValueOnce([])
+      .mockReturnValueOnce(older.promise)
+      .mockReturnValueOnce(latest.promise)
+    const { wrapper } = await mountHistoryRecord()
+    await flushPromises()
+
+    const refresh = buttonWithText(wrapper, "刷新记录")
+    refresh.element.click()
+    refresh.element.click()
+    await flushPromises()
+    latest.resolve([{ id: 72, tokenId: 7, auditTime: "latest", status: "completed", progress: 100, overallConclusion: "最新审计" }])
+    await flushPromises()
+    older.resolve([{ id: 61, tokenId: 6, auditTime: "older", status: "failed", progress: 20, overallConclusion: "过期审计" }])
+    await flushPromises()
+
+    expect(wrapper.text()).toContain("最新审计")
+    expect(wrapper.text()).not.toContain("过期审计")
+  })
+
+  it("keeps loading for the newest request when an older reload finishes", async () => {
+    const older = deferred()
+    const latest = deferred()
+    vi.mocked(listAudits)
+      .mockResolvedValueOnce([])
+      .mockReturnValueOnce(older.promise)
+      .mockReturnValueOnce(latest.promise)
+    const { wrapper } = await mountHistoryRecord()
+    await flushPromises()
+
+    const refresh = buttonWithText(wrapper, "刷新记录")
+    refresh.element.click()
+    refresh.element.click()
+    await flushPromises()
+    older.resolve([])
+    await flushPromises()
+    expect(wrapper.get('[data-testid="history-loading"]').text()).toContain("正在加载")
+
+    latest.resolve([])
+    await flushPromises()
+    expect(wrapper.find('[data-testid="history-loading"]').exists()).toBe(false)
+  })
+
+  it("does not toast or apply a pending reload after unmount", async () => {
+    const response = deferred()
+    vi.mocked(listAudits).mockReturnValue(response.promise)
+    const errorToast = vi.spyOn(ElMessage, "error")
+    const { wrapper } = await mountHistoryRecord()
+    wrapper.unmount()
+
+    response.reject(new Error("late history failure"))
+    await flushPromises()
+    expect(errorToast).not.toHaveBeenCalled()
   })
 })

@@ -10,3 +10,14 @@ export function isUrl(v) {
     return false
   }
 }
+
+export function isBaseUrl(v) {
+  const value = String(v ?? "").trim()
+  if (!isUrl(value) || /[?#]/.test(value)) return false
+  try {
+    const url = new URL(value)
+    return !url.username && !url.password && url.pathname === "/"
+  } catch {
+    return false
+  }
+}

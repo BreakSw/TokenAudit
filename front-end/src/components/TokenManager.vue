@@ -136,7 +136,16 @@
             <el-table-column prop="claimedModel" label="宣称模型" min-width="150" />
             <el-table-column label="操作" width="88">
               <template #default="{ row }">
-                <el-button class="delete-button" type="danger" plain size="small" @click="remove(row.id)">删除</el-button>
+                <el-button
+                  class="delete-button"
+                  type="danger"
+                  plain
+                  size="small"
+                  :loading="deletingIds.has(row.id)"
+                  @click="remove(row.id)"
+                >
+                  删除
+                </el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -147,10 +156,10 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from "vue"
+import { onBeforeUnmount, onMounted, reactive, ref } from "vue"
 import { ElMessage, ElMessageBox } from "element-plus"
 import { createToken, deleteToken, listTokens } from "../request/api"
-import { isUrl, required } from "../utils/validate"
+import { isBaseUrl, required } from "../utils/validate"
 
 const tokens = ref([])
 const loading = ref(true)
@@ -158,6 +167,9 @@ const saving = ref(false)
 const loadError = ref("")
 const formError = ref("")
 const operationError = ref("")
+const deletingIds = ref(new Set())
+let requestSequence = 0
+let componentAlive = true
 
 const claimedModelGroups = [
   { label: "OpenAI", options: ["gpt-5.4", "gpt-5.3", "gpt-5.2", "o1", "o1-mini", "gpt-4o", "gpt-4o-mini"] },
@@ -199,19 +211,25 @@ function reset() {
 }
 
 async function reload() {
+  const sequence = ++requestSequence
   loading.value = true
   loadError.value = ""
+  tokens.value = []
   try {
-    tokens.value = (await listTokens()) || []
+    const loadedTokens = await listTokens()
+    if (!componentAlive || sequence !== requestSequence) return
+    tokens.value = loadedTokens || []
   } catch (error) {
+    if (!componentAlive || sequence !== requestSequence) return
     loadError.value = errorText(error, "加载失败")
     ElMessage.error(loadError.value)
   } finally {
-    loading.value = false
+    if (componentAlive && sequence === requestSequence) loading.value = false
   }
 }
 
 async function save() {
+  if (saving.value) return
   formError.value = ""
   operationError.value = ""
   const fields = [form.name, form.token, form.platform, form.tokenBaseUrl, form.claimedModel, form.nonClaimedModel]
@@ -219,42 +237,59 @@ async function save() {
     formError.value = "请补全必填项后再保存。"
     return
   }
-  if (!isUrl(form.tokenBaseUrl)) {
-    formError.value = "Base URL 格式不正确，请输入 http(s) 地址。"
+  if (!isBaseUrl(form.tokenBaseUrl)) {
+    formError.value = "Base URL 必须是 http(s) 服务根地址，不能包含路径、查询参数、片段或用户信息。"
     return
   }
   saving.value = true
   try {
     await createToken({ ...form })
+    if (!componentAlive) return
     ElMessage.success("Token 已保存")
     reset()
     await reload()
   } catch (error) {
+    if (!componentAlive) return
     operationError.value = errorText(error, "保存失败")
     ElMessage.error(operationError.value)
   } finally {
-    saving.value = false
+    if (componentAlive) saving.value = false
   }
 }
 
 async function remove(id) {
   try {
     await ElMessageBox.confirm("确认删除该 Token？删除后将无法用于新的审计。", "删除 Token", { type: "warning" })
-  } catch {
+  } catch (error) {
+    if (error === "cancel" || error === "close") return
+    if (!componentAlive) return
+    operationError.value = errorText(error, "删除确认失败")
+    ElMessage.error(operationError.value)
     return
   }
+  if (!componentAlive || deletingIds.value.has(id)) return
   operationError.value = ""
+  deletingIds.value.add(id)
   try {
     await deleteToken(id)
+    if (!componentAlive) return
     ElMessage.success("Token 已删除")
     await reload()
   } catch (error) {
+    if (!componentAlive) return
     operationError.value = errorText(error, "删除失败")
     ElMessage.error(operationError.value)
+  } finally {
+    if (componentAlive) deletingIds.value.delete(id)
   }
 }
 
 onMounted(reload)
+onBeforeUnmount(() => {
+  componentAlive = false
+  requestSequence += 1
+  deletingIds.value.clear()
+})
 </script>
 
 <style scoped>

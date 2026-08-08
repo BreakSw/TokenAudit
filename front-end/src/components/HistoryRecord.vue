@@ -80,7 +80,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue"
+import { onBeforeUnmount, onMounted, ref } from "vue"
 import { useRouter } from "vue-router"
 import { ElMessage } from "element-plus"
 import { listAudits } from "../request/api"
@@ -89,17 +89,24 @@ const router = useRouter()
 const records = ref([])
 const loading = ref(true)
 const loadError = ref("")
+let requestSequence = 0
+let componentAlive = true
 
 async function reload() {
+  const sequence = ++requestSequence
   loading.value = true
   loadError.value = ""
+  records.value = []
   try {
-    records.value = (await listAudits()) || []
+    const loadedRecords = await listAudits()
+    if (!componentAlive || sequence !== requestSequence) return
+    records.value = loadedRecords || []
   } catch (error) {
+    if (!componentAlive || sequence !== requestSequence) return
     loadError.value = error?.response?.data?.error || error?.message || "加载失败"
     ElMessage.error(loadError.value)
   } finally {
-    loading.value = false
+    if (componentAlive && sequence === requestSequence) loading.value = false
   }
 }
 
@@ -115,6 +122,10 @@ function statusType(status) {
 }
 
 onMounted(reload)
+onBeforeUnmount(() => {
+  componentAlive = false
+  requestSequence += 1
+})
 </script>
 
 <style scoped>
