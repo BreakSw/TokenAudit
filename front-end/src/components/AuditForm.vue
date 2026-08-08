@@ -1,162 +1,202 @@
 <template>
-  <el-card class="audit-card">
-    <template #header>
-      <div class="card-header">
-        <div>
-          <div class="card-title">发起审计</div>
-          <div class="card-subtitle">选择Token与导出格式，一键执行 5 项全维度审计</div>
-        </div>
-        <div class="card-actions">
-          <el-button @click="reloadTokens" :loading="loadingTokens">刷新Token列表</el-button>
-          <el-button type="primary" plain @click="$router.push('/tokens')">去管理Token</el-button>
-        </div>
+  <div class="audit-console">
+    <section
+      v-reveal
+      class="audit-heading"
+      data-testid="audit-major-section"
+      aria-labelledby="audit-workflow-title"
+    >
+      <div data-testid="audit-heading">
+        <div class="eyebrow"><span class="signal-dot" />LIVE AUDIT / 实时取证</div>
+        <h1 id="audit-workflow-title">实时审计工作流</h1>
+        <p>面向 Token 的六个审计维度 + 综合判定，过程证据持续写入事件终端。</p>
       </div>
-    </template>
+      <div class="heading-actions" aria-label="审计快捷入口">
+        <el-button @click="router.push('/history')">历史审计</el-button>
+        <el-button type="primary" plain @click="router.push('/tokens')">管理 Token</el-button>
+      </div>
+    </section>
 
-    <el-collapse v-model="openGuide" style="margin-bottom: 14px">
-      <el-collapse-item name="guide" title="新手教程（建议先展开看一遍）">
-        <el-row :gutter="16">
-          <el-col :span="12">
-            <el-alert
-              type="info"
-              show-icon
-              :closable="false"
-              title="1) 先录入Token"
-              description="进入「Token管理」新增一条Token记录。Base URL 只填域名根（例如 https://api.xiaoma.best），宣称模型填中转站返回的 model（例如 claude-opus-4-6）。"
+    <section
+      v-reveal="{ stagger: 45 }"
+      class="console-panel configuration-panel"
+      data-testid="audit-major-section"
+      aria-labelledby="configuration-title"
+    >
+      <header class="panel-header" data-testid="audit-configuration">
+        <div>
+          <span class="panel-index">01 / CONFIG</span>
+          <h2 id="configuration-title">Token 与导出配置</h2>
+        </div>
+        <span class="panel-note">选择审计对象与交付格式</span>
+      </header>
+
+      <div class="configuration-grid">
+        <div class="field-block token-field">
+          <label class="field-label" for="audit-token-select">审计 Token</label>
+          <el-select
+            id="audit-token-select"
+            v-model="tokenId"
+            :disabled="!tokens.length"
+            filterable
+            placeholder="选择一个可用 Token"
+          >
+            <el-option
+              v-for="token in tokens"
+              :key="token.id"
+              :label="`${token.name} (${token.tokenMasked})`"
+              :value="token.id"
             />
-          </el-col>
-          <el-col :span="12">
-            <el-alert
-              type="success"
-              show-icon
-              :closable="false"
-              title="2) 发起审计"
-              description="选择Token后点击「开始审计」。页面会显示真实进度与每一步的调用记录（token_call/deepseek_call）。"
-            />
-          </el-col>
-        </el-row>
-        <el-row :gutter="16" style="margin-top: 12px">
-          <el-col :span="12">
-            <el-alert
-              type="warning"
-              show-icon
-              :closable="false"
-              title="3) 导出格式怎么选"
-              description="json/markdown/excel 为常用；pdf 需要配置字体（AUDIT_PDF_FONT_TTF），否则会自动跳过 PDF 导出。"
-            />
-          </el-col>
-          <el-col :span="12">
-            <el-alert
-              type="info"
-              show-icon
-              :closable="false"
-              title="4) 审计大概多久"
-              description="一次审计包含约 25 次中转调用 + 6 次 DeepSeek 判定；通常 1–8 分钟，取决于平台速度与限流。"
-            />
-          </el-col>
-        </el-row>
-      </el-collapse-item>
-    </el-collapse>
+          </el-select>
+          <p v-if="tokens.length" class="field-help">已载入 {{ tokens.length }} 个 Token，密钥仅显示脱敏标识。</p>
+          <p v-else class="field-help field-help--warning" role="status">
+            暂无可用 Token。请先前往“管理 Token”录入凭据，再刷新列表。
+          </p>
+        </div>
 
-    <el-row :gutter="16">
-      <el-col :span="14">
-        <el-form class="audit-form" label-width="120px">
-          <el-form-item label="选择Token">
-            <el-select v-model="tokenId" placeholder="请选择" filterable style="width: 100%">
-              <el-option v-for="t in tokens" :key="t.id" :label="`${t.name} (${t.tokenMasked})`" :value="t.id" />
-            </el-select>
-          </el-form-item>
+        <fieldset class="field-block format-field">
+          <legend class="field-label">报告导出格式</legend>
+          <el-checkbox-group v-model="exportFormats" class="format-options">
+            <el-checkbox value="json">JSON</el-checkbox>
+            <el-checkbox value="md">Markdown</el-checkbox>
+            <el-checkbox value="xlsx">Excel</el-checkbox>
+            <el-checkbox value="pdf">PDF</el-checkbox>
+          </el-checkbox-group>
+          <p class="field-help">PDF 需服务端配置中文字体，未配置时会自动跳过。</p>
+        </fieldset>
+      </div>
 
-          <el-form-item label="导出格式">
-            <el-checkbox-group v-model="exportFormats">
-              <el-checkbox label="json" />
-              <el-checkbox label="md" />
-              <el-checkbox label="xlsx" />
-              <el-checkbox label="pdf" />
-            </el-checkbox-group>
-          </el-form-item>
+      <div class="configuration-actions">
+        <el-button
+          type="primary"
+          :loading="submitting"
+          :disabled="status === 'running'"
+          @click="submit"
+        >
+          开始审计
+        </el-button>
+        <el-button :loading="loadingTokens" @click="reloadTokens">刷新 Token</el-button>
+        <el-button @click="router.push('/tokens')">管理 Token</el-button>
+        <el-button @click="router.push('/history')">历史</el-button>
+        <el-button v-if="auditId" type="primary" plain @click="router.push(`/report/${auditId}`)">
+          查看报告
+        </el-button>
+      </div>
+    </section>
 
-          <el-form-item>
-            <el-button type="primary" size="large" :loading="submitting" :disabled="status === 'running'" @click="submit">
-              开始审计
-            </el-button>
-            <el-button size="large" @click="$router.push('/history')">查看历史</el-button>
-            <el-button v-if="auditId" size="large" type="primary" plain @click="router.push(`/report/${auditId}`)">查看报告</el-button>
-          </el-form-item>
-        </el-form>
+    <section
+      v-reveal="{ stagger: 90 }"
+      class="console-panel pipeline-panel"
+      :class="`pipeline-panel--${status || 'ready'}`"
+      data-testid="audit-major-section"
+      aria-labelledby="pipeline-title"
+    >
+      <header class="panel-header" data-testid="audit-pipeline">
+        <div>
+          <span class="panel-index">02 / PIPELINE</span>
+          <h2 id="pipeline-title">七阶段审计管线</h2>
+        </div>
+        <div class="pipeline-controls">
+          <span class="status-chip" :class="`status-chip--${status || 'ready'}`">{{ statusText }}</span>
+          <el-button size="small" :loading="refreshing" :disabled="!auditId" @click="refreshOnce">
+            刷新进度
+          </el-button>
+        </div>
+      </header>
 
-        <div class="progress-card">
-          <div class="progress-head">
-            <div class="progress-title">实时进度</div>
-            <div style="display: flex; gap: 10px; align-items: center">
-              <el-tag :type="statusTagType">{{ statusText }}</el-tag>
-              <el-button size="small" @click="refreshOnce" :loading="refreshing" :disabled="!auditId">刷新</el-button>
-            </div>
+      <div class="progress-overview">
+        <div class="progress-copy">
+          <strong>{{ auditId ? `${progress}%` : '0%' }}</strong>
+          <span>{{ auditId ? currentStageLabel : "等待启动" }}</span>
+        </div>
+        <el-progress :percentage="auditId ? progress : 0" :stroke-width="6" :show-text="false" />
+        <dl class="progress-meta">
+          <div>
+            <dt>审计 ID</dt>
+            <dd>{{ auditId || "—" }}</dd>
           </div>
-          <el-progress :percentage="auditId ? progress : 0" :stroke-width="10" />
-          <div class="stage-row">
-            <el-tag v-if="auditId" size="small" type="info">当前阶段：{{ currentStageLabel }}</el-tag>
-            <div v-else class="stage-placeholder">开始审计后，这里会显示实时进度与当前审计阶段</div>
+          <div>
+            <dt>当前阶段</dt>
+            <dd>{{ auditId ? currentStageLabel : "准备态" }}</dd>
           </div>
-          <el-steps v-if="auditId" :active="activeStepIndex" align-center class="stage-steps">
-            <el-step v-for="stage in AUDIT_STAGES" :key="stage.key" :title="stage.label" />
-          </el-steps>
-          <div class="progress-meta">
-            <div>审计ID：{{ auditId || "-" }}</div>
-            <div v-if="progressHint">{{ progressHint }}</div>
+          <div>
+            <dt>状态</dt>
+            <dd>{{ statusText }}</dd>
+          </div>
+        </dl>
+        <p class="progress-hint">
+          {{ progressHint || "选择 Token 并开始审计后，七阶段证据将在此实时推进。" }}
+        </p>
+      </div>
+
+      <ol class="stage-list" aria-label="审计阶段">
+        <li
+          v-for="(stage, index) in AUDIT_STAGES"
+          :key="stage.key"
+          class="audit-stage"
+          :class="`audit-stage--${stageState(index)}`"
+          data-testid="audit-stage"
+        >
+          <span class="stage-marker">{{ String(index + 1).padStart(2, "0") }}</span>
+          <div class="stage-copy">
+            <strong>{{ stage.label }}</strong>
+            <span>{{ stage.detail }}</span>
+          </div>
+          <span class="stage-state">{{ stageStateText(index) }}</span>
+        </li>
+      </ol>
+    </section>
+
+    <section
+      v-reveal="{ stagger: 135 }"
+      class="console-panel terminal-panel"
+      data-testid="audit-major-section"
+      aria-labelledby="terminal-title"
+    >
+      <header class="panel-header terminal-header" data-testid="audit-terminal">
+        <div>
+          <span class="panel-index">03 / EVENT STREAM</span>
+          <h2 id="terminal-title">实时事件终端</h2>
+        </div>
+        <div class="terminal-actions">
+          <span>{{ displayEvents.length }} / 200 EVENTS</span>
+          <el-button size="small" :disabled="!displayEvents.length" @click="clearView">清空显示</el-button>
+        </div>
+      </header>
+
+      <div class="terminal-window" role="log" aria-live="polite" aria-label="审计实时事件">
+        <div v-if="!displayEvents.length" class="terminal-empty">
+          <span class="terminal-prompt">$</span>
+          <div>
+            <strong>暂无审计事件</strong>
+            <p>{{ auditId ? "等待后端返回下一条审计证据…" : "启动审计后，调用状态与耗时将在这里逐行显示。" }}</p>
           </div>
         </div>
-      </el-col>
-      <el-col :span="10">
-        <div class="right-pane">
-          <div class="pane-title">执行内容</div>
-          <el-steps direction="vertical" :active="sideActiveStep" class="pane-steps">
-            <el-step title="有效性" description="3次不同指令调用，记录状态码/耗时/响应" />
-            <el-step title="权限" description="宣称模型/非宣称模型/匿名调用三场景校验" />
-            <el-step title="掺水" description="多轮响应特征提取与能力差异判定" />
-            <el-step title="合规" description="泄露/匿名/高频调用风险检测" />
-            <el-step title="稳定" description="同指令5次调用一致性与波动分析" />
-          </el-steps>
-          <el-alert
-            style="margin-top: 12px"
-            type="warning"
-            show-icon
-            :closable="false"
-            title="注意"
-            description="PDF导出需要配置字体（AUDIT_PDF_FONT_TTF），否则会自动跳过PDF导出。"
-          />
-        </div>
-      </el-col>
-    </el-row>
 
-    <div v-if="auditId" style="margin-top: 14px">
-      <el-card>
-        <template #header>
-          <div class="card-header">
-            <div>
-              <div class="card-title">审计过程（真实进度）</div>
-              <div class="card-subtitle">这里展示后端实时采集到的每一步事件（来自 Python 多Agent stderr）</div>
-            </div>
-            <el-button size="small" @click="clearView">清空显示</el-button>
+        <article
+          v-for="(row, index) in displayEvents"
+          v-else
+          :key="`${row.ts || 'event'}-${index}`"
+          class="terminal-event"
+          data-testid="terminal-event"
+        >
+          <div class="event-lead">
+            <time data-testid="event-timestamp">{{ row.ts || "—" }}</time>
+            <el-tag data-testid="event-tag" size="small" :type="eventTagType(row.event)">
+              {{ row.event || "unknown_event" }}
+            </el-tag>
           </div>
-        </template>
-
-        <el-table :data="displayEvents" height="360" stripe style="width: 100%">
-          <el-table-column prop="ts" label="时间" width="210" />
-          <el-table-column prop="event" label="事件" width="160">
-            <template #default="{ row }">
-              <el-tag size="small" :type="eventTagType(row.event)">{{ row.event }}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="说明">
-            <template #default="{ row }">
-              <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ eventText(row) }}</div>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-card>
-    </div>
-  </el-card>
+          <p class="event-explanation" data-testid="event-explanation">{{ eventText(row) }}</p>
+          <dl v-if="eventDetails(row).length" class="event-details">
+            <div v-for="detail in eventDetails(row)" :key="detail.key">
+              <dt>{{ detail.label }}</dt>
+              <dd>{{ detail.value }}</dd>
+            </div>
+          </dl>
+        </article>
+      </div>
+    </section>
+  </div>
 </template>
 
 <script setup>
@@ -179,7 +219,6 @@ const status = ref("")
 const progress = ref(0)
 const refreshing = ref(false)
 const events = ref([])
-const openGuide = ref(["guide"])
 let pollTimer = null
 const LAST_AUDIT_ID_KEY = "lastAuditId"
 
@@ -198,18 +237,13 @@ const currentStage = computed(() => {
 
 const activeStepIndex = computed(() => stageIndex(currentStage.value))
 
-const sideActiveStep = computed(() => {
-  const idx = activeStepIndex.value
-  return Math.min(idx, 4)
-})
-
 const currentStageLabel = computed(() => stageLabel(currentStage.value))
 
 const statusText = computed(() => {
   if (status.value === "running") return "审计中"
   if (status.value === "completed") return "已完成"
   if (status.value === "failed") return "失败"
-  return status.value || "-"
+  return status.value || "准备就绪"
 })
 const statusTagType = computed(() => {
   if (status.value === "running") return "warning"
@@ -224,6 +258,46 @@ const progressHint = computed(() => {
   if (status.value === "failed") return "审计失败，可查看事件列表定位失败位置"
   return ""
 })
+
+function stageState(index) {
+  if (!auditId.value) return "ready"
+  if (status.value === "completed") return "completed"
+  if (index < activeStepIndex.value) return "completed"
+  if (currentStage.value && index === activeStepIndex.value) {
+    return status.value === "failed" ? "failed" : "running"
+  }
+  return "pending"
+}
+
+function stageStateText(index) {
+  const labels = {
+    ready: "待命",
+    pending: "等待",
+    running: "执行中",
+    completed: "完成",
+    failed: "中断"
+  }
+  return labels[stageState(index)]
+}
+
+function eventDetails(row) {
+  const payload = row?.payload || {}
+  const details = []
+  if (payload.status_code !== undefined && payload.status_code !== null) {
+    details.push({ key: "status_code", label: "STATUS", value: `HTTP ${payload.status_code}` })
+  }
+  if (payload.elapsed_ms !== undefined && payload.elapsed_ms !== null) {
+    details.push({ key: "elapsed_ms", label: "LATENCY", value: `${payload.elapsed_ms} ms` })
+  }
+  if (payload.model) details.push({ key: "model", label: "MODEL", value: payload.model })
+  if (payload.phase) {
+    const phaseName = stageLabel(payload.phase)
+    details.push({ key: "phase", label: "PHASE", value: phaseName === "-" ? payload.phase : phaseName })
+  }
+  if (payload.scenario) details.push({ key: "scenario", label: "SCENARIO", value: payload.scenario })
+  if (payload.status) details.push({ key: "status", label: "RESULT", value: payload.status })
+  return details
+}
 
 async function reloadTokens() {
   loadingTokens.value = true
@@ -364,96 +438,594 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+.audit-console {
+  display: grid;
   gap: 14px;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
-.card-title {
-  font-weight: 900;
-  color: rgba(15, 23, 42, 0.92);
-  line-height: 18px;
-}
-
-.card-subtitle {
-  margin-top: 6px;
-  font-size: 12px;
-  color: rgba(15, 23, 42, 0.62);
-}
-
-.card-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.audit-form {
-  margin-top: 4px;
-}
-
-.right-pane {
-  padding: 14px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(17, 24, 39, 0.08);
-}
-
-.pane-title {
-  font-weight: 800;
-  color: rgba(15, 23, 42, 0.86);
-  margin-bottom: 10px;
-}
-
-.pane-steps {
-  padding-right: 10px;
-}
-
-.progress-card {
-  margin-top: 12px;
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(17, 24, 39, 0.08);
-}
-
-.progress-head {
+.audit-heading,
+.panel-header,
+.configuration-actions,
+.pipeline-controls,
+.terminal-actions,
+.event-lead {
   display: flex;
   align-items: center;
+}
+
+.audit-heading {
   justify-content: space-between;
-  margin-bottom: 10px;
-  gap: 10px;
+  gap: 24px;
+  padding: 6px 0 10px;
+  border-bottom: 1px solid var(--ta-line);
 }
 
-.progress-title {
-  font-weight: 900;
-  color: rgba(15, 23, 42, 0.92);
+.eyebrow,
+.panel-index,
+.panel-note,
+.field-label,
+.terminal-actions,
+.event-lead,
+.event-details,
+.progress-meta,
+.stage-state {
+  font-family: var(--ta-mono);
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ta-green);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.signal-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--ta-green);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(67, 224, 162, 0.58);
+}
+
+.audit-heading h1 {
+  margin: 5px 0 2px;
+  color: var(--ta-text);
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+
+.audit-heading p {
+  margin: 0;
+  color: var(--ta-muted);
+  font-size: 13px;
+}
+
+.heading-actions,
+.configuration-actions,
+.pipeline-controls,
+.terminal-actions {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.heading-actions {
+  justify-content: flex-end;
+}
+
+.console-panel {
+  overflow: hidden;
+  background: var(--ta-panel);
+  border: 1px solid var(--ta-line);
+  border-radius: var(--ta-radius);
+}
+
+.panel-header {
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 58px;
+  padding: 11px 14px;
+  background: var(--ta-panel-raised);
+  border-bottom: 1px solid var(--ta-line);
+}
+
+.panel-index {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--ta-green);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.panel-header h2 {
+  margin: 0;
+  color: var(--ta-text);
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.panel-note,
+.terminal-actions {
+  color: var(--ta-faint);
+  font-size: 11px;
+}
+
+.configuration-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.1fr) minmax(320px, 1fr);
+  gap: 0;
+}
+
+.field-block {
+  min-width: 0;
+  margin: 0;
+  padding: 16px;
+  border: 0;
+}
+
+.format-field {
+  border-left: 1px solid var(--ta-line);
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  padding: 0;
+  color: var(--ta-text);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.token-field :deep(.el-select) {
+  width: 100%;
+}
+
+.field-help {
+  min-height: 18px;
+  margin: 7px 0 0;
+  color: var(--ta-faint);
+  font-size: 11px;
+}
+
+.field-help--warning {
+  color: var(--ta-amber);
+}
+
+.format-options {
+  display: flex;
+  gap: 5px 18px;
+  flex-wrap: wrap;
+}
+
+.format-options :deep(.el-checkbox) {
+  margin-right: 0;
+}
+
+.configuration-actions {
+  padding: 11px 14px;
+  border-top: 1px solid var(--ta-line);
+}
+
+.pipeline-panel--running {
+  border-color: rgba(233, 187, 99, 0.25);
+}
+
+.pipeline-panel--completed {
+  border-color: rgba(67, 224, 162, 0.32);
+}
+
+.pipeline-panel--failed {
+  border-color: rgba(255, 125, 121, 0.34);
+}
+
+.status-chip {
+  padding: 3px 8px;
+  color: var(--ta-faint);
+  background: var(--ta-code);
+  border: 1px solid var(--ta-line);
+  border-radius: 4px;
+  font-family: var(--ta-mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+}
+
+.status-chip--running {
+  color: var(--ta-amber);
+  border-color: rgba(233, 187, 99, 0.28);
+}
+
+.status-chip--completed {
+  color: var(--ta-green);
+  border-color: rgba(67, 224, 162, 0.32);
+}
+
+.status-chip--failed {
+  color: var(--ta-danger);
+  border-color: rgba(255, 125, 121, 0.32);
+}
+
+.progress-overview {
+  padding: 15px 14px 13px;
+  border-bottom: 1px solid var(--ta-line);
+}
+
+.progress-copy {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+
+.progress-copy strong {
+  color: var(--ta-green);
+  font-family: var(--ta-mono);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.progress-copy span {
+  color: var(--ta-muted);
+  font-size: 12px;
 }
 
 .progress-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin: 13px 0 0;
+  background: var(--ta-line);
+  border: 1px solid var(--ta-line);
+  border-radius: 4px;
+}
+
+.progress-meta div {
+  min-width: 0;
+  padding: 8px 10px;
+  background: var(--ta-code);
+}
+
+.progress-meta dt {
+  color: var(--ta-faint);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.progress-meta dd {
+  overflow-wrap: anywhere;
+  margin: 2px 0 0;
+  color: var(--ta-text);
+  font-size: 11px;
+}
+
+.progress-hint {
+  margin: 10px 0 0;
+  color: var(--ta-muted);
+  font-size: 11px;
+}
+
+.stage-list {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.audit-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 130px;
+  padding: 14px 12px;
+  background: var(--ta-panel);
+  border-right: 1px solid var(--ta-line);
+}
+
+.audit-stage:last-child {
+  border-right: 0;
+}
+
+.audit-stage::before {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 2px;
+  background: transparent;
+  content: "";
+}
+
+.audit-stage--running::before {
+  background: var(--ta-amber);
+}
+
+.audit-stage--completed::before {
+  background: var(--ta-green);
+}
+
+.audit-stage--failed::before {
+  background: var(--ta-danger);
+}
+
+.stage-marker {
+  display: inline-grid;
+  width: 25px;
+  height: 22px;
+  place-items: center;
+  color: var(--ta-faint);
+  background: var(--ta-code);
+  border: 1px solid var(--ta-line);
+  border-radius: 4px;
+  font-family: var(--ta-mono);
+  font-size: 10px;
+}
+
+.audit-stage--running .stage-marker {
+  color: var(--ta-amber);
+  border-color: rgba(233, 187, 99, 0.3);
+}
+
+.audit-stage--completed .stage-marker {
+  color: var(--ta-green);
+  border-color: rgba(67, 224, 162, 0.3);
+}
+
+.audit-stage--failed .stage-marker {
+  color: var(--ta-danger);
+  border-color: rgba(255, 125, 121, 0.3);
+}
+
+.stage-copy {
+  display: grid;
+  gap: 5px;
   margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  color: rgba(15, 23, 42, 0.62);
+}
+
+.stage-copy strong {
+  color: var(--ta-text);
   font-size: 12px;
+  font-weight: 650;
 }
 
-.stage-row {
-  margin-top: 10px;
+.stage-copy span {
+  color: var(--ta-faint);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.stage-state {
+  display: block;
+  margin-top: 9px;
+  color: var(--ta-decorative);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+}
+
+.audit-stage--running .stage-state {
+  color: var(--ta-amber);
+}
+
+.audit-stage--completed .stage-state {
+  color: var(--ta-green);
+}
+
+.audit-stage--failed .stage-state {
+  color: var(--ta-danger);
+}
+
+.terminal-panel {
+  background: var(--ta-code);
+}
+
+.terminal-header {
+  background: #07100b;
+}
+
+.terminal-window {
+  max-height: 520px;
+  overflow: auto;
+  background:
+    linear-gradient(rgba(67, 224, 162, 0.018) 1px, transparent 1px),
+    var(--ta-code);
+  background-size: 100% 28px;
+  font-family: var(--ta-mono);
+}
+
+.terminal-empty {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
+  align-items: flex-start;
+  min-height: 150px;
+  padding: 24px;
+  color: var(--ta-muted);
 }
 
-.stage-placeholder {
-  color: rgba(15, 23, 42, 0.62);
+.terminal-empty strong {
+  color: var(--ta-text);
   font-size: 12px;
+  font-weight: 500;
 }
 
-.stage-steps {
-  margin-top: 10px;
+.terminal-empty p {
+  margin: 5px 0 0;
+  color: var(--ta-faint);
+  font-size: 11px;
+}
+
+.terminal-prompt {
+  color: var(--ta-green);
+}
+
+.terminal-event {
+  display: grid;
+  grid-template-columns: minmax(265px, 0.7fr) minmax(280px, 1.1fr) minmax(300px, 1fr);
+  gap: 14px;
+  align-items: start;
+  min-width: 880px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--ta-line);
+}
+
+.terminal-event:hover {
+  background: rgba(67, 224, 162, 0.025);
+}
+
+.event-lead {
+  gap: 9px;
+  min-width: 0;
+}
+
+.event-lead time {
+  color: var(--ta-faint);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.event-explanation {
+  margin: 1px 0 0;
+  color: var(--ta-text);
+  font-size: 11px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.event-details {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+.event-details div {
+  display: flex;
+  gap: 5px;
+  min-width: 0;
+  padding: 3px 6px;
+  background: rgba(67, 224, 162, 0.035);
+  border: 1px solid var(--ta-line);
+  border-radius: 4px;
+}
+
+.event-details dt {
+  color: var(--ta-faint);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+}
+
+.event-details dd {
+  overflow-wrap: anywhere;
+  margin: 0;
+  color: var(--ta-green);
+  font-size: 9px;
+}
+
+@media (max-width: 1100px) {
+  .stage-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .audit-stage {
+    border-bottom: 1px solid var(--ta-line);
+  }
+
+  .audit-stage:nth-child(4n) {
+    border-right: 0;
+  }
+
+  .audit-stage:nth-last-child(-n + 3) {
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 840px) {
+  .audit-heading {
+    align-items: flex-start;
+  }
+
+  .configuration-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .format-field {
+    border-top: 1px solid var(--ta-line);
+    border-left: 0;
+  }
+
+  .stage-list {
+    grid-template-columns: 1fr;
+  }
+
+  .audit-stage {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    gap: 9px;
+    align-items: start;
+    min-height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--ta-line) !important;
+  }
+
+  .audit-stage:last-child {
+    border-bottom: 0 !important;
+  }
+
+  .stage-copy,
+  .stage-state {
+    margin-top: 0;
+  }
+
+  .terminal-event {
+    grid-template-columns: 1fr;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .audit-console {
+    gap: 10px;
+  }
+
+  .audit-heading,
+  .panel-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .heading-actions,
+  .configuration-actions,
+  .pipeline-controls,
+  .terminal-actions {
+    justify-content: stretch;
+  }
+
+  .heading-actions :deep(.el-button),
+  .configuration-actions :deep(.el-button) {
+    flex: 1 1 calc(50% - 4px);
+    margin-left: 0;
+  }
+
+  .progress-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .format-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .terminal-actions {
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .event-lead {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 </style>
