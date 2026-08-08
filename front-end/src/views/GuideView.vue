@@ -12,7 +12,6 @@
           placeholder="搜索章节、端点或错误码"
           autocomplete="off"
         />
-        <kbd>/</kbd>
       </div>
     </header>
 
@@ -33,7 +32,7 @@
         </nav>
       </aside>
 
-      <main class="guide-article">
+      <article class="guide-article" data-testid="guide-article">
         <div class="article-heading">
           <p class="eyebrow">TOKENAUDIT / QUICKSTART</p>
           <h1>API 使用指南</h1>
@@ -45,7 +44,9 @@
 
         <section id="requirements" v-reveal>
           <h2><a href="#requirements">运行要求</a></h2>
-          <p>准备 Node.js 与 npm、Java 与 Maven，以及 Python 3。三个进程分别承载前端、API 和审计核心。</p>
+          <p>
+            准备 Node.js 与 npm、Java 与 Maven，以及 Python 3。前端与 API 是常驻服务；审计核心由 API 在收到任务后拉起。
+          </p>
           <dl class="requirements-list">
             <div><dt>前端</dt><dd>Vue 3 + Vite，开发端口 <code>5173</code></dd></div>
             <div><dt>后端</dt><dd>Spring Boot，API 端口 <code>8086</code></dd></div>
@@ -62,7 +63,11 @@
           <div class="code-shell" data-testid="copy-environment">
             <div class="code-toolbar">
               <span>.env（仓库根目录）</span>
-              <button type="button" @click="copyCode('environment', codeSamples.environment)">复制</button>
+              <button
+                type="button"
+                aria-label="复制后端环境变量示例"
+                @click="copyCode('environment', codeSamples.environment)"
+              >复制</button>
               <span
                 v-if="copyState.environment"
                 class="copy-feedback"
@@ -81,6 +86,7 @@
               <span>front-end/.env.development</span>
               <button
                 type="button"
+                aria-label="复制前端环境变量示例"
                 @click="copyCode('frontEnvironment', codeSamples.frontEnvironment)"
               >复制</button>
               <span
@@ -100,11 +106,18 @@
 
         <section id="start" v-reveal>
           <h2><a href="#start">启动项目</a></h2>
-          <p>分别在三个终端启动审计核心、Spring Boot 与 Vite。</p>
+          <p>
+            先安装 Python 依赖，然后只需启动 Spring Boot 后端和 Vite 前端。无需单独启动审计核心；
+            后端按任务执行 <code>python -m audit_core</code>，向其 stdin 写入一次 JSON，进程输出报告后退出。
+          </p>
           <div class="code-shell" data-testid="copy-start">
             <div class="code-toolbar">
               <span>powershell / bash</span>
-              <button type="button" @click="copyCode('start', codeSamples.start)">复制</button>
+              <button
+                type="button"
+                aria-label="复制安装与启动命令示例"
+                @click="copyCode('start', codeSamples.start)"
+              >复制</button>
               <span
                 v-if="copyState.start"
                 class="copy-feedback"
@@ -119,7 +132,11 @@
           <div class="endpoint-block" data-testid="copy-health">
             <div class="endpoint-heading">
               <span class="method method--get">GET</span>{{ " " }}<code>/api/agents/health</code>
-              <button type="button" @click="copyCode('health', codeSamples.health)">复制</button>
+              <button
+                type="button"
+                aria-label="复制健康检查示例"
+                @click="copyCode('health', codeSamples.health)"
+              >复制</button>
               <span
                 v-if="copyState.health"
                 class="copy-feedback"
@@ -140,7 +157,11 @@
           <div class="code-shell" data-testid="copy-token">
             <div class="code-toolbar">
               <span>request</span>
-              <button type="button" @click="copyCode('token', codeSamples.token)">复制</button>
+              <button
+                type="button"
+                aria-label="复制创建 Token 示例"
+                @click="copyCode('token', codeSamples.token)"
+              >复制</button>
               <span
                 v-if="copyState.token"
                 class="copy-feedback"
@@ -162,7 +183,11 @@
           <div class="endpoint-block" data-testid="copy-audit">
             <div class="endpoint-heading">
               <span class="method method--post">POST</span>{{ " " }}<code>/api/audits</code>
-              <button type="button" @click="copyCode('audit', codeSamples.audit)">复制</button>
+              <button
+                type="button"
+                aria-label="复制创建审计示例"
+                @click="copyCode('audit', codeSamples.audit)"
+              >复制</button>
               <span
                 v-if="copyState.audit"
                 class="copy-feedback"
@@ -181,7 +206,11 @@
           <div class="endpoint-block" data-testid="copy-events">
             <div class="endpoint-heading">
               <span class="method method--get">GET</span>{{ " " }}<code>/api/audits/{id}/events</code>
-              <button type="button" @click="copyCode('events', codeSamples.events)">复制</button>
+              <button
+                type="button"
+                aria-label="复制审计事件示例"
+                @click="copyCode('events', codeSamples.events)"
+              >复制</button>
               <span
                 v-if="copyState.events"
                 class="copy-feedback"
@@ -202,7 +231,11 @@
           <div class="endpoint-block" data-testid="copy-report">
             <div class="endpoint-heading">
               <span class="method method--get">GET</span>{{ " " }}<code>/api/audits/{id}</code>
-              <button type="button" @click="copyCode('report', codeSamples.report)">复制</button>
+              <button
+                type="button"
+                aria-label="复制审计报告示例"
+                @click="copyCode('report', codeSamples.report)"
+              >复制</button>
               <span
                 v-if="copyState.report"
                 class="copy-feedback"
@@ -233,7 +266,7 @@
             <p>先读取事件接口中的 <code>audit_failed</code> payload，再检查目标模型服务与 DeepSeek 配置。</p>
           </div>
         </section>
-      </main>
+      </article>
 
       <aside class="toc-sidebar">
         <nav aria-label="本页目录">
@@ -278,16 +311,16 @@ DEEPSEEK_BASE_URL=https://api.deepseek.com/v1/chat/completions
 DEEPSEEK_MODEL=deepseek-chat
 BACKEND_API_KEY=`,
   frontEnvironment: `VITE_BACKEND_BASE_URL=http://localhost:8086`,
-  start: `# 终端 1：审计核心
+  start: `# 安装步骤：在仓库根目录执行一次
 cd audit-core
 pip install -r requirements.txt
-python -m audit_core
+cd ..
 
-# 终端 2：Spring Boot API（http://localhost:8086）
+# 运行服务：终端 1 启动 Spring Boot API（http://localhost:8086）
 cd back-end
 mvn spring-boot:run
 
-# 终端 3：Vite（http://localhost:5173）
+# 运行服务：终端 2 启动 Vite（http://localhost:5173）
 cd front-end
 npm install
 npm run dev`,
@@ -425,16 +458,6 @@ async function copyCode(key, content) {
 
 .search-control input::placeholder {
   color: var(--ta-faint);
-}
-
-.search-control kbd {
-  padding: 1px 6px;
-  color: var(--ta-faint);
-  background: var(--ta-panel-raised);
-  border: 1px solid var(--ta-line);
-  border-radius: 4px;
-  font-family: var(--ta-mono);
-  font-size: 10px;
 }
 
 .docs-layout {

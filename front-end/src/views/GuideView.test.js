@@ -54,6 +54,28 @@ describe("GuideView", () => {
     }
   })
 
+  it("uses an article inside the application main landmark", () => {
+    const wrapper = mountGuide()
+
+    expect(wrapper.find("main").exists()).toBe(false)
+    expect(wrapper.get('[data-testid="guide-article"]').element.tagName).toBe("ARTICLE")
+  })
+
+  it("describes Python as a per-audit child process instead of a third service", () => {
+    const wrapper = mountGuide()
+    const start = wrapper.get("#start")
+    const commands = start.get('[data-testid="copy-start"]')
+
+    expect(start.text()).toContain("无需单独启动审计核心")
+    expect(start.text()).toContain("后端按任务执行")
+    expect(start.text()).toContain("python -m audit_core")
+    expect(commands.text()).toContain("pip install -r requirements.txt")
+    expect(commands.text()).not.toContain("python -m audit_core")
+    expect(start.text()).not.toContain("终端 1：审计核心")
+    expect(start.text()).not.toContain("三个终端")
+    expect(wrapper.text()).not.toContain("三个进程")
+  })
+
   it("separates backend and Vite env files and states the API key rule", () => {
     const wrapper = mountGuide()
 
@@ -86,6 +108,17 @@ describe("GuideView", () => {
       expect.stringContaining("GET /api/agents/health")
     )
     expect(wrapper.get('[data-testid="copy-health"] [role="status"]').text()).toBe("已复制")
+  })
+
+  it("gives every copy action a unique accessible name and does not advertise a missing shortcut", () => {
+    const wrapper = mountGuide()
+    const copyButtons = wrapper.findAll(".code-toolbar button, .endpoint-heading button")
+    const labels = copyButtons.map((button) => button.attributes("aria-label"))
+
+    expect(copyButtons).toHaveLength(8)
+    expect(labels.every(Boolean)).toBe(true)
+    expect(new Set(labels).size).toBe(copyButtons.length)
+    expect(wrapper.find(".search-control kbd").exists()).toBe(false)
   })
 
   it("gives accessible Chinese feedback when copying fails", async () => {
