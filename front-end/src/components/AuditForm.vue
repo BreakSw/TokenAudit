@@ -237,6 +237,11 @@ const inFlightRefreshes = new Map()
 const LAST_AUDIT_ID_KEY = "lastAuditId"
 const validPhases = new Set(AUDIT_STAGES.map((stage) => stage.key))
 
+function stageKeysForPhase(phase) {
+  if (phase === "compliance_stability") return ["compliance", "stability"]
+  return validPhases.has(phase) ? [phase] : []
+}
+
 function numericEventId(row) {
   if (row?.id === undefined || row?.id === null || row.id === "") return null
   const id = Number(row.id)
@@ -275,37 +280,41 @@ const stageProgress = computed(() => {
   const states = Object.fromEntries(
     AUDIT_STAGES.map((stage) => [stage.key, auditId.value ? "pending" : "ready"])
   )
-  const activePhases = []
-  let latestPhase = ""
+  const activeStageKeys = []
+  let latestStageKeys = []
 
   for (const row of events.value) {
     const phase = row?.payload?.phase
-    if (!validPhases.has(phase)) continue
+    const stageKeys = stageKeysForPhase(phase)
+    if (!stageKeys.length) continue
 
     if (row.event === "phase_start" || (row.event === "deepseek_call_start" && phase === "overall")) {
-      states[phase] = "running"
-      const priorIndex = activePhases.indexOf(phase)
-      if (priorIndex !== -1) activePhases.splice(priorIndex, 1)
-      activePhases.push(phase)
-      latestPhase = phase
+      for (const key of stageKeys) {
+        states[key] = "running"
+        const priorIndex = activeStageKeys.indexOf(key)
+        if (priorIndex !== -1) activeStageKeys.splice(priorIndex, 1)
+        activeStageKeys.push(key)
+      }
+      latestStageKeys = stageKeys
       continue
     }
 
     if (row.event === "phase_end") {
-      if (row.payload?.status === "error") states[phase] = "failed"
-      else if (row.payload?.status === "success") states[phase] = "completed"
-      else states[phase] = "pending"
-      latestPhase = phase
-      const activeIndex = activePhases.indexOf(phase)
-      if (activeIndex !== -1) activePhases.splice(activeIndex, 1)
+      const endState = row.payload?.status === "error" ? "failed" : "completed"
+      for (const key of stageKeys) {
+        states[key] = endState
+        const activeIndex = activeStageKeys.indexOf(key)
+        if (activeIndex !== -1) activeStageKeys.splice(activeIndex, 1)
+      }
+      latestStageKeys = stageKeys
       continue
     }
 
     if (row.event === "deepseek_call_end" && phase === "overall") {
       states.overall = "completed"
-      latestPhase = phase
-      const activeIndex = activePhases.indexOf(phase)
-      if (activeIndex !== -1) activePhases.splice(activeIndex, 1)
+      latestStageKeys = stageKeys
+      const activeIndex = activeStageKeys.indexOf("overall")
+      if (activeIndex !== -1) activeStageKeys.splice(activeIndex, 1)
     }
   }
 
@@ -313,20 +322,23 @@ const stageProgress = computed(() => {
     for (const stage of AUDIT_STAGES) {
       if (states[stage.key] === "running") states[stage.key] = "completed"
     }
-    activePhases.splice(0)
+    activeStageKeys.splice(0)
   } else if (status.value === "failed") {
     for (const stage of AUDIT_STAGES) {
       if (states[stage.key] === "running") states[stage.key] = "failed"
     }
-    activePhases.splice(0)
+    activeStageKeys.splice(0)
   }
 
-  return { states, activePhase: activePhases.at(-1) || "", latestPhase }
+  return { states, activeStageKeys, latestStageKeys }
 })
 
-const currentStage = computed(() => stageProgress.value.activePhase || stageProgress.value.latestPhase)
-
-const currentStageLabel = computed(() => stageLabel(currentStage.value))
+const currentStageLabel = computed(() => {
+  const keys = stageProgress.value.activeStageKeys.length
+    ? stageProgress.value.activeStageKeys
+    : stageProgress.value.latestStageKeys
+  return keys.length ? keys.map(stageLabel).join(" / ") : "-"
+})
 
 const statusText = computed(() => {
   if (status.value === "running") return "审计中"

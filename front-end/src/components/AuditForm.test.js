@@ -147,6 +147,59 @@ describe("AuditForm polling lifecycle", () => {
 })
 
 describe("AuditForm stage state derivation", () => {
+  it("maps a composite phase start to both active stages and an accurate current label", async () => {
+    localStorage.setItem("lastAuditId", "42")
+    vi.mocked(listAuditEvents).mockResolvedValue([
+      {
+        id: 1,
+        ts: "2026-08-08T08:15:00.000Z",
+        event: "phase_start",
+        payload: { phase: "compliance_stability" }
+      }
+    ])
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    const stages = wrapper.findAll('[data-testid="audit-stage"]')
+
+    expect(stages[3].classes()).toContain("audit-stage--running")
+    expect(stages[4].classes()).toContain("audit-stage--running")
+    expect(wrapper.get(".progress-copy span").text()).toBe("合规审计 / 稳定性审计")
+  })
+
+  it("maps a successful composite phase end to both completed stages", async () => {
+    localStorage.setItem("lastAuditId", "42")
+    vi.mocked(listAuditEvents).mockResolvedValue([
+      { id: 1, event: "phase_start", payload: { phase: "compliance_stability" } },
+      { id: 2, event: "phase_end", payload: { phase: "compliance_stability", status: "success" } }
+    ])
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    const stages = wrapper.findAll('[data-testid="audit-stage"]')
+
+    expect(stages[3].classes()).toContain("audit-stage--completed")
+    expect(stages[4].classes()).toContain("audit-stage--completed")
+  })
+
+  it("preserves both composite phase failures when the overall audit completes", async () => {
+    localStorage.setItem("lastAuditId", "42")
+    vi.mocked(getAudit).mockResolvedValue({ status: "completed", progress: 100 })
+    vi.mocked(listAuditEvents).mockResolvedValue([
+      { id: 1, event: "phase_start", payload: { phase: "compliance_stability" } },
+      { id: 2, event: "phase_end", payload: { phase: "compliance_stability", status: "error" } },
+      { id: 3, event: "audit_completed", payload: {} }
+    ])
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    const stages = wrapper.findAll('[data-testid="audit-stage"]')
+
+    expect(stages[3].classes()).toContain("audit-stage--failed")
+    expect(stages[4].classes()).toContain("audit-stage--failed")
+    expect(stages[2].classes()).toContain("audit-stage--pending")
+  })
+
   it("preserves failed and pending stages when the overall audit completes", async () => {
     localStorage.setItem("lastAuditId", "42")
     vi.mocked(getAudit).mockResolvedValue({ status: "completed", progress: 100 })
@@ -209,7 +262,7 @@ describe("AuditForm stage state derivation", () => {
       {
         ts: "2026-08-08T08:16:33.000Z",
         event: "phase_end",
-        payload: { phase: "security", status: "success" }
+        payload: { phase: "security" }
       },
       { ts: "2026-08-08T08:16:34.000Z", event: "audit_failed", payload: { error: "report failed" } }
     ])
