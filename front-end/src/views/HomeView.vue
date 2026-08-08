@@ -6,9 +6,9 @@
         <h1>审计控制台</h1>
         <p class="dashboard-description">集中查看 Token 资产、审计任务和执行状态。</p>
       </div>
-      <div class="update-time">
-        <span class="status-dot" />
-        <span>{{ updatedAt ? `数据更新于 ${updatedAt}` : loading ? "正在同步数据" : "数据暂不可用" }}</span>
+      <div class="update-time" role="status" aria-live="polite">
+        <span class="status-dot" :class="`status-dot--${dataStatus.key}`" aria-hidden="true" />
+        <span>{{ dataStatus.text }}</span>
       </div>
     </header>
 
@@ -179,6 +179,12 @@ const dashboardData = ref(null)
 
 const auditDimensions = AUDIT_STAGES.filter((stage) => stage.key !== "overall")
 
+const dataStatus = computed(() => {
+  if (loading.value) return { key: "loading", text: "正在同步数据" }
+  if (error.value) return { key: "error", text: "数据暂不可用" }
+  return { key: "ready", text: `数据更新于 ${updatedAt.value}` }
+})
+
 const metrics = computed(() => {
   if (!dashboardData.value) return []
 
@@ -308,8 +314,19 @@ h1 {
 .status-dot {
   width: 7px;
   height: 7px;
-  background: var(--ta-green);
   border-radius: 50%;
+}
+
+.status-dot--loading {
+  background: var(--ta-amber);
+}
+
+.status-dot--ready {
+  background: var(--ta-green);
+}
+
+.status-dot--error {
+  background: var(--ta-danger);
 }
 
 .state-panel,
@@ -595,7 +612,7 @@ h1 {
 }
 
 .stage-number {
-  color: var(--ta-decorative);
+  color: var(--ta-faint);
   font-size: 11px;
 }
 
