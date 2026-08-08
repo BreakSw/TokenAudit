@@ -1,5 +1,5 @@
 import { flushPromises, mount } from "@vue/test-utils"
-import ElementPlus from "element-plus"
+import ElementPlus, { ElMessage } from "element-plus"
 import { createMemoryHistory, createRouter } from "vue-router"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -147,6 +147,50 @@ describe("AuditForm polling lifecycle", () => {
 })
 
 describe("AuditForm stage state derivation", () => {
+  it("preserves failed and pending stages when the overall audit completes", async () => {
+    localStorage.setItem("lastAuditId", "42")
+    vi.mocked(getAudit).mockResolvedValue({ status: "completed", progress: 100 })
+    vi.mocked(listAuditEvents).mockResolvedValue([
+      { id: 1, ts: "2026-08-08T08:16:20.000Z", event: "phase_start", payload: { phase: "validity" } },
+      {
+        id: 2,
+        ts: "2026-08-08T08:16:21.000Z",
+        event: "phase_end",
+        payload: { phase: "validity", status: "error" }
+      },
+      { id: 3, ts: "2026-08-08T08:16:22.000Z", event: "phase_start", payload: { phase: "permission" } },
+      {
+        id: 4,
+        ts: "2026-08-08T08:16:23.000Z",
+        event: "phase_end",
+        payload: { phase: "permission", status: "success" }
+      },
+      {
+        id: 5,
+        ts: "2026-08-08T08:16:24.000Z",
+        event: "deepseek_call_start",
+        payload: { phase: "overall", model: "deepseek-chat" }
+      },
+      {
+        id: 6,
+        ts: "2026-08-08T08:16:25.000Z",
+        event: "deepseek_call_end",
+        payload: { phase: "overall", elapsed_ms: 900 }
+      },
+      { id: 7, ts: "2026-08-08T08:16:26.000Z", event: "audit_completed", payload: {} }
+    ])
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    const stages = wrapper.findAll('[data-testid="audit-stage"]')
+
+    expect(stages[0].classes()).toContain("audit-stage--failed")
+    expect(stages[0].text()).toContain("中断")
+    expect(stages[1].classes()).toContain("audit-stage--completed")
+    expect(stages[2].classes()).toContain("audit-stage--pending")
+    expect(stages[6].classes()).toContain("audit-stage--completed")
+  })
+
   it("marks an ended phase completed and leaves no stage running when a later audit failure has no active phase", async () => {
     localStorage.setItem("lastAuditId", "42")
     vi.mocked(getAudit).mockResolvedValue({ status: "failed", progress: 54 })
@@ -162,7 +206,11 @@ describe("AuditForm stage state derivation", () => {
         event: "token_call_end",
         payload: { status_code: 200, elapsed_ms: 684 }
       },
-      { ts: "2026-08-08T08:16:33.000Z", event: "phase_end", payload: { phase: "security" } },
+      {
+        ts: "2026-08-08T08:16:33.000Z",
+        event: "phase_end",
+        payload: { phase: "security", status: "success" }
+      },
       { ts: "2026-08-08T08:16:34.000Z", event: "audit_failed", payload: { error: "report failed" } }
     ])
 
@@ -199,6 +247,79 @@ describe("AuditForm stage state derivation", () => {
   })
 })
 
+describe("AuditForm terminal display clearing", () => {
+  it("clears only the terminal while preserving stage truth and uses a value fallback for events without ids", async () => {
+    localStorage.setItem("lastAuditId", "42")
+    const initialEvents = [
+      { ts: "2026-08-08T08:17:00.000Z", event: "phase_start", payload: { phase: "validity" } },
+      {
+        ts: "2026-08-08T08:17:01.000Z",
+        event: "phase_end",
+        payload: { phase: "validity", status: "error" }
+      },
+      { ts: "2026-08-08T08:17:02.000Z", event: "audit_start", payload: {} }
+    ]
+    const newEvent = { ts: "2026-08-08T08:17:03.000Z", event: "audit_failed", payload: { error: "late event" } }
+    vi.mocked(listAuditEvents)
+      .mockResolvedValueOnce(initialEvents)
+      .mockResolvedValueOnce([...initialEvents, newEvent])
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    expect(wrapper.findAll('[data-testid="terminal-event"]')).toHaveLength(3)
+
+    await buttonWithText(wrapper, "清空显示").trigger("click")
+    expect(wrapper.findAll('[data-testid="terminal-event"]')).toHaveLength(0)
+    expect(wrapper.findAll('[data-testid="audit-stage"]')[0].classes()).toContain("audit-stage--failed")
+
+    await buttonWithText(wrapper, "刷新进度").trigger("click")
+    await flushPromises()
+    const visibleRows = wrapper.findAll('[data-testid="terminal-event"]')
+    expect(visibleRows).toHaveLength(1)
+    expect(visibleRows[0].get('[data-testid="event-tag"]').text()).toBe("audit_failed")
+    expect(wrapper.findAll('[data-testid="audit-stage"]')[0].classes()).toContain("audit-stage--failed")
+  })
+
+  it("uses increasing event ids as the clear boundary", async () => {
+    localStorage.setItem("lastAuditId", "42")
+    const oldEvent = { id: 100, ts: "2026-08-08T08:18:00.000Z", event: "audit_start", payload: {} }
+    const newEvent = { id: 101, ts: "2026-08-08T08:18:01.000Z", event: "audit_failed", payload: {} }
+    vi.mocked(listAuditEvents).mockResolvedValueOnce([oldEvent]).mockResolvedValueOnce([oldEvent, newEvent])
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    await buttonWithText(wrapper, "清空显示").trigger("click")
+    await buttonWithText(wrapper, "刷新进度").trigger("click")
+    await flushPromises()
+
+    const visibleRows = wrapper.findAll('[data-testid="terminal-event"]')
+    expect(visibleRows).toHaveLength(1)
+    expect(visibleRows[0].get('[data-testid="event-tag"]').text()).toBe("audit_failed")
+  })
+
+  it("resets the clear boundary when a new audit is submitted", async () => {
+    localStorage.setItem("lastAuditId", "42")
+    vi.mocked(getAudit)
+      .mockResolvedValueOnce({ status: "completed", progress: 100 })
+      .mockResolvedValueOnce({ status: "running", progress: 5 })
+    vi.mocked(listAuditEvents)
+      .mockResolvedValueOnce([{ id: 100, ts: "2026-08-08T08:19:00.000Z", event: "audit_completed", payload: {} }])
+      .mockResolvedValueOnce([{ id: 1, ts: "2026-08-08T08:19:01.000Z", event: "audit_start", payload: {} }])
+    vi.mocked(startAudit).mockResolvedValue({ auditId: 99 })
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    await buttonWithText(wrapper, "清空显示").trigger("click")
+    await buttonWithText(wrapper, "开始审计").trigger("click")
+    await flushPromises()
+
+    const visibleRows = wrapper.findAll('[data-testid="terminal-event"]')
+    expect(visibleRows).toHaveLength(1)
+    expect(visibleRows[0].get('[data-testid="event-tag"]').text()).toBe("audit_start")
+    expect(wrapper.text()).toContain("99")
+  })
+})
+
 describe("AuditForm token loading states", () => {
   it("distinguishes loading from a genuinely empty token list", async () => {
     const tokensResponse = deferred()
@@ -230,6 +351,54 @@ describe("AuditForm token loading states", () => {
     expect(listTokens).toHaveBeenCalledTimes(2)
     expect(wrapper.text()).toContain("Recovery Token")
     expect(wrapper.find('.token-field [role="alert"]').exists()).toBe(false)
+  })
+
+  it("selects the first available token when a reload removes the current selection", async () => {
+    vi.mocked(listTokens)
+      .mockResolvedValueOnce([{ id: 7, name: "Old Token", tokenMasked: "old-***" }])
+      .mockResolvedValueOnce([{ id: 8, name: "New Token", tokenMasked: "new-***" }])
+    vi.mocked(startAudit).mockResolvedValue({ auditId: 42 })
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    await buttonWithText(wrapper, "刷新 Token").trigger("click")
+    await flushPromises()
+    await buttonWithText(wrapper, "开始审计").trigger("click")
+    await flushPromises()
+
+    expect(startAudit).toHaveBeenCalledWith(expect.objectContaining({ tokenId: 8 }))
+  })
+
+  it("clears a stale token selection when a reload becomes empty", async () => {
+    vi.mocked(listTokens)
+      .mockResolvedValueOnce([{ id: 7, name: "Old Token", tokenMasked: "old-***" }])
+      .mockResolvedValueOnce([])
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    await buttonWithText(wrapper, "刷新 Token").trigger("click")
+    await flushPromises()
+    await buttonWithText(wrapper, "开始审计").trigger("click")
+    await flushPromises()
+
+    expect(startAudit).not.toHaveBeenCalled()
+  })
+})
+
+describe("AuditForm submit lifecycle", () => {
+  it("does not toast when a pending submit rejects after unmount", async () => {
+    const submitResponse = deferred()
+    const errorToast = vi.spyOn(ElMessage, "error")
+    vi.mocked(startAudit).mockReturnValue(submitResponse.promise)
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    await buttonWithText(wrapper, "开始审计").trigger("click")
+    wrapper.unmount()
+    submitResponse.reject(new Error("late submit failure"))
+    await flushPromises()
+
+    expect(errorToast).not.toHaveBeenCalled()
   })
 })
 

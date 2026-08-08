@@ -181,7 +181,7 @@
         <li
           v-for="(row, index) in displayEvents"
           v-else
-          :key="`${row.ts || 'event'}-${index}`"
+          :key="row.id ?? `${row.ts || 'event'}-${index}`"
           class="terminal-event"
           data-testid="terminal-event"
         >
@@ -225,6 +225,8 @@ const status = ref("")
 const progress = ref(0)
 const refreshing = ref(false)
 const events = ref([])
+const clearedThroughEventId = ref(null)
+const clearedFallbackCounts = ref(new Map())
 let pollTimer = null
 let componentAlive = true
 let auditGeneration = 0
@@ -235,13 +237,45 @@ const inFlightRefreshes = new Map()
 const LAST_AUDIT_ID_KEY = "lastAuditId"
 const validPhases = new Set(AUDIT_STAGES.map((stage) => stage.key))
 
-const displayEvents = computed(() => events.value.slice(-200))
+function numericEventId(row) {
+  if (row?.id === undefined || row?.id === null || row.id === "") return null
+  const id = Number(row.id)
+  return Number.isFinite(id) ? id : null
+}
+
+function stableEventValue(value) {
+  if (Array.isArray(value)) return value.map(stableEventValue)
+  if (!value || typeof value !== "object") return value
+  return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stableEventValue(value[key])]))
+}
+
+function fallbackEventKey(row) {
+  return JSON.stringify(stableEventValue({ ts: row?.ts ?? null, event: row?.event ?? null, payload: row?.payload ?? null }))
+}
+
+const displayEvents = computed(() => {
+  const fallbackSeen = new Map()
+  const visible = events.value.filter((row) => {
+    const id = numericEventId(row)
+    if (id !== null) {
+      return clearedThroughEventId.value === null || id > clearedThroughEventId.value
+    }
+
+    // Legacy rows have no id. Occurrence counts by stable value survive full-array replacements
+    // and allow a genuinely new duplicate to appear without relying on a mutable array index.
+    const key = fallbackEventKey(row)
+    const occurrence = (fallbackSeen.get(key) || 0) + 1
+    fallbackSeen.set(key, occurrence)
+    return occurrence > (clearedFallbackCounts.value.get(key) || 0)
+  })
+  return visible.slice(-200)
+})
 
 const stageProgress = computed(() => {
   const states = Object.fromEntries(
     AUDIT_STAGES.map((stage) => [stage.key, auditId.value ? "pending" : "ready"])
   )
-  let activePhase = ""
+  const activePhases = []
   let latestPhase = ""
 
   for (const row of events.value) {
@@ -249,26 +283,45 @@ const stageProgress = computed(() => {
     if (!validPhases.has(phase)) continue
 
     if (row.event === "phase_start" || (row.event === "deepseek_call_start" && phase === "overall")) {
-      activePhase = phase
+      states[phase] = "running"
+      const priorIndex = activePhases.indexOf(phase)
+      if (priorIndex !== -1) activePhases.splice(priorIndex, 1)
+      activePhases.push(phase)
       latestPhase = phase
       continue
     }
 
-    if (row.event === "phase_end" || (row.event === "deepseek_call_end" && phase === "overall")) {
-      states[phase] = "completed"
+    if (row.event === "phase_end") {
+      if (row.payload?.status === "error") states[phase] = "failed"
+      else if (row.payload?.status === "success") states[phase] = "completed"
+      else states[phase] = "pending"
       latestPhase = phase
-      if (activePhase === phase) activePhase = ""
+      const activeIndex = activePhases.indexOf(phase)
+      if (activeIndex !== -1) activePhases.splice(activeIndex, 1)
+      continue
+    }
+
+    if (row.event === "deepseek_call_end" && phase === "overall") {
+      states.overall = "completed"
+      latestPhase = phase
+      const activeIndex = activePhases.indexOf(phase)
+      if (activeIndex !== -1) activePhases.splice(activeIndex, 1)
     }
   }
 
   if (status.value === "completed") {
-    for (const stage of AUDIT_STAGES) states[stage.key] = "completed"
-    activePhase = ""
-  } else if (activePhase) {
-    states[activePhase] = status.value === "failed" ? "failed" : "running"
+    for (const stage of AUDIT_STAGES) {
+      if (states[stage.key] === "running") states[stage.key] = "completed"
+    }
+    activePhases.splice(0)
+  } else if (status.value === "failed") {
+    for (const stage of AUDIT_STAGES) {
+      if (states[stage.key] === "running") states[stage.key] = "failed"
+    }
+    activePhases.splice(0)
   }
 
-  return { states, activePhase, latestPhase }
+  return { states, activePhase: activePhases.at(-1) || "", latestPhase }
 })
 
 const currentStage = computed(() => stageProgress.value.activePhase || stageProgress.value.latestPhase)
@@ -340,8 +393,8 @@ async function reloadTokens() {
     const loadedTokens = await listTokens()
     if (!componentAlive || requestSequence !== tokenRequestSequence) return
     tokens.value = loadedTokens || []
-    if (!tokenId.value && tokens.value.length) {
-      tokenId.value = tokens.value[0].id
+    if (!tokens.value.some((token) => token.id === tokenId.value)) {
+      tokenId.value = tokens.value[0]?.id ?? null
     }
   } catch (e) {
     if (!componentAlive || requestSequence !== tokenRequestSequence) return
@@ -446,17 +499,34 @@ async function submit() {
     status.value = "running"
     progress.value = 0
     events.value = []
+    clearedThroughEventId.value = null
+    clearedFallbackCounts.value = new Map()
     ElMessage.success("已开始审计，正在实时更新进度")
     startPolling(auditId.value, auditGeneration)
   } catch (e) {
-    ElMessage.error(e?.response?.data?.error || e?.message || "审计失败")
+    if (componentAlive) ElMessage.error(e?.response?.data?.error || e?.message || "审计失败")
   } finally {
     submitting.value = false
   }
 }
 
 function clearView() {
-  events.value = []
+  const eventIds = events.value.map(numericEventId).filter((id) => id !== null)
+  if (eventIds.length) {
+    clearedThroughEventId.value = Math.max(clearedThroughEventId.value ?? -Infinity, ...eventIds)
+  }
+
+  const nextCounts = new Map(clearedFallbackCounts.value)
+  const currentCounts = new Map()
+  for (const row of events.value) {
+    if (numericEventId(row) !== null) continue
+    const key = fallbackEventKey(row)
+    currentCounts.set(key, (currentCounts.get(key) || 0) + 1)
+  }
+  for (const [key, count] of currentCounts) {
+    nextCounts.set(key, Math.max(nextCounts.get(key) || 0, count))
+  }
+  clearedFallbackCounts.value = nextCounts
 }
 
 function eventTagType(ev) {
