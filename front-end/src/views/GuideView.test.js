@@ -37,7 +37,7 @@ describe("GuideView", () => {
     await search.setValue("环境变量")
 
     const navigation = wrapper.get('[aria-label="文档导航"]')
-    expect(navigation.text()).toContain("配置环境变量")
+    expect(navigation.text()).toContain("系统与 Redis")
     expect(navigation.text()).not.toContain("常见错误")
     expect(Object.values(api).every((request) => request.mock.calls.length === 0)).toBe(true)
   })
@@ -47,11 +47,38 @@ describe("GuideView", () => {
 
     expect(text).toContain("GET /api/agents/health")
     expect(text).toContain("POST /api/audits")
+    expect(text).toContain("POST /api/audits/{id}/cancel")
     expect(text).toContain("GET /api/audits/{id}")
     expect(text).toContain("GET /api/audits/{id}/events")
+    expect(text).toContain("PUT /api/settings/audit-ai")
+    expect(text).toContain("PUT /api/tokens/{id}/model")
     for (const dimension of ["有效性", "权限", "模型真实性", "合规", "稳定性", "安全性"]) {
       expect(text).toContain(dimension)
     }
+  })
+
+  it("documents the Redis audit AI lifecycle and parallel task states", () => {
+    const wrapper = mountGuide()
+    const text = wrapper.text()
+
+    expect(text).toContain("Redis 数据库 1")
+    expect(text).toContain("1–43200")
+    expect(text).toContain("每次重新保存")
+    expect(text).toContain("AUDIT_MAX_CONCURRENCY")
+    expect(text).toContain("queued")
+    expect(text).toContain("active")
+    expect(text).toContain("cancelled")
+    expect(text).toContain("销毁 Python 进程及其子进程")
+  })
+
+  it("distinguishes the target relay from the audit AI", () => {
+    const wrapper = mountGuide()
+
+    expect(wrapper.get("#overview").text()).toContain("两类模型不要混淆")
+    expect(wrapper.get("#token").text()).toContain("OpenRouter")
+    expect(wrapper.get("#token").text()).toContain("AiHubMix")
+    expect(wrapper.get("#token").text()).toContain("中转站只配置在 Token 工作区")
+    expect(wrapper.get("#models").text()).toContain("可输入下拉框")
   })
 
   it("uses an article inside the application main landmark", () => {
@@ -115,7 +142,7 @@ describe("GuideView", () => {
     const copyButtons = wrapper.findAll(".code-toolbar button, .endpoint-heading button")
     const labels = copyButtons.map((button) => button.attributes("aria-label"))
 
-    expect(copyButtons).toHaveLength(8)
+    expect(copyButtons).toHaveLength(11)
     expect(labels.every(Boolean)).toBe(true)
     expect(new Set(labels).size).toBe(copyButtons.length)
     expect(wrapper.find(".search-control kbd").exists()).toBe(false)
