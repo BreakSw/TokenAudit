@@ -34,13 +34,27 @@
 
       <article class="guide-article" data-testid="guide-article">
         <div class="article-heading">
-          <p class="eyebrow">TOKENAUDIT / QUICKSTART</p>
-          <h1>API 使用指南</h1>
+          <p class="eyebrow">TOKENAUDIT / DOCUMENTATION</p>
+          <h1>接入与审计指南</h1>
           <p>
-            从本地环境到审计报告的最短路径。示例基于当前仓库接口，后端默认运行在
-            <code>http://localhost:8086</code>。
+            面向 OpenAI 兼容中转站的完整使用说明。先配置审计 AI，再录入目标 Token；系统会在正式审计前验证链路，
+            并支持多个任务并行执行、独立终止与证据回溯。后端默认运行在 <code>http://localhost:8086</code>。
           </p>
         </div>
+
+        <section id="overview" v-reveal>
+          <h2><a href="#overview">工作流概览</a></h2>
+          <div class="workflow-grid">
+            <article><span>01</span><strong>配置审计 AI</strong><p>在设置中保存判定模型、完整推理 URL、API Key 与有效期。</p></article>
+            <article><span>02</span><strong>录入中转 Token</strong><p>填写中转站地址和真实模型 ID，平台名称仅用于识别。</p></article>
+            <article><span>03</span><strong>预检后审计</strong><p>链路通过后进入六维审计；多个任务可同时执行或排队。</p></article>
+            <article><span>04</span><strong>查看证据</strong><p>实时事件、终态与报告彼此关联，失败时可直接定位原因。</p></article>
+          </div>
+          <div class="docs-callout docs-callout--info">
+            <strong>两类模型不要混淆</strong>
+            <p><b>目标模型</b>是被审计的中转站模型；<b>审计 AI</b>负责阅读证据并给出判定，二者应分别配置。</p>
+          </div>
+        </section>
 
         <section id="requirements" v-reveal>
           <h2><a href="#requirements">运行要求</a></h2>
@@ -51,15 +65,15 @@
             <div><dt>前端</dt><dd>Vue 3 + Vite，开发端口 <code>5173</code></dd></div>
             <div><dt>后端</dt><dd>Spring Boot，API 端口 <code>8086</code></dd></div>
             <div><dt>审计核心</dt><dd>Python 模块 <code>audit_core</code></dd></div>
+            <div><dt>配置存储</dt><dd>Redis 数据库 <code>1</code>（界面中显示为 B01）</dd></div>
           </dl>
         </section>
 
         <section id="configure" v-reveal>
-          <h2><a href="#configure">配置环境变量与审计 AI</a></h2>
+          <h2><a href="#configure">系统与 Redis</a></h2>
           <p>
-            在仓库根目录创建或修改 <code>.env</code>，配置后端、Python 与 Redis 连接。
-            启动项目后，从右上角“设置”的“审计判定模型”中填写服务商、完整 API URL、模型、API Key 与有效期。
-            审计 API Key 会加密存入 Redis，每次保存都会重置有效期。
+            在仓库根目录创建 <code>.env</code>。这里只保存运行参数，不再把审计模型密钥固定为 DeepSeek；
+            审计 AI 的服务商、模型与密钥统一在前端“设置”中管理。
           </p>
           <div class="code-shell" data-testid="copy-environment">
             <div class="code-toolbar">
@@ -103,6 +117,32 @@
             <code>BACKEND_API_KEY</code> 未启用时可省略 <code>X-API-KEY</code>；启用后每个 API 请求必须携带
             <code>X-API-KEY</code>（浏览器的 <code>OPTIONS</code> 预检除外）。应用设置页保存密钥后会自动添加该请求头。
           </p>
+        </section>
+
+        <section id="audit-ai" v-reveal>
+          <h2><a href="#audit-ai">配置审计 AI</a></h2>
+          <p>
+            点击右上角“设置”，在“审计判定模型”中配置一个可用的 OpenAI 兼容模型。服务商只是界面预设，
+            可选择 OpenAI、Anthropic、DeepSeek、xAI、Moonshot、阿里云、智谱等，也可以直接输入自定义服务商和模型。
+          </p>
+          <dl class="field-list">
+            <div><dt>API URL</dt><dd>填写完整推理端点，例如 <code>https://api.example.com/v1/chat/completions</code></dd></div>
+            <div><dt>模型</dt><dd>填写该 API Key 实际有权调用的模型 ID，不能只写产品展示名称</dd></div>
+            <div><dt>API Key</dt><dd>保存后加密写入 Redis；读取配置时不会回传明文</dd></div>
+            <div><dt>有效期</dt><dd><code>1–43200</code> 分钟；每次重新保存都会从当前时刻重置过期时间</dd></div>
+          </dl>
+          <div class="docs-callout docs-callout--warning">
+            <strong>开始审计前必须配置</strong>
+            <p>如果配置不存在或已过期，点击“开始审计”会自动打开设置面板，并提示配置审计 API Key。</p>
+          </div>
+          <div class="endpoint-block" data-testid="copy-audit-ai">
+            <div class="endpoint-heading">
+              <span class="method method--put">PUT</span>{{ " " }}<code>/api/settings/audit-ai</code>
+              <button type="button" aria-label="复制审计 AI 配置示例" @click="copyCode('auditAi', codeSamples.auditAi)">复制</button>
+              <span v-if="copyState.auditAi" class="copy-feedback" :role="copyState.auditAi.role" aria-live="polite">{{ copyState.auditAi.message }}</span>
+            </div>
+            <pre><code>{{ codeSamples.auditAi }}</code></pre>
+          </div>
         </section>
 
         <section id="start" v-reveal>
@@ -156,6 +196,15 @@
             也可填写完整的 <code>/chat/completions</code> 或 <code>/responses</code> 推理端点。平台名称仅作备注，模型 ID 会原样发送。
             接口返回掩码后的 <code>tokenMasked</code>，不会回传明文。
           </p>
+          <div class="example-grid">
+            <article><strong>OpenRouter</strong><code>https://openrouter.ai/api/v1</code><span>模型示例：openai/gpt-4o-mini</span></article>
+            <article><strong>AiHubMix</strong><code>https://aihubmix.com/v1</code><span>模型必须以控制台实际支持的 ID 为准</span></article>
+            <article><strong>其他中转站</strong><code>https://relay.example.com/v1</code><span>兼容 OpenAI Chat Completions 或 Responses</span></article>
+          </div>
+          <div class="docs-callout docs-callout--info">
+            <strong>中转站只配置在 Token 工作区</strong>
+            <p>“审计 AI 设置”不提供中转站选项，避免让同一个待审计中转站充当自己的审计者。</p>
+          </div>
           <div class="code-shell" data-testid="copy-token">
             <div class="code-toolbar">
               <span>request</span>
@@ -175,8 +224,32 @@
           </div>
         </section>
 
+        <section id="models" v-reveal>
+          <h2><a href="#models">选择与修改模型</a></h2>
+          <p>
+            审计 AI 模型和 Token 的声明模型都使用“可输入下拉框”：常见模型可以直接选择，不在目录中的模型也可以手动输入。
+            目录只是输入辅助，不代表某个中转站一定支持这些模型；最终应以服务商模型列表或一次真实调用为准。
+          </p>
+          <div class="status-grid">
+            <article><span>常见格式</span><strong><code>gpt-4o-mini</code></strong><p>官方或直连服务常见写法</p></article>
+            <article><span>聚合格式</span><strong><code>openai/gpt-4o-mini</code></strong><p>OpenRouter 等聚合平台常见写法</p></article>
+            <article><span>完整模型 ID</span><strong><code>Qwen/Qwen3-8B</code></strong><p>硅基流动等平台常见写法</p></article>
+          </div>
+          <p>
+            已录入的 Token 可以在工作区直接修改声明模型。修改只影响后续审计，不会篡改历史报告中的模型信息。
+          </p>
+          <div class="endpoint-block" data-testid="copy-update-model">
+            <div class="endpoint-heading">
+              <span class="method method--put">PUT</span>{{ " " }}<code>/api/tokens/{id}/model</code>
+              <button type="button" aria-label="复制修改声明模型示例" @click="copyCode('updateModel', codeSamples.updateModel)">复制</button>
+              <span v-if="copyState.updateModel" class="copy-feedback" :role="copyState.updateModel.role" aria-live="polite">{{ copyState.updateModel.message }}</span>
+            </div>
+            <pre><code>{{ codeSamples.updateModel }}</code></pre>
+          </div>
+        </section>
+
         <section id="run-audit" v-reveal>
-          <h2><a href="#run-audit">发起审计</a></h2>
+          <h2><a href="#run-audit">预检与发起审计</a></h2>
           <p>
             每次任务都会先执行中转站前置预检，以最小请求验证 Base URL、Token 鉴权、声明模型和 OpenAI 兼容响应格式。
             预检失败时会写入 <code>preflight_end</code>、<code>audit_aborted</code> 和 <code>audit_failed</code> 事件并立即停止，不会启动任何审计 Agent。
@@ -204,7 +277,36 @@
             <pre><code>{{ codeSamples.audit }}</code></pre>
           </div>
 
-          <h3 id="events">读取实时事件</h3>
+        </section>
+
+        <section id="parallel" v-reveal>
+          <h2><a href="#parallel">并行与终止任务</a></h2>
+          <p>
+            一个任务运行时，“开始审计”会变为“并行新建审计”，不会锁住表单。默认最多同时执行
+            <code>4</code> 个任务，额外任务进入容量为 <code>20</code> 的队列；这两个值可通过
+            <code>AUDIT_MAX_CONCURRENCY</code> 与 <code>AUDIT_QUEUE_CAPACITY</code> 调整。
+          </p>
+          <div class="status-grid">
+            <article><span>executionState</span><strong>queued</strong><p>任务已创建，正在等待执行槽位</p></article>
+            <article><span>executionState</span><strong>active</strong><p>Python 审计进程正在运行</p></article>
+            <article><span>status</span><strong>cancelled</strong><p>用户已终止，不再生成完整报告</p></article>
+          </div>
+          <p>
+            任务卡片可以切换查看不同审计的实时管线，也可以单独终止。终止运行任务时，后端会中断 Future、销毁 Python 进程及其子进程；
+            对已经完成、失败或终止的任务重复调用取消接口不会改写历史结果。
+          </p>
+          <div class="endpoint-block" data-testid="copy-cancel">
+            <div class="endpoint-heading">
+              <span class="method method--delete">POST</span>{{ " " }}<code>/api/audits/{id}/cancel</code>
+              <button type="button" aria-label="复制终止审计示例" @click="copyCode('cancel', codeSamples.cancel)">复制</button>
+              <span v-if="copyState.cancel" class="copy-feedback" :role="copyState.cancel.role" aria-live="polite">{{ copyState.cancel.message }}</span>
+            </div>
+            <pre><code>{{ codeSamples.cancel }}</code></pre>
+          </div>
+        </section>
+
+        <section id="events" v-reveal>
+          <h2><a href="#events">读取实时事件</a></h2>
           <p>
             <code>POST /api/audits</code> 异步返回 <code>auditId</code>。使用事件接口轮询真实进度；事件对象包含
             <code>id</code>、<code>ts</code>、<code>event</code> 与 <code>payload</code>。
@@ -231,8 +333,9 @@
         <section id="report" v-reveal>
           <h2><a href="#report">查看报告</a></h2>
           <p>
-            查询接口返回 <code>status</code>、<code>progress</code> 与 <code>report</code>。状态为
-            <code>completed</code> 后，可在报告页阅读 Markdown/JSON 结果；导出文件写入配置的报告目录。
+            查询接口返回 <code>status</code>、<code>executionState</code>、<code>progress</code> 与 <code>report</code>。
+            只有状态为 <code>completed</code> 时才会生成完整报告；<code>failed</code> 和 <code>cancelled</code> 应结合事件列表排查或确认原因。
+            导出文件写入配置的报告目录，历史页面不会因为之后修改声明模型而改变旧报告。
           </p>
           <div class="endpoint-block" data-testid="copy-report">
             <div class="endpoint-heading">
@@ -253,6 +356,20 @@
           </div>
         </section>
 
+        <section id="security" v-reveal>
+          <h2><a href="#security">密钥与安全边界</a></h2>
+          <div class="security-list">
+            <article><strong>目标 Token</strong><p>后端加密保存，列表接口只返回掩码；加密密钥默认写入本地 <code>data/token-encryption.key</code>。</p></article>
+            <article><strong>审计 AI Key</strong><p>加密写入 Redis B01，并受用户设置的 TTL 控制；配置查询接口不会回传明文。</p></article>
+            <article><strong>后端访问密钥</strong><p><code>BACKEND_API_KEY</code> 用于保护本项目 API，与中转 Token、审计 AI Key 都不是一回事。</p></article>
+            <article><strong>目标地址限制</strong><p>默认拒绝私网审计目标；仅在可信开发环境中考虑启用 <code>AUDIT_ALLOW_PRIVATE_TARGETS</code>。</p></article>
+          </div>
+          <div class="docs-callout docs-callout--warning">
+            <strong>不要提交秘密</strong>
+            <p>不要把 <code>.env</code>、API Key、Token、Redis 密码或运行日志提交到 Git 仓库；仓库只保留无密钥的 <code>.env.example</code>。</p>
+          </div>
+        </section>
+
         <section id="errors" v-reveal>
           <h2><a href="#errors">常见错误</a></h2>
           <div class="error-row">
@@ -260,16 +377,32 @@
             <p>确认后端是否设置了 <code>BACKEND_API_KEY</code>，并让 <code>X-API-KEY</code> 与其一致。</p>
           </div>
           <div class="error-row">
+            <code>audit_ai_not_configured</code>
+            <p>审计 AI 配置不存在或已过期；打开设置重新填写 API Key 并保存，TTL 会从本次保存重新计算。</p>
+          </div>
+          <div class="error-row">
+            <code>preflight_end: failed</code>
+            <p>目标中转站没有打通。优先核对完整 URL、鉴权 Token 和模型 ID；系统会停止审计，避免继续产生无效调用。</p>
+          </div>
+          <div class="error-row">
+            <code>audit_queue_full</code>
+            <p>当前运行与排队任务已达到上限。等待已有任务结束、终止不需要的任务，或调整并发与队列配置。</p>
+          </div>
+          <div class="error-row">
             <code>Model Not Exist</code>
-            <p>在“设置 → 审计判定模型”中检查模型名是否为当前 API Key 可用模型，保存后无需重启后端。</p>
+            <p>先判断错误来自目标中转模型还是审计 AI，再检查对应位置的模型 ID 是否属于当前 API Key。</p>
           </div>
           <div class="error-row">
             <code>Cannot run program "python"</code>
             <p>确认 Python 位于 PATH，或通过 <code>PYTHON_EXECUTABLE</code> 指定可执行文件。</p>
           </div>
           <div class="error-row">
-            <code>503 / audit_failed</code>
-            <p>先读取事件接口中的 <code>audit_failed</code> payload，再检查目标模型服务与审计 AI 配置。</p>
+            <code>Network Error / 503</code>
+            <p>确认后端 8086 可访问、前端 <code>VITE_BACKEND_BASE_URL</code> 正确，并读取失败事件中的 endpoint、message 与 status。</p>
+          </div>
+          <div class="error-row">
+            <code>python_audit_timeout</code>
+            <p>单个审计超过 <code>AUDIT_PROCESS_TIMEOUT_SECONDS</code>；检查目标服务延迟，必要时提高超时或降低并行压力。</p>
           </div>
         </section>
       </article>
@@ -295,29 +428,55 @@ const query = ref("")
 const copyState = reactive({})
 
 const navigationGroups = [
-  { label: "开始", ids: ["requirements", "configure", "start"] },
-  { label: "工作流", ids: ["token", "run-audit", "report"] },
-  { label: "参考", ids: ["errors"] }
+  { label: "开始", ids: ["overview", "requirements", "configure", "audit-ai", "start"] },
+  { label: "目标配置", ids: ["token", "models"] },
+  { label: "审计工作流", ids: ["run-audit", "parallel", "events", "report"] },
+  { label: "参考", ids: ["security", "errors"] }
 ]
 
 const tableOfContents = [
+  { id: "overview", title: "工作流概览" },
   { id: "requirements", title: "运行要求" },
-  { id: "configure", title: "配置环境变量与审计 AI" },
+  { id: "configure", title: "系统与 Redis" },
+  { id: "audit-ai", title: "配置审计 AI" },
   { id: "start", title: "启动项目" },
   { id: "token", title: "录入 Token" },
-  { id: "run-audit", title: "发起审计" },
+  { id: "models", title: "选择与修改模型" },
+  { id: "run-audit", title: "预检与发起审计" },
+  { id: "parallel", title: "并行与终止任务" },
   { id: "events", title: "读取实时事件" },
   { id: "report", title: "查看报告" },
+  { id: "security", title: "密钥与安全边界" },
   { id: "errors", title: "常见错误" }
 ]
 
 const codeSamples = {
   environment: `BACKEND_API_KEY=
+APP_ENVIRONMENT=development
+BACKEND_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 REDIS_PASSWORD=
-REDIS_DATABASE=1`,
+REDIS_DATABASE=1
+
+TOKEN_ENCRYPTION_KEY=
+TOKEN_ENCRYPTION_KEY_FILE=../data/token-encryption.key
+AUDIT_ALLOW_PRIVATE_TARGETS=false
+AUDIT_MAX_CONCURRENCY=4
+AUDIT_QUEUE_CAPACITY=20
+AUDIT_PROCESS_TIMEOUT_SECONDS=900
+PYTHON_EXECUTABLE=python
+AUDIT_CORE_WORKDIR=../audit-core
+AUDIT_EXPORT_FORMATS=json,md,xlsx`,
   frontEnvironment: `VITE_BACKEND_BASE_URL=http://localhost:8086`,
+  auditAi: `# PUT /api/settings/audit-ai
+curl --request PUT http://localhost:8086/api/settings/audit-ai \
+  --header "Content-Type: application/json" \
+  --header "X-API-KEY: <backend-key>" \
+  --data '{"provider":"OpenAI compatible","apiUrl":"https://api.example.com/v1/chat/completions","model":"deepseek-chat","apiKey":"<audit-ai-key>","ttlMinutes":1440}'
+
+# GET 只返回掩码与配置状态，不返回 API Key 明文
+curl http://localhost:8086/api/settings/audit-ai -H "X-API-KEY: <backend-key>"`,
   start: `# 安装步骤：在仓库根目录执行一次
 cd audit-core
 pip install -r requirements.txt
@@ -343,7 +502,12 @@ Content-Type: application/json
 curl --request POST http://localhost:8086/api/tokens \\
   --header "Content-Type: application/json" \\
   --header "X-API-KEY: <backend-key>" \\
-  --data '{"name":"production-relay","token":"sk-...","platform":"relay","tokenBaseUrl":"https://api.example.com","claimedModel":"claude-opus-4-6","nonClaimedModel":"gpt-4o-mini"}'`,
+  --data '{"name":"production-relay","token":"sk-...","platform":"relay","tokenBaseUrl":"https://api.example.com/v1","claimedModel":"claude-opus-4-6","nonClaimedModel":"gpt-4o-mini"}'`,
+  updateModel: `# PUT /api/tokens/{id}/model
+curl --request PUT http://localhost:8086/api/tokens/12/model \
+  --header "Content-Type: application/json" \
+  --header "X-API-KEY: <backend-key>" \
+  --data '{"claimedModel":"openai/gpt-4o-mini"}'`,
   audit: `# POST /api/audits；BACKEND_API_KEY 未启用时可删除 X-API-KEY 请求头
 curl --request POST http://localhost:8086/api/audits \\
   --header "Content-Type: application/json" \\
@@ -352,6 +516,12 @@ curl --request POST http://localhost:8086/api/audits \\
 
 HTTP/1.1 200 OK
 {"auditId":42,"report":null}`,
+  cancel: `# POST /api/audits/{id}/cancel
+curl --request POST http://localhost:8086/api/audits/42/cancel \
+  --header "X-API-KEY: <backend-key>"
+
+HTTP/1.1 200 OK
+{"id":42,"status":"cancelled","progress":100,"executionState":"cancelled"}`,
   events: `# GET /api/audits/{id}/events
 # BACKEND_API_KEY 未启用时可删除 -H 参数
 curl http://localhost:8086/api/audits/42/events -H "X-API-KEY: <backend-key>"
@@ -375,6 +545,7 @@ HTTP/1.1 200 OK
   "tokenId": 12,
   "auditTime": "2026-08-08 14:00:00",
   "status": "running",
+  "executionState": "active",
   "overallConclusion": null,
   "report": {},
   "progress": 31
@@ -600,6 +771,86 @@ async function copyCode(key, content) {
   font-weight: 620;
 }
 
+.workflow-grid,
+.example-grid,
+.status-grid,
+.security-list {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.workflow-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.example-grid,
+.status-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.security-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.workflow-grid article,
+.example-grid article,
+.status-grid article,
+.security-list article {
+  min-width: 0;
+  padding: 14px;
+  background: rgba(10, 24, 17, 0.54);
+  border: 1px solid var(--ta-line);
+  border-radius: 6px;
+}
+
+.workflow-grid article > span,
+.status-grid article > span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ta-green);
+  font-family: var(--ta-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workflow-grid strong,
+.example-grid strong,
+.status-grid strong,
+.security-list strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.workflow-grid p,
+.example-grid span,
+.status-grid p,
+.security-list p {
+  display: block;
+  margin: 0;
+  color: var(--ta-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.example-grid code {
+  display: block;
+  margin: 7px 0;
+  overflow-wrap: anywhere;
+}
+
+.docs-callout {
+  margin: 20px 0;
+  padding: 13px 15px;
+  background: rgba(116, 199, 236, 0.045);
+  border: 1px solid rgba(116, 199, 236, 0.2);
+  border-left: 3px solid #74c7ec;
+  border-radius: 5px;
+}
+
+.docs-callout--warning {
+  background: rgba(233, 187, 99, 0.045);
+  border-color: rgba(233, 187, 99, 0.2);
+  border-left-color: #e9bb63;
+}
+
+.docs-callout strong { display: block; margin-bottom: 4px; }
+.docs-callout p { margin: 0; font-size: 12px; }
+.docs-callout b { color: var(--ta-text); font-weight: 620; }
+
 .guide-article :not(pre) > code,
 .requirements-list code,
 .error-row > code {
@@ -616,6 +867,24 @@ async function copyCode(key, content) {
   margin: 22px 0 0;
   border-top: 1px solid var(--ta-line);
 }
+
+.field-list {
+  margin: 20px 0;
+  border: 1px solid var(--ta-line);
+  border-radius: 6px;
+}
+
+.field-list div {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 16px;
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--ta-line);
+}
+
+.field-list div:last-child { border-bottom: 0; }
+.field-list dt { color: var(--ta-text); font-weight: 620; }
+.field-list dd { margin: 0; color: var(--ta-muted); line-height: 1.65; }
 
 .requirements-list div {
   display: grid;
@@ -721,6 +990,9 @@ async function copyCode(key, content) {
   color: var(--ta-green);
 }
 
+.method--put { color: #e9bb63; }
+.method--delete { color: var(--ta-danger); }
+
 .error-row {
   display: grid;
   grid-template-columns: minmax(120px, 175px) minmax(0, 1fr);
@@ -790,9 +1062,17 @@ async function copyCode(key, content) {
   }
 
   .requirements-list div,
+  .field-list div,
   .error-row {
     grid-template-columns: 1fr;
     gap: 7px;
+  }
+
+  .workflow-grid,
+  .example-grid,
+  .status-grid,
+  .security-list {
+    grid-template-columns: 1fr;
   }
 
   .endpoint-heading {
