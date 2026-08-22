@@ -13,7 +13,6 @@ public class TokenCreateRequest {
     private String tokenBaseUrl;
     @NotBlank
     private String claimedModel;
-    @NotBlank
     private String nonClaimedModel;
 
     public String getName() {

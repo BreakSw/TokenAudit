@@ -12,6 +12,7 @@ import com.tokenaudit.util.DateUtil;
 import com.tokenaudit.util.JsonUtil;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import jakarta.annotation.PreDestroy;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,27 +22,52 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class AuditService {
     private final TokenService tokenService;
     private final AuditRecordMapper auditRecordMapper;
     private final AuditEventMapper auditEventMapper;
+    private final AuditAiConfigService auditAiConfigService;
     private final AppProperties props;
     private final Environment env;
-    private final ExecutorService executor = Executors.newCachedThreadPool();
-
-    public AuditService(TokenService tokenService, AuditRecordMapper auditRecordMapper, AuditEventMapper auditEventMapper, AppProperties props, Environment env) {
+    private final ThreadPoolExecutor auditExecutor;
+    private final ConcurrentMap<Long, AuditTask> auditTasks = new ConcurrentHashMap<>();
+    public AuditService(TokenService tokenService, AuditRecordMapper auditRecordMapper, AuditEventMapper auditEventMapper, AuditAiConfigService auditAiConfigService, AppProperties props, Environment env) {
         this.tokenService = tokenService;
         this.auditRecordMapper = auditRecordMapper;
         this.auditEventMapper = auditEventMapper;
+        this.auditAiConfigService = auditAiConfigService;
         this.props = props;
         this.env = env;
+        int concurrency = Math.max(1, props.getAuditMaxConcurrency());
+        int queueCapacity = Math.max(1, props.getAuditQueueCapacity());
+        this.auditExecutor = new ThreadPoolExecutor(
+                concurrency,
+                concurrency,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(queueCapacity),
+                runnable -> {
+                    Thread worker = new Thread(runnable);
+                    worker.setName("audit-worker");
+                    worker.setDaemon(false);
+                    return worker;
+                },
+                new ThreadPoolExecutor.AbortPolicy()
+        );
     }
 
     public AuditResponse startAudit(Long tokenId, List<String> exportFormats, List<String> auditDimensions) {
+        AuditAiConfigService.RuntimeConfig aiConfig = auditAiConfigService.requireActiveConfig();
         TokenInfo token = tokenService.getEntity(tokenId);
         String auditTime = DateUtil.now();
 
@@ -53,14 +79,12 @@ public class AuditService {
         input.put("claimed_model", token.getClaimedModel());
         input.put("non_claimed_model", token.getNonClaimedModel());
         input.put("audit_time", auditTime);
-        if (auditDimensions != null && !auditDimensions.isEmpty()) {
-            input.put("audit_dimensions", auditDimensions);
+        List<String> dimensions = validateDimensions(auditDimensions);
+        if (!dimensions.isEmpty()) {
+            input.put("audit_dimensions", dimensions);
         }
 
-        List<String> formats = exportFormats;
-        if (formats == null || formats.isEmpty()) {
-            formats = parseDefaultFormats(props.getAuditExportFormats());
-        }
+        List<String> formats = validateFormats(exportFormats);
         input.put("export_formats", formats);
 
         AuditRecord rec = new AuditRecord();
@@ -76,11 +100,21 @@ public class AuditService {
         appendEvent(auditId, "audit_start", Map.of("tokenId", tokenId, "auditTime", auditTime, "exportFormats", formats));
 
         String stdinJson = JsonUtil.toJson(input);
-        Thread worker = new Thread(() -> runAuditInBackground(auditId, stdinJson));
-        worker.setDaemon(true);
-        worker.setName("audit-worker-" + auditId);
-        worker.start();
-        appendEvent(auditId, "audit_dispatched", Map.of("thread", worker.getName()));
+        AuditTask task = new AuditTask();
+        auditTasks.put(auditId, task);
+        try {
+            Future<?> future = auditExecutor.submit(() -> runAuditInBackground(auditId, stdinJson, aiConfig, task));
+            task.future = future;
+            if (task.cancelRequested.get()) future.cancel(true);
+            appendEvent(auditId, "audit_dispatched", Map.of(
+                    "active", auditExecutor.getActiveCount(),
+                    "queued", auditExecutor.getQueue().size()
+            ));
+        } catch (java.util.concurrent.RejectedExecutionException error) {
+            auditTasks.remove(auditId, task);
+            failAudit(auditId, "audit_queue_full");
+            throw new ApiException("audit_queue_full");
+        }
 
         AuditResponse resp = new AuditResponse();
         resp.setAuditId(auditId);
@@ -102,6 +136,7 @@ public class AuditService {
         m.put("overallConclusion", rec.getOverallConclusion());
         m.put("report", JsonUtil.toMap(rec.getReportJson()));
         m.put("progress", progress);
+        m.put("executionState", executionState(rec));
         return m;
     }
 
@@ -116,6 +151,7 @@ public class AuditService {
             m.put("status", r.getStatus());
             m.put("overallConclusion", r.getOverallConclusion());
             m.put("progress", computeProgressPercent(r.getId(), r.getStatus()));
+            m.put("executionState", executionState(r));
             res.add(m);
         }
         return res;
@@ -135,11 +171,31 @@ public class AuditService {
         return res;
     }
 
+    public Map<String, Object> cancelAudit(Long id) {
+        AuditRecord rec = auditRecordMapper.findById(id);
+        if (rec == null) throw new ApiException("audit_not_found");
+        if (isTerminalStatus(rec.getStatus())) return getAudit(id);
+
+        AuditTask task = auditTasks.get(id);
+        if (task != null) {
+            task.cancelRequested.set(true);
+            Process process = task.process.get();
+            if (process != null) terminateProcess(process);
+            Future<?> future = task.future;
+            if (future != null && future.cancel(true) && !task.started.get()) {
+                auditTasks.remove(id, task);
+                auditExecutor.purge();
+            }
+        }
+        markCancelled(id);
+        return getAudit(id);
+    }
+
     private int computeProgressPercent(Long auditId, String status) {
         if ("completed".equals(status)) {
             return 100;
         }
-        if ("failed".equals(status)) {
+        if ("failed".equals(status) || "cancelled".equals(status)) {
             return 100;
         }
         int doneOps = auditEventMapper.countProgressOps(auditId);
@@ -151,11 +207,14 @@ public class AuditService {
         return Math.max(0, p);
     }
 
-    private void runAuditInBackground(Long auditId, String stdinJson) {
+    private void runAuditInBackground(Long auditId, String stdinJson, AuditAiConfigService.RuntimeConfig aiConfig, AuditTask task) {
+        task.started.set(true);
         appendEvent(auditId, "audit_worker_start", Map.of());
         try {
+            requireNotCancelled(task);
             appendEvent(auditId, "audit_worker_before_python", Map.of());
-            String rawOut = runPythonWithEvents(auditId, stdinJson);
+            String rawOut = runPythonWithEvents(auditId, stdinJson, aiConfig, task);
+            requireNotCancelled(task);
             appendEvent(auditId, "audit_worker_after_python", Map.of("stdoutSize", rawOut == null ? 0 : rawOut.length()));
             Map<String, Object> report = JsonUtil.toMap(rawOut);
 
@@ -173,21 +232,22 @@ public class AuditService {
             rec.setStatus("completed");
             rec.setOverallConclusion(overallConclusion);
             rec.setReportJson(rawOut);
-            auditRecordMapper.updateResult(rec);
-            appendEvent(auditId, "audit_completed", Map.of("overallConclusion", overallConclusion));
+            if (auditRecordMapper.updateResultIfRunning(rec) > 0) {
+                appendEvent(auditId, "audit_completed", Map.of("overallConclusion", overallConclusion));
+            }
         } catch (Throwable ex) {
-            String msg = ex.getMessage() == null ? ex.getClass().getName() : ex.getMessage();
-            AuditRecord rec = new AuditRecord();
-            rec.setId(auditId);
-            rec.setStatus("failed");
-            rec.setOverallConclusion(null);
-            rec.setReportJson(JsonUtil.toJson(Map.of("error", msg)));
-            auditRecordMapper.updateResult(rec);
-            appendEvent(auditId, "audit_failed", Map.of("error", msg));
+            if (task.cancelRequested.get() || ex instanceof AuditCancelledException || Thread.currentThread().isInterrupted()) {
+                markCancelled(auditId);
+            } else {
+                String msg = ex.getMessage() == null ? ex.getClass().getName() : ex.getMessage();
+                failAudit(auditId, msg);
+            }
+        } finally {
+            auditTasks.remove(auditId, task);
         }
     }
 
-    private String runPythonWithEvents(Long auditId, String stdinJson) {
+    private String runPythonWithEvents(Long auditId, String stdinJson, AuditAiConfigService.RuntimeConfig aiConfig, AuditTask task) {
         try {
             File workDir = resolveWorkDir();
             List<String> pythonCandidates = resolvePythonCandidates();
@@ -199,7 +259,7 @@ public class AuditService {
                 try {
                     ProcessBuilder pb = new ProcessBuilder(python, "-m", "audit_core");
                     pb.directory(workDir);
-                    applyEnv(pb);
+                    applyEnv(pb, aiConfig);
                     appendEvent(auditId, "python_start", Map.of("python", python, "workDir", workDir.getAbsolutePath()));
                     proc = pb.start();
                     break;
@@ -213,33 +273,51 @@ public class AuditService {
             }
 
             Process procFinal = proc;
-            procFinal.getOutputStream().write(stdinJson.getBytes(StandardCharsets.UTF_8));
-            procFinal.getOutputStream().close();
+            task.process.set(procFinal);
+            try {
+                requireNotCancelled(task);
+                procFinal.getOutputStream().write(stdinJson.getBytes(StandardCharsets.UTF_8));
+                procFinal.getOutputStream().close();
 
-            StringBuilder stdout = new StringBuilder();
-            StringBuilder stderr = new StringBuilder();
+                StringBuilder stdout = new StringBuilder();
+                StringBuilder stderr = new StringBuilder();
 
-            Thread outReader = new Thread(() -> readStream(procFinal.getInputStream(), line -> stdout.append(line).append("\n")));
-            Thread errReader = new Thread(() -> readStream(procFinal.getErrorStream(), line -> {
-                stderr.append(line).append("\n");
-                tryAppendJsonEvent(auditId, line);
-            }));
-            outReader.start();
-            errReader.start();
+                Thread outReader = new Thread(() -> readStream(procFinal.getInputStream(), line -> stdout.append(line).append("\n")));
+                Thread errReader = new Thread(() -> readStream(procFinal.getErrorStream(), line -> {
+                    stderr.append(line).append("\n");
+                    tryAppendJsonEvent(auditId, line);
+                }));
+                outReader.start();
+                errReader.start();
 
-            int code = procFinal.waitFor();
-            outReader.join();
-            errReader.join();
+                long timeoutSeconds = Math.max(1, props.getAuditProcessTimeoutSeconds());
+                boolean finished = procFinal.waitFor(timeoutSeconds, TimeUnit.SECONDS);
+                requireNotCancelled(task);
+                if (!finished) {
+                    terminateProcess(procFinal);
+                    outReader.join(5000);
+                    errReader.join(5000);
+                    throw new ApiException("python_audit_timeout");
+                }
+                int code = procFinal.exitValue();
+                outReader.join();
+                errReader.join();
 
-            if (code != 0) {
-                throw new ApiException("python_audit_failed:" + filterNonEventLogs(stderr.toString()));
+                if (code != 0) {
+                    throw new ApiException("python_audit_failed:" + filterNonEventLogs(stderr.toString()));
+                }
+                if (stdout.toString().isBlank()) {
+                    throw new ApiException("python_audit_empty_output");
+                }
+                return stdout.toString().trim();
+            } finally {
+                task.process.compareAndSet(procFinal, null);
             }
-            if (stdout.toString().isBlank()) {
-                throw new ApiException("python_audit_empty_output");
-            }
-            return stdout.toString().trim();
         } catch (ApiException ex) {
             throw ex;
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new AuditCancelledException();
         } catch (Exception ex) {
             throw new ApiException("python_exec_error:" + ex.getMessage());
         }
@@ -303,7 +381,7 @@ public class AuditService {
         }
     }
 
-    private void applyEnv(ProcessBuilder pb) {
+    private void applyEnv(ProcessBuilder pb, AuditAiConfigService.RuntimeConfig aiConfig) {
         Map<String, String> e = pb.environment();
         e.put("PYTHONIOENCODING", "utf-8");
         e.put("PYTHONUTF8", "1");
@@ -317,6 +395,9 @@ public class AuditService {
         putIfPresent(e, "AUDIT_REQUEST_TIMEOUT_S");
         putIfPresent(e, "AUDIT_EXPORT_DIR");
         putIfPresent(e, "AUDIT_PDF_FONT_TTF");
+        e.put("DEEPSEEK_API_KEY", aiConfig.apiKey());
+        e.put("DEEPSEEK_BASE_URL", aiConfig.apiUrl());
+        e.put("DEEPSEEK_MODEL", aiConfig.model());
     }
 
     private void putIfPresent(Map<String, String> envMap, String key) {
@@ -440,5 +521,113 @@ public class AuditService {
             }
         }
         return res.isEmpty() ? List.of("json", "md") : res;
+    }
+
+    private List<String> validateFormats(List<String> requested) {
+        List<String> source = requested == null || requested.isEmpty()
+                ? parseDefaultFormats(props.getAuditExportFormats())
+                : requested;
+        Set<String> allowed = Set.of("json", "md", "xlsx", "excel", "pdf");
+        List<String> result = new ArrayList<>();
+        for (String value : source) {
+            String normalized = value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
+            if (!allowed.contains(normalized)) {
+                throw new ApiException("invalid_export_format");
+            }
+            if (!result.contains(normalized)) result.add(normalized);
+        }
+        return result;
+    }
+
+    private List<String> validateDimensions(List<String> requested) {
+        if (requested == null || requested.isEmpty()) return List.of();
+        Set<String> allowed = Set.of("validity", "permission", "watering", "compliance", "stability", "security");
+        List<String> result = new ArrayList<>();
+        for (String value : requested) {
+            String normalized = value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
+            if (!allowed.contains(normalized)) {
+                throw new ApiException("invalid_audit_dimension");
+            }
+            if (!result.contains(normalized)) result.add(normalized);
+        }
+        return result;
+    }
+
+    private void failAudit(Long auditId, String message) {
+        AuditRecord rec = new AuditRecord();
+        rec.setId(auditId);
+        rec.setStatus("failed");
+        rec.setOverallConclusion(null);
+        rec.setReportJson(JsonUtil.toJson(Map.of("error", message)));
+        if (auditRecordMapper.updateResultIfRunning(rec) > 0) {
+            appendEvent(auditId, "audit_failed", Map.of("error", message));
+        }
+    }
+
+    private void markCancelled(Long auditId) {
+        AuditRecord rec = new AuditRecord();
+        rec.setId(auditId);
+        rec.setStatus("cancelled");
+        rec.setOverallConclusion(null);
+        rec.setReportJson(JsonUtil.toJson(Map.of("cancelled", true, "message", "audit_cancelled")));
+        if (auditRecordMapper.updateResultIfRunning(rec) > 0) {
+            appendEvent(auditId, "audit_cancelled", Map.of("message", "用户已终止审计"));
+        }
+    }
+
+    private String executionState(AuditRecord record) {
+        if (isTerminalStatus(record.getStatus())) return record.getStatus();
+        AuditTask task = auditTasks.get(record.getId());
+        if (task == null) return "detached";
+        return task.started.get() ? "active" : "queued";
+    }
+
+    private boolean isTerminalStatus(String status) {
+        return "completed".equals(status) || "failed".equals(status) || "cancelled".equals(status);
+    }
+
+    private void requireNotCancelled(AuditTask task) {
+        if (task.cancelRequested.get() || Thread.currentThread().isInterrupted()) {
+            throw new AuditCancelledException();
+        }
+    }
+
+    private void terminateProcess(Process process) {
+        try {
+            process.toHandle().descendants().forEach(child -> {
+                try { child.destroyForcibly(); } catch (Exception ignored) {}
+            });
+        } catch (Exception ignored) {
+        }
+        try {
+            process.destroy();
+            if (!process.waitFor(2, TimeUnit.SECONDS)) process.destroyForcibly();
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt();
+            process.destroyForcibly();
+        } catch (Exception ignored) {
+            try { process.destroyForcibly(); } catch (Exception ignoredAgain) {}
+        }
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        auditTasks.values().forEach(task -> {
+            task.cancelRequested.set(true);
+            Process process = task.process.get();
+            if (process != null) terminateProcess(process);
+        });
+        auditExecutor.shutdownNow();
+    }
+
+    private static final class AuditTask {
+        private final AtomicBoolean cancelRequested = new AtomicBoolean(false);
+        private final AtomicBoolean started = new AtomicBoolean(false);
+        private final AtomicReference<Process> process = new AtomicReference<>();
+        private volatile Future<?> future;
+    }
+
+    private static final class AuditCancelledException extends RuntimeException {
+        private AuditCancelledException() { super("audit_cancelled"); }
     }
 }

@@ -1,6 +1,7 @@
 package com.tokenaudit.controller;
 
 import com.tokenaudit.dto.TokenCreateRequest;
+import com.tokenaudit.dto.TokenModelUpdateRequest;
 import com.tokenaudit.dto.TokenResponse;
 import com.tokenaudit.service.TokenService;
 import jakarta.validation.Valid;
@@ -25,6 +26,14 @@ public class TokenController {
     @GetMapping
     public List<TokenResponse> list() {
         return tokenService.list();
+    }
+
+    @PutMapping("/{id}/model")
+    public TokenResponse updateClaimedModel(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody TokenModelUpdateRequest req
+    ) {
+        return tokenService.updateClaimedModel(id, req.getClaimedModel());
     }
 
     @DeleteMapping("/{id}")

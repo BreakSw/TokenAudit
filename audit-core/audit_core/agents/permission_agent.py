@@ -43,25 +43,31 @@ class PermissionAgent:
             },
         )
 
-        log_event("token_call_start", {"phase": "permission", "scenario": "non_claimed_model", "model": inp.non_claimed_model})
-        non_claimed = token_chat(
-            base_url=inp.token_base_url,
-            token=inp.audited_token,
-            model=inp.non_claimed_model,
-            messages=[prompt],
-            timeout_s=config.request_timeout_s,
-        )
-        log_event(
-            "token_call_end",
-            {
-                "phase": "permission",
-                "scenario": "non_claimed_model",
-                "status_code": non_claimed["status_code"],
-                "elapsed_ms": non_claimed["elapsed_ms"],
-                "endpoint": non_claimed.get("endpoint"),
-                "url": non_claimed.get("url"),
-            },
-        )
+        target_model = inp.non_claimed_model.strip()
+        target_enabled = bool(target_model)
+        non_claimed: dict[str, Any] | None = None
+        if target_enabled:
+            log_event("token_call_start", {"phase": "permission", "scenario": "non_claimed_model", "model": target_model})
+            non_claimed = token_chat(
+                base_url=inp.token_base_url,
+                token=inp.audited_token,
+                model=target_model,
+                messages=[prompt],
+                timeout_s=config.request_timeout_s,
+            )
+            log_event(
+                "token_call_end",
+                {
+                    "phase": "permission",
+                    "scenario": "non_claimed_model",
+                    "status_code": non_claimed["status_code"],
+                    "elapsed_ms": non_claimed["elapsed_ms"],
+                    "endpoint": non_claimed.get("endpoint"),
+                    "url": non_claimed.get("url"),
+                },
+            )
+        else:
+            log_event("target_model_skipped", {"phase": "permission", "reason": "disabled"})
 
         log_event("token_call_start", {"phase": "permission", "scenario": "anonymous_call", "model": inp.claimed_model})
         anonymous = token_chat(
@@ -94,16 +100,7 @@ class PermissionAgent:
                 "url": claimed.get("url"),
                 "response_preview": _preview(claimed),
             },
-            {
-                "scenario": "non_claimed_model",
-                "model": inp.non_claimed_model,
-                "status_code": non_claimed["status_code"],
-                "ok": non_claimed["ok"],
-                "elapsed_ms": non_claimed["elapsed_ms"],
-                "endpoint": non_claimed.get("endpoint"),
-                "url": non_claimed.get("url"),
-                "response_preview": _preview(non_claimed),
-            },
+            _target_test_result(target_model=target_model, response=non_claimed),
             {
                 "scenario": "anonymous_call",
                 "model": inp.claimed_model,
@@ -118,7 +115,7 @@ class PermissionAgent:
 
         judge_prompt = _build_deepseek_prompt(inp=inp, tests=tests)
         log_event("deepseek_call_start", {"phase": "permission", "model": config.deepseek_model})
-        judge_raw = deepseek_chat(config=config, messages=judge_prompt)
+        judge_raw = deepseek_chat(config=config, messages=judge_prompt, sensitive_values=[inp.audited_token])
         log_event("deepseek_call_end", {"phase": "permission", "elapsed_ms": judge_raw.get("elapsed_ms")})
         judge_text = _extract_deepseek_content(judge_raw["response"])
         judge_obj = coerce_json_object(judge_text)
@@ -134,6 +131,7 @@ class PermissionAgent:
         log_event("phase_end", {"phase": "permission", "agent": self.name})
         return {
             "agent": self.name,
+            "target_model_audit_enabled": target_enabled,
             "tests": tests,
             "deepseek_judgement": judge_obj,
             "conclusion": conclusion,
@@ -173,7 +171,49 @@ def _extract_deepseek_content(data: Any) -> str:
     return str(data)
 
 
+def _target_test_result(*, target_model: str, response: dict[str, Any] | None) -> dict[str, Any]:
+    if response is None:
+        return {
+            "scenario": "non_claimed_model",
+            "model": "",
+            "skipped": True,
+            "skip_reason": "target_model_audit_disabled",
+            "status_code": None,
+            "ok": None,
+            "elapsed_ms": 0,
+            "endpoint": None,
+            "url": None,
+            "response_preview": "",
+        }
+    return {
+        "scenario": "non_claimed_model",
+        "model": target_model,
+        "skipped": False,
+        "status_code": response["status_code"],
+        "ok": response["ok"],
+        "elapsed_ms": response["elapsed_ms"],
+        "endpoint": response.get("endpoint"),
+        "url": response.get("url"),
+        "response_preview": _preview(response),
+    }
+
+
 def _build_deepseek_prompt(*, inp: PermissionInput, tests: list[dict[str, Any]]) -> list[dict[str, str]]:
+    target_model = inp.non_claimed_model.strip()
+    if target_model:
+        criteria = (
+            "权限正常=能调用宣称模型、不能调用目标审计模型且匿名调用失败；"
+            "权限异常=能调用目标审计模型或无法调用宣称模型；"
+            "匿名权限异常=匿名调用成功。"
+        )
+        target_context = f"目标模型审计=已启用，目标审计模型={target_model}"
+    else:
+        criteria = (
+            "本次未启用目标模型审计，不得把跳过目标模型调用判为异常；"
+            "权限正常=能调用宣称模型且匿名调用失败；"
+            "权限异常=无法调用宣称模型；匿名权限异常=匿名调用成功。"
+        )
+        target_context = "目标模型审计=未启用（已跳过）"
     return [
         {
             "role": "system",
@@ -183,10 +223,8 @@ def _build_deepseek_prompt(*, inp: PermissionInput, tests: list[dict[str, Any]])
             "role": "user",
             "content": (
                 "根据以下权限测试记录判定："
-                "权限正常=仅能调用宣称模型且匿名调用失败；"
-                "权限异常=可调用未宣称模型或无法调用宣称模型；"
-                "匿名权限异常=匿名调用成功。\n\n"
-                f"宣称模型={inp.claimed_model}，非宣称模型={inp.non_claimed_model}\n"
+                f"{criteria}\n\n"
+                f"宣称模型={inp.claimed_model}，{target_context}\n"
                 f"测试记录：{tests}\n\n"
                 "请输出JSON："
                 '{"deepseek_permission":"权限正常/权限异常/匿名权限异常","conclusion":"权限正常/权限异常/匿名权限异常","evidence":"..."}'
