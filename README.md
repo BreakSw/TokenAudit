@@ -1,11 +1,11 @@
 # TokenAudit（简单的骨架）
 
-TokenAudit 是一个「Token 审计工具」示例项目：前端（Vue3 + Element Plus）负责录入 Token / 发起审计 / 展示报告与进度；后端（Spring Boot + MyBatis + SQLite）负责持久化与调度；审计核心（Python 多 Agent）负责对中转平台 Token 做 5 个维度审计，并用 DeepSeek 做判定与汇总。
+TokenAudit 是一个「Token 审计工具」示例项目：前端（Vue3 + Element Plus）负责录入 Token / 发起审计 / 展示报告与进度；后端（Spring Boot + MyBatis + SQLite + Redis）负责持久化与调度；审计核心（Python 多 Agent）负责对中转平台 Token 做多维审计，并通过用户配置的 OpenAI 兼容审计 AI 做判定与汇总。
 
 ## 功能概览
 
 - Token 管理：录入/删除中转平台 Token（后端 SQLite 持久化）
-- 一键审计：有效性 / 权限 / 掺水 / 合规 / 稳定性（5 项）
+- 一键审计：有效性 / 权限 / 模型真实性 / 合规 / 稳定性 / 安全性（6 项）
 - 真实进度：后端实时采集 Python 多 Agent 事件流（phase/token_call/deepseek_call），前端展示进度条与审计过程
 - 报告导出：JSON / Markdown / Excel / PDF（PDF 可选，缺字体会跳过）
 
@@ -40,7 +40,7 @@ mvn -v
 python --version
 ```
 
-## 第一步：配置环境变量（DeepSeek / Python / 路径）
+## 第一步：配置环境变量（Redis / Python / 路径）
 
 ### 1) 创建 `.env`（推荐方式）
 
@@ -56,17 +56,16 @@ Windows PowerShell：
 Copy-Item .env.example .env
 ```
 
-然后编辑 `.env`，至少配置以下三项（不要把 key 写进 `.env.example`，只写 `.env`）：
+然后编辑 `.env`，确认 Redis 连接信息：
 
 ```properties
-DEEPSEEK_API_KEY=你的DeepSeekKey
-DEEPSEEK_BASE_URL=https://api.deepseek.com/v1/chat/completions
-DEEPSEEK_MODEL=deepseek-chat
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DATABASE=1
 ```
 
-DeepSeek 常见模型名（可用 `GET https://api.deepseek.com/v1/models` 查询）：
-- `deepseek-chat`
-- `deepseek-reasoner`
+审计 AI 不再固定为 DeepSeek。服务启动后，在前端右上角进入“设置 → 审计判定模型”，填写服务商、完整 Chat Completions URL、模型、API Key 和有效期。API Key 会加密保存至 Redis，每次保存都会重新计算 TTL。
 
 ### 2) Python 可执行文件与审计核心目录
 
@@ -148,7 +147,7 @@ npm run dev
 
 前端默认后端地址由 `VITE_BACKEND_BASE_URL` 决定：
 - 优先读取 `front-end/.env.development` 或你自己设置的 Vite 环境变量
-- 若未配置，会用 `http://localhost:8081`（建议改成 8086）
+- 若未配置，会用 `http://localhost:8086`
 
 你当前项目默认是 `8086`，推荐确保 `front-end/.env.development` 中为：
 
@@ -165,11 +164,13 @@ VITE_BACKEND_BASE_URL=http://localhost:8086
 - 名称：随便填，用于展示（例如：`小马-claude-opus`）
 - Token：中转站给你的 key（敏感信息，谨慎保存）
 - 中转平台：展示用（例如：`小马中转`）
-- Base URL：只填域名根，不要带路径  
-  - 正确：`https://api.xiaoma.best`
-  - 错误：`https://api.xiaoma.best/v1/chat/completions`
+- API 地址：可填基础地址，也可填完整的 OpenAI 兼容推理端点
+  - 基础地址：`https://api.xiaoma.best/v1`
+  - 完整端点：`https://api.xiaoma.best/v1/chat/completions`
+  - 非标准路径的中转站建议填写完整端点，系统不会按平台名称改写地址
 - 宣称模型：中转站返回的 `model`（例如：`claude-opus-4-6`）
-- 非宣称模型：用于越权测试，可先填一个常见模型名（例如：`gpt-4o-mini`）
+- 目标模型审计：默认关闭；仅当 Token 理应受模型白名单限制时开启
+- 目标审计模型：开启后必填，用于验证模型权限边界（例如：`gpt-4o-mini`）；支持多模型的中转站通常保持关闭
 
 ### 2) 发起审计（发起审计）
 
@@ -195,27 +196,26 @@ VITE_BACKEND_BASE_URL=http://localhost:8086
 - Audit
   - `POST /api/audits` 发起审计（异步，立即返回 `auditId`）
   - `GET /api/audits/{id}` 获取审计状态/进度/报告
-  - `GET /api/audits/{id}/events` 获取事件流（真实进度）
+- `GET /api/audits/{id}/events` 获取事件流（真实进度）
   - `GET /api/audits` 审计历史列表
 - Health
   - `GET /api/agents/health`
 
 ## 常见问题排查（Troubleshooting）
 
-### 1) `DEEPSEEK_API_KEY is not set`
+### 1) `audit_ai_not_configured`
 
-说明 Python 子进程没有拿到 `DEEPSEEK_API_KEY`：
+说明审计 AI 配置不存在或已过期：
 
-- 确认根目录存在 `.env`，且 `DEEPSEEK_API_KEY=...` 已填写
-- **重启后端**（重要：后端启动时才会读取 `.env` 并传给 Python）
+- 在前端打开“设置 → 审计判定模型”并重新保存配置
+- 检查 Redis 是否运行、连接信息是否正确
 
-### 2) DeepSeek 返回 `Model Not Exist`
+### 2) 审计 AI 返回 `Model Not Exist`
 
-说明 `DEEPSEEK_MODEL` 不存在或账号不可用：
+说明设置中的模型不存在或当前账号不可用：
 
-- 推荐先用 `DEEPSEEK_MODEL=deepseek-chat`
-- 或者 `DEEPSEEK_MODEL=deepseek-reasoner`
-- 可用 `GET https://api.deepseek.com/v1/models` 查询当前 key 允许的模型
+- 在服务商控制台查询当前 API Key 可用的模型列表
+- 回到“设置 → 审计判定模型”修改模型并保存，无需重启后端
 
 ### 3) 审计“秒失败”，事件里有 `Cannot run program "python"`
 
@@ -238,7 +238,7 @@ AUDIT_PDF_FONT_TTF=你本机字体文件路径.ttf
 
 ## 安全提示
 
-- 不要把任何 API Key 写入 `.env.example` 或提交到仓库
+- 不要把任何 API Key 写入 `.env.example` 或提交到仓库；审计 API Key 请通过设置界面保存
 - `.env` 已被 `.gitignore` 忽略，专用于本地/服务器部署
 - Token 属于敏感信息，建议使用最小权限、开启限流/白名单（如中转站支持）
 

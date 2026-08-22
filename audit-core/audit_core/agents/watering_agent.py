@@ -87,7 +87,7 @@ class WateringAgent:
 
         judge_prompt = _build_deepseek_prompt(inp=inp, calls=calls)
         log_event("deepseek_call_start", {"phase": "watering", "model": config.deepseek_model})
-        judge_raw = deepseek_chat(config=config, messages=judge_prompt)
+        judge_raw = deepseek_chat(config=config, messages=judge_prompt, sensitive_values=[inp.audited_token])
         log_event("deepseek_call_end", {"phase": "watering", "elapsed_ms": judge_raw.get("elapsed_ms")})
         judge_text = _extract_deepseek_content(judge_raw["response"])
         judge_obj = coerce_json_object(judge_text)

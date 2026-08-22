@@ -1,9 +1,16 @@
 import { flushPromises, mount } from "@vue/test-utils"
 import ElementPlus from "element-plus"
 import { createMemoryHistory, createRouter } from "vue-router"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import App from "./App.vue"
+import { deleteAuditAiConfig, getAuditAiConfig, saveAuditAiConfig } from "./request/api"
+
+vi.mock("./request/api", () => ({
+  deleteAuditAiConfig: vi.fn(),
+  getAuditAiConfig: vi.fn(),
+  saveAuditAiConfig: vi.fn()
+}))
 
 const ViewStub = { template: "<div>route content</div>" }
 const DrawerStub = {
@@ -20,6 +27,7 @@ function createTestRouter() {
     history: createMemoryHistory(),
     routes: [
       { path: "/", component: ViewStub },
+      { path: "/home", component: ViewStub, meta: { title: "项目主页", section: "HOME" } },
       { path: "/audit", component: ViewStub },
       { path: "/tokens", component: ViewStub },
       { path: "/history", component: ViewStub },
@@ -61,11 +69,27 @@ async function openSettings(wrapper) {
   await flushPromises()
 }
 
+beforeEach(() => {
+  vi.mocked(getAuditAiConfig).mockResolvedValue({ configured: false, expiresInSeconds: 0 })
+  vi.mocked(saveAuditAiConfig).mockResolvedValue({ configured: true, apiKeyMasked: "sk-o***abcd", expiresInSeconds: 86400 })
+  vi.mocked(deleteAuditAiConfig).mockResolvedValue()
+})
+
 afterEach(() => {
   document.body.innerHTML = ""
 })
 
 describe("console shell routing", () => {
+  it("uses the brand as a project-home link", async () => {
+    const wrapper = await mountApp("/audit")
+    const brand = wrapper.get('.brand-block[href="/home"]')
+
+    expect(brand.attributes("aria-label")).toContain("项目主页")
+    await brand.trigger("click")
+    await flushPromises()
+    expect(wrapper.get(".header-heading h1").text()).toBe("项目主页")
+  })
+
   it("shows the regular route title and marks its navigation link current", async () => {
     const wrapper = await mountApp("/audit")
 
@@ -156,5 +180,49 @@ describe("console shell settings", () => {
     await findButton(wrapper, "保存").trigger("click")
 
     expect(wrapper.get('[role="alert"]').text()).toContain("无法访问浏览器本地存储")
+  })
+
+  it("loads and saves an existing Redis-backed audit AI configuration without exposing its key", async () => {
+    vi.mocked(getAuditAiConfig).mockResolvedValue({
+      configured: true,
+      provider: "OpenRouter",
+      apiUrl: "https://openrouter.ai/api/v1/chat/completions",
+      model: "openai/gpt-4o-mini",
+      apiKeyMasked: "sk-o***abcd",
+      ttlMinutes: 1440,
+      expiresInSeconds: 7200
+    })
+    const wrapper = await mountApp()
+    await openSettings(wrapper)
+
+    expect(wrapper.get("#audit-ai-key").element.value).toBe("")
+    expect(wrapper.text()).toContain("sk-o***abcd")
+    await findButton(wrapper, "保存审计配置").trigger("click")
+    await flushPromises()
+
+    expect(saveAuditAiConfig).toHaveBeenCalledWith(expect.objectContaining({
+      provider: "OpenRouter",
+      model: "openai/gpt-4o-mini",
+      apiKey: "",
+      ttlMinutes: 1440
+    }))
+  })
+
+  it("offers common official model vendors without relay providers", async () => {
+    const wrapper = await mountApp()
+    await openSettings(wrapper)
+
+    await wrapper.get("#audit-ai-provider").trigger("click")
+    await flushPromises()
+
+    const options = document.body.textContent
+    expect(options).toContain("OpenAI / GPT")
+    expect(options).toContain("Anthropic / Claude")
+    expect(options).toContain("xAI / Grok")
+    expect(options).toContain("Moonshot / Kimi")
+    expect(options).toContain("阿里云百炼 / 通义千问")
+    expect(options).not.toContain("OpenRouter")
+    expect(options).not.toContain("SiliconFlow")
+    expect(options).not.toContain("302.AI")
   })
 })

@@ -35,6 +35,7 @@ back-end/target/
 ## Data / Reports
 data/database/*.db
 data/report/
+data/token-encryption.key
 
 ## prompt
 prompt.txt

@@ -1,10 +1,10 @@
 import { flushPromises, mount } from "@vue/test-utils"
-import ElementPlus, { ElMessage } from "element-plus"
+import ElementPlus, { ElMessage, ElMessageBox } from "element-plus"
 import { createMemoryHistory, createRouter } from "vue-router"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import AuditForm from "./AuditForm.vue"
-import { getAudit, listAuditEvents, listTokens, startAudit } from "../request/api"
+import { cancelAudit, getAudit, getAuditAiConfig, listAuditEvents, listAudits, listTokens, startAudit } from "../request/api"
 
 const wrappers = []
 
@@ -19,13 +19,16 @@ function deferred() {
 }
 
 vi.mock("../request/api", () => ({
+  cancelAudit: vi.fn(),
   getAudit: vi.fn(),
+  getAuditAiConfig: vi.fn(),
   listAuditEvents: vi.fn(),
+  listAudits: vi.fn(),
   listTokens: vi.fn(),
   startAudit: vi.fn()
 }))
 
-async function mountAuditForm() {
+async function mountAuditForm(provide = {}) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -41,6 +44,7 @@ async function mountAuditForm() {
     attachTo: document.body,
     global: {
       plugins: [router, ElementPlus],
+      provide,
       directives: {
         reveal: () => {}
       }
@@ -59,8 +63,11 @@ function buttonWithText(wrapper, text) {
 beforeEach(() => {
   localStorage.clear()
   vi.mocked(listTokens).mockResolvedValue([{ id: 7, name: "主审计 Token", tokenMasked: "tok-***" }])
+  vi.mocked(getAuditAiConfig).mockResolvedValue({ configured: true })
   vi.mocked(getAudit).mockResolvedValue({ status: "running", progress: 42 })
   vi.mocked(listAuditEvents).mockResolvedValue([])
+  vi.mocked(listAudits).mockResolvedValue([])
+  vi.mocked(cancelAudit).mockResolvedValue({ id: 42, status: "cancelled", progress: 100 })
 })
 
 afterEach(() => {
@@ -73,6 +80,19 @@ afterEach(() => {
 })
 
 describe("AuditForm polling lifecycle", () => {
+  it("opens audit AI settings and blocks submission when the configuration is missing", async () => {
+    const openAuditAiSettings = vi.fn()
+    vi.mocked(getAuditAiConfig).mockResolvedValue({ configured: false })
+    const wrapper = await mountAuditForm({ openAuditAiSettings })
+    await flushPromises()
+
+    await wrapper.get(".configuration-actions button").trigger("click")
+    await flushPromises()
+
+    expect(startAudit).not.toHaveBeenCalled()
+    expect(openAuditAiSettings).toHaveBeenCalledWith(expect.stringContaining("请配置审计 API Key"))
+  })
+
   it("coalesces consecutive refreshes for the same audit", async () => {
     vi.useFakeTimers()
     const auditResponse = deferred()
@@ -274,6 +294,7 @@ describe("AuditForm stage state derivation", () => {
     expect(stages[5].classes()).toContain("audit-stage--completed")
     expect(wrapper.findAll(".audit-stage--running")).toHaveLength(0)
     expect(wrapper.findAll(".audit-stage--failed")).toHaveLength(0)
+    expect(wrapper.get('[data-testid="audit-failure-detail"]').text()).toContain("report failed")
   })
 
   it("marks the overall stage completed after a DeepSeek start/end pair", async () => {
@@ -439,6 +460,46 @@ describe("AuditForm token loading states", () => {
 })
 
 describe("AuditForm submit lifecycle", () => {
+  it("allows multiple audits to be started while another task is running", async () => {
+    vi.mocked(startAudit)
+      .mockResolvedValueOnce({ auditId: 42 })
+      .mockResolvedValueOnce({ auditId: 43 })
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    await buttonWithText(wrapper, "开始审计").trigger("click")
+    await flushPromises()
+    await buttonWithText(wrapper, "并行新建审计").trigger("click")
+    await flushPromises()
+
+    expect(startAudit).toHaveBeenCalledTimes(2)
+    expect(wrapper.findAll('[data-testid="parallel-task"]')).toHaveLength(2)
+    expect(wrapper.text()).toContain("43")
+  })
+
+  it("terminates the selected audit and renders the cancelled state", async () => {
+    vi.mocked(startAudit).mockResolvedValue({ auditId: 42 })
+    vi.mocked(getAudit)
+      .mockResolvedValueOnce({ status: "running", progress: 30 })
+      .mockResolvedValueOnce({ status: "cancelled", progress: 100 })
+    vi.mocked(listAuditEvents)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ id: 9, event: "audit_cancelled", payload: { message: "用户已终止审计" } }])
+    vi.spyOn(ElMessageBox, "confirm").mockResolvedValue("confirm")
+
+    const wrapper = await mountAuditForm()
+    await flushPromises()
+    await buttonWithText(wrapper, "开始审计").trigger("click")
+    await flushPromises()
+    await buttonWithText(wrapper, "终止审计").trigger("click")
+    await flushPromises()
+
+    expect(cancelAudit).toHaveBeenCalledWith(42)
+    expect(wrapper.text()).toContain("已终止")
+    expect(wrapper.text()).toContain("用户已终止审计")
+    expect(wrapper.find('[data-testid="cancel-current-audit"]').exists()).toBe(false)
+  })
+
   it("does not toast when a pending submit rejects after unmount", async () => {
     const submitResponse = deferred()
     const errorToast = vi.spyOn(ElMessage, "error")

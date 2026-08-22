@@ -37,4 +37,9 @@ public class AuditController {
     public List<Map<String, Object>> events(@PathVariable("id") Long id) {
         return auditService.listEvents(id);
     }
+
+    @PostMapping("/{id}/cancel")
+    public Map<String, Object> cancel(@PathVariable("id") Long id) {
+        return auditService.cancelAudit(id);
+    }
 }

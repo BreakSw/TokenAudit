@@ -3,12 +3,14 @@ import ElementPlus, { ElMessage, ElMessageBox } from "element-plus"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import TokenManager from "./TokenManager.vue"
-import { createToken, deleteToken, listTokens } from "../request/api"
+import ModelCombobox from "./ModelCombobox.vue"
+import { createToken, deleteToken, listTokens, updateTokenClaimedModel } from "../request/api"
 
 vi.mock("../request/api", () => ({
   createToken: vi.fn(),
   deleteToken: vi.fn(),
-  listTokens: vi.fn()
+  listTokens: vi.fn(),
+  updateTokenClaimedModel: vi.fn()
 }))
 
 const wrappers = []
@@ -41,21 +43,27 @@ function buttonWithText(wrapper, text) {
   return button
 }
 
-async function fillForm(wrapper, baseUrl = "https://api.example.com") {
+async function fillForm(wrapper, baseUrl = "https://api.example.com", enableTargetAudit = true) {
   const inputs = wrapper.findAll(".el-input__inner")
   await inputs[0].setValue("生产审计")
   await inputs[1].setValue("sk-secret")
   await inputs[2].setValue("OpenAI 中转")
   await inputs[3].setValue(baseUrl)
-  const selects = wrapper.findAllComponents({ name: "ElSelect" })
-  await selects[0].setValue("gpt-5.4")
-  await selects[1].setValue("gpt-4o-mini")
+  const modelInputs = wrapper.findAllComponents(ModelCombobox)
+  modelInputs[0].vm.$emit("update:modelValue", "gpt-5.4")
+  await flushPromises()
+  if (enableTargetAudit) {
+    await wrapper.findComponent({ name: "ElSwitch" }).setValue(true)
+    wrapper.findAllComponents(ModelCombobox)[1].vm.$emit("update:modelValue", "gpt-4o-mini")
+    await flushPromises()
+  }
 }
 
 beforeEach(() => {
   vi.mocked(listTokens).mockReset()
   vi.mocked(createToken).mockReset()
   vi.mocked(deleteToken).mockReset()
+  vi.mocked(updateTokenClaimedModel).mockReset()
 })
 
 afterEach(() => {
@@ -91,6 +99,58 @@ describe("TokenManager", () => {
 
     expect(wrapper.get('[data-testid="token-empty"]').text()).toContain("暂无 Token")
     expect(wrapper.find('[data-testid="token-table"]').exists()).toBe(false)
+  })
+
+  it("renders every workspace claimed model as an always-visible shared catalog selector", async () => {
+    const token = {
+      id: 12,
+      name: "生产审计",
+      tokenMasked: "sk-12••••9a",
+      platform: "任意中转",
+      claimedModel: "gpt-4o-mini",
+      nonClaimedModel: ""
+    }
+    vi.mocked(listTokens).mockResolvedValue([token])
+    vi.mocked(updateTokenClaimedModel).mockResolvedValue({
+      ...token,
+      claimedModel: "deepseek/deepseek-chat"
+    })
+    const wrapper = mountTokenManager()
+    await flushPromises()
+
+    const selector = wrapper.get('[data-testid="model-selector-12"]')
+    const modelInput = selector.findComponent(ModelCombobox)
+    expect(modelInput.props("modelValue")).toBe("gpt-4o-mini")
+    modelInput.vm.$emit("update:modelValue", "deepseek/deepseek-chat")
+    modelInput.vm.$emit("commit", "deepseek/deepseek-chat")
+    await flushPromises()
+
+    expect(updateTokenClaimedModel).toHaveBeenCalledWith(12, "deepseek/deepseek-chat")
+    expect(wrapper.get('[data-testid="model-selector-12"]').findComponent(ModelCombobox).props("modelValue")).toBe("deepseek/deepseek-chat")
+  })
+
+  it("restores the previous selector value when a model update fails", async () => {
+    const token = {
+      id: 13,
+      name: "失败回归",
+      tokenMasked: "sk-13••••9b",
+      platform: "任意中转",
+      claimedModel: "old-model",
+      nonClaimedModel: ""
+    }
+    vi.mocked(listTokens).mockResolvedValue([token])
+    vi.mocked(updateTokenClaimedModel).mockRejectedValue(new Error("模型更新失败"))
+    const wrapper = mountTokenManager()
+    await flushPromises()
+
+    const selector = wrapper.get('[data-testid="model-selector-13"]')
+    const modelInput = selector.findComponent(ModelCombobox)
+    modelInput.vm.$emit("update:modelValue", "custom/model")
+    modelInput.vm.$emit("commit", "custom/model")
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid="model-selector-13"]').findComponent(ModelCombobox).props("modelValue")).toBe("old-model")
+    expect(wrapper.get('[data-testid="operation-error"]').text()).toContain("模型更新失败")
   })
 
   it("keeps load errors visible and retries", async () => {
@@ -179,6 +239,35 @@ describe("TokenManager", () => {
     expect(createToken).not.toHaveBeenCalled()
   })
 
+  it("keeps target model auditing optional and sends an empty target model when disabled", async () => {
+    vi.mocked(listTokens).mockResolvedValue([])
+    vi.mocked(createToken).mockResolvedValue({ id: 30 })
+    const wrapper = mountTokenManager()
+    await flushPromises()
+    await fillForm(wrapper, "https://api.example.com", false)
+
+    expect(wrapper.find("#non-claimed-model").exists()).toBe(false)
+    expect(wrapper.text()).toContain("支持多模型的中转站通常保持关闭")
+
+    await buttonWithText(wrapper, "保存 Token").trigger("click")
+    await flushPromises()
+
+    expect(createToken).toHaveBeenCalledWith(expect.objectContaining({ nonClaimedModel: "" }))
+  })
+
+  it("requires a target model only after target model auditing is enabled", async () => {
+    vi.mocked(listTokens).mockResolvedValue([])
+    const wrapper = mountTokenManager()
+    await flushPromises()
+    await fillForm(wrapper, "https://api.example.com", false)
+
+    await wrapper.findComponent({ name: "ElSwitch" }).setValue(true)
+    await buttonWithText(wrapper, "保存 Token").trigger("click")
+
+    expect(wrapper.get('[data-testid="form-error"]').text()).toContain("请填写目标审计模型")
+    expect(createToken).not.toHaveBeenCalled()
+  })
+
   it("saves a valid service root, resets the form and reloads the workspace", async () => {
     vi.mocked(listTokens)
       .mockResolvedValueOnce([])
@@ -204,16 +293,62 @@ describe("TokenManager", () => {
     expect(wrapper.findAll(".el-input__inner")[0].element.value).toBe("")
   })
 
-  it("rejects an endpoint URL with persistent feedback before create", async () => {
+  it("saves an OpenRouter versioned API base with a full provider model id", async () => {
     vi.mocked(listTokens).mockResolvedValue([])
+    vi.mocked(createToken).mockResolvedValue({ id: 41 })
+    const wrapper = mountTokenManager()
+    await flushPromises()
+    await fillForm(wrapper, "https://openrouter.ai/api/v1", false)
+    const inputs = wrapper.findAll(".el-input__inner")
+    await inputs[2].setValue("OpenRouter")
+    wrapper.findAllComponents(ModelCombobox)[0].vm.$emit("update:modelValue", "anthropic/claude-opus-4.6")
+    await flushPromises()
+
+    await buttonWithText(wrapper, "保存 Token").trigger("click")
+    await flushPromises()
+
+    expect(createToken).toHaveBeenCalledWith(expect.objectContaining({
+      platform: "OpenRouter",
+      tokenBaseUrl: "https://openrouter.ai/api/v1",
+      claimedModel: "anthropic/claude-opus-4.6"
+    }))
+  })
+
+  it("keeps platform and model identifiers provider-agnostic", async () => {
+    vi.mocked(listTokens).mockResolvedValue([])
+    vi.mocked(createToken).mockResolvedValue({ id: 42 })
+    const wrapper = mountTokenManager()
+    await flushPromises()
+    await fillForm(wrapper, "https://openrouter.ai/api/v1", false)
+    const inputs = wrapper.findAll(".el-input__inner")
+    await inputs[2].setValue("OpenRouter")
+    wrapper.findAllComponents(ModelCombobox)[0].vm.$emit("update:modelValue", "claude-opus-4.6")
+    await flushPromises()
+
+    await buttonWithText(wrapper, "保存 Token").trigger("click")
+    await flushPromises()
+
+    expect(wrapper.find('[data-testid="form-error"]').exists()).toBe(false)
+    expect(createToken).toHaveBeenCalledWith(expect.objectContaining({
+      platform: "OpenRouter",
+      claimedModel: "claude-opus-4.6"
+    }))
+  })
+
+  it("accepts a full chat completions endpoint for nonstandard relays", async () => {
+    vi.mocked(listTokens).mockResolvedValue([])
+    vi.mocked(createToken).mockResolvedValue({ id: 43 })
     const wrapper = mountTokenManager()
     await flushPromises()
     await fillForm(wrapper, "https://api.example.com/v1/chat/completions")
 
     await buttonWithText(wrapper, "保存 Token").trigger("click")
+    await flushPromises()
 
-    expect(wrapper.get('[data-testid="form-error"]').text()).toContain("服务根地址")
-    expect(createToken).not.toHaveBeenCalled()
+    expect(wrapper.find('[data-testid="form-error"]').exists()).toBe(false)
+    expect(createToken).toHaveBeenCalledWith(expect.objectContaining({
+      tokenBaseUrl: "https://api.example.com/v1/chat/completions"
+    }))
   })
 
   it("does not toast when a pending save rejects after unmount", async () => {

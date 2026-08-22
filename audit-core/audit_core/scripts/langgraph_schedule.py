@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, TypedDict
 
 
 def run_langgraph(*, nodes: dict[str, Any], edges: list[tuple[str, str]], start: str) -> dict[str, Any]:
@@ -9,10 +9,13 @@ def run_langgraph(*, nodes: dict[str, Any], edges: list[tuple[str, str]], start:
     except Exception:
         return _run_sequential(nodes=nodes, order=_topo_like(start=start, edges=edges))
 
-    class _State(dict):
-        pass
+    # LangGraph discovers state channels from type annotations. A plain dict
+    # subclass exposes no channels, so node updates are discarded and invoke()
+    # can return None. The functional TypedDict declares one optional channel
+    # per scheduled node while keeping the graph shape dynamic.
+    state_schema = TypedDict("_State", {name: Any for name in nodes}, total=False)
 
-    graph = StateGraph(_State)
+    graph = StateGraph(state_schema)
     for name, fn in nodes.items():
         graph.add_node(name, fn)
     graph.set_entry_point(start)

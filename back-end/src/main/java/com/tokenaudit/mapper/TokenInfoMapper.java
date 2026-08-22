@@ -20,5 +20,11 @@ public interface TokenInfoMapper {
 
     @Delete("DELETE FROM token_info WHERE id = #{id}")
     int deleteById(@Param("id") Long id);
+
+    @Update("UPDATE token_info SET token = #{token} WHERE id = #{id}")
+    int updateToken(@Param("id") Long id, @Param("token") String token);
+
+    @Update("UPDATE token_info SET claimed_model = #{claimedModel} WHERE id = #{id}")
+    int updateClaimedModel(@Param("id") Long id, @Param("claimedModel") String claimedModel);
 }
 

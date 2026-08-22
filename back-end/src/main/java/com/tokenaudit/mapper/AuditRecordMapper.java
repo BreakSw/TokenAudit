@@ -23,4 +23,8 @@ public interface AuditRecordMapper {
 
     @Update("UPDATE audit_record SET status=#{status}, overall_conclusion=#{overallConclusion}, report_json=#{reportJson} WHERE id=#{id}")
     int updateResult(AuditRecord record);
+
+    @Update("UPDATE audit_record SET status=#{status}, overall_conclusion=#{overallConclusion}, report_json=#{reportJson} " +
+            "WHERE id=#{id} AND status='running'")
+    int updateResultIfRunning(AuditRecord record);
 }

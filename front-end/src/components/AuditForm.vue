@@ -75,17 +75,64 @@
         <el-button
           type="primary"
           :loading="submitting"
-          :disabled="status === 'running'"
+          :disabled="!tokenId"
           @click="submit"
         >
-          开始审计
+          {{ status === "running" ? "并行新建审计" : "开始审计" }}
         </el-button>
         <el-button :loading="loadingTokens" @click="reloadTokens">刷新 Token</el-button>
         <el-button @click="router.push('/tokens')">管理 Token</el-button>
         <el-button @click="router.push('/history')">历史</el-button>
-        <el-button v-if="auditId" type="primary" plain @click="router.push(`/report/${auditId}`)">
+        <el-button v-if="auditId && status === 'completed'" type="primary" plain @click="router.push(`/report/${auditId}`)">
           查看报告
         </el-button>
+        <el-button
+          v-if="auditId && status === 'running'"
+          data-testid="cancel-current-audit"
+          type="danger"
+          plain
+          :loading="cancellingIds.has(auditId)"
+          @click="terminateAudit(auditId)"
+        >
+          终止审计
+        </el-button>
+      </div>
+
+      <div v-if="parallelAudits.length" class="parallel-tasks" data-testid="parallel-audits">
+        <div class="parallel-tasks__header">
+          <div>
+            <span class="panel-index">PARALLEL TASKS</span>
+            <strong>{{ parallelAudits.length }} 个任务正在并行或排队</strong>
+          </div>
+          <span>点击任务切换实时管线</span>
+        </div>
+        <div class="parallel-tasks__list">
+          <article
+            v-for="task in parallelAudits"
+            :key="task.id"
+            class="parallel-task"
+            :class="{ 'parallel-task--selected': task.id === auditId }"
+            data-testid="parallel-task"
+            tabindex="0"
+            :aria-current="task.id === auditId ? 'true' : undefined"
+            @click="switchAudit(task)"
+            @keydown.enter="switchAudit(task)"
+          >
+            <div class="parallel-task__main">
+              <strong>#{{ task.id }} · {{ tokenName(task.tokenId) }}</strong>
+              <span>{{ task.executionState === "queued" ? "排队中" : "执行中" }} · {{ task.progress || 0 }}%</span>
+            </div>
+            <el-progress :percentage="task.progress || 0" :stroke-width="3" :show-text="false" />
+            <el-button
+              link
+              type="danger"
+              :loading="cancellingIds.has(task.id)"
+              @click.stop="terminateAudit(task.id)"
+            >
+              终止
+            </el-button>
+          </article>
+        </div>
       </div>
     </section>
 
@@ -132,6 +179,10 @@
         <p class="progress-hint">
           {{ progressHint || "选择 Token 并开始审计后，七阶段证据将在此实时推进。" }}
         </p>
+        <div v-if="failureDetail" class="failure-detail" role="alert" data-testid="audit-failure-detail">
+          <strong>失败原因</strong>
+          <span>{{ failureDetail }}</span>
+        </div>
       </div>
 
       <ol class="stage-list" aria-label="审计阶段">
@@ -187,7 +238,7 @@
         >
           <div class="event-lead">
             <time :datetime="eventDatetime(row.ts)" data-testid="event-timestamp">{{ row.ts || "—" }}</time>
-            <el-tag data-testid="event-tag" size="small" :type="eventTagType(row.event)">
+            <el-tag data-testid="event-tag" size="small" :type="eventTagType(row)">
               {{ row.event || "unknown_event" }}
             </el-tag>
           </div>
@@ -205,20 +256,24 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from "vue"
+import { computed, inject, onBeforeUnmount, onMounted, ref } from "vue"
 import { useRouter } from "vue-router"
-import { ElMessage } from "element-plus"
-import { getAudit, listAuditEvents, listTokens, startAudit } from "../request/api"
+import { ElMessage, ElMessageBox } from "element-plus"
+import { cancelAudit, getAudit, getAuditAiConfig, listAuditEvents, listAudits, listTokens, startAudit } from "../request/api"
 import { AUDIT_STAGES, stageLabel } from "../constants/auditStages"
 import { readStorage, removeStorage, writeStorage } from "../utils/storage"
 
 const router = useRouter()
+const openAuditAiSettings = inject("openAuditAiSettings", () => {})
 const tokens = ref([])
 const tokenId = ref(null)
 const exportFormats = ref(["json", "md", "xlsx"])
 const loadingTokens = ref(true)
 const tokenError = ref("")
 const submitting = ref(false)
+const parallelAudits = ref([])
+const refreshingTasks = ref(false)
+const cancellingIds = ref(new Set())
 
 const auditId = ref(null)
 const status = ref("")
@@ -228,6 +283,7 @@ const events = ref([])
 const clearedThroughEventId = ref(null)
 const clearedFallbackCounts = ref(new Map())
 let pollTimer = null
+let taskPollTimer = null
 let componentAlive = true
 let auditGeneration = 0
 let refreshSequence = 0
@@ -236,6 +292,10 @@ let tokenRequestSequence = 0
 const inFlightRefreshes = new Map()
 const LAST_AUDIT_ID_KEY = "lastAuditId"
 const validPhases = new Set(AUDIT_STAGES.map((stage) => stage.key))
+
+function tokenName(id) {
+  return tokens.value.find((token) => token.id === id)?.name || `Token ${id}`
+}
 
 function stageKeysForPhase(phase) {
   if (phase === "compliance_stability") return ["compliance", "stability"]
@@ -323,7 +383,7 @@ const stageProgress = computed(() => {
       if (states[stage.key] === "running") states[stage.key] = "completed"
     }
     activeStageKeys.splice(0)
-  } else if (status.value === "failed") {
+  } else if (status.value === "failed" || status.value === "cancelled") {
     for (const stage of AUDIT_STAGES) {
       if (states[stage.key] === "running") states[stage.key] = "failed"
     }
@@ -344,20 +404,35 @@ const statusText = computed(() => {
   if (status.value === "running") return "审计中"
   if (status.value === "completed") return "已完成"
   if (status.value === "failed") return "失败"
+  if (status.value === "cancelled") return "已终止"
   return status.value || "准备就绪"
 })
 const statusTagType = computed(() => {
   if (status.value === "running") return "warning"
   if (status.value === "completed") return "success"
   if (status.value === "failed") return "danger"
+  if (status.value === "cancelled") return "danger"
   return "info"
 })
 const progressHint = computed(() => {
   if (status.value === "running" && progress.value >= 95) return "正在生成综合结论与报告内容..."
-  if (status.value === "running") return "正在执行多Agent审计与 DeepSeek 判定..."
+  if (status.value === "running") return "正在执行多 Agent 审计与审计 AI 判定..."
   if (status.value === "completed") return "审计已完成，可进入报告页查看详情"
   if (status.value === "failed") return "审计失败，可查看事件列表定位失败位置"
+  if (status.value === "cancelled") return "该审计已由用户终止，已停止后续模型调用"
   return ""
+})
+
+const failureDetail = computed(() => {
+  if (status.value === "cancelled") return "任务已由用户终止，未生成完整审计报告"
+  if (status.value !== "failed") return ""
+  const failureEvent = [...events.value].reverse().find((row) =>
+    row.event === "preflight_end" && row.payload?.status === "failed"
+  ) || [...events.value].reverse().find((row) =>
+    row.event === "audit_aborted" || row.event === "audit_failed"
+  )
+  const payload = failureEvent?.payload || {}
+  return payload.message || payload.reason || payload.error || "审计任务失败，请查看事件列表"
 })
 
 function stageState(index) {
@@ -394,6 +469,9 @@ function eventDetails(row) {
   if (payload.status !== undefined && payload.status !== null) {
     details.push({ key: "status", label: "RESULT", value: payload.status })
   }
+  if (payload.reason) details.push({ key: "reason", label: "REASON", value: payload.reason })
+  if (payload.endpoint) details.push({ key: "endpoint", label: "ENDPOINT", value: payload.endpoint })
+  if (payload.message) details.push({ key: "message", label: "MESSAGE", value: payload.message })
   return details
 }
 
@@ -448,6 +526,85 @@ function stopPolling() {
   }
 }
 
+function ensureTaskPolling() {
+  if (taskPollTimer || !parallelAudits.value.length) return
+  taskPollTimer = setInterval(refreshParallelAudits, 2000)
+}
+
+function stopTaskPolling() {
+  if (!taskPollTimer) return
+  clearInterval(taskPollTimer)
+  taskPollTimer = null
+}
+
+async function refreshParallelAudits() {
+  if (refreshingTasks.value || !componentAlive) return
+  refreshingTasks.value = true
+  try {
+    const rows = await listAudits()
+    if (!componentAlive) return
+    parallelAudits.value = (rows || []).filter((row) => row.status === "running")
+    if (parallelAudits.value.length) ensureTaskPolling()
+    else stopTaskPolling()
+  } catch (error) {
+    // The selected audit remains usable even if the compact task list cannot refresh.
+  } finally {
+    refreshingTasks.value = false
+  }
+}
+
+async function switchAudit(task) {
+  if (!task?.id || task.id === auditId.value) return
+  stopPolling()
+  auditGeneration += 1
+  const generation = auditGeneration
+  auditId.value = task.id
+  status.value = task.status || "running"
+  progress.value = task.progress || 0
+  events.value = []
+  clearedThroughEventId.value = null
+  clearedFallbackCounts.value = new Map()
+  saveLastAuditId(task.id)
+  await refreshOnce(task.id, generation)
+  if (componentAlive && auditId.value === task.id && status.value === "running") {
+    startPolling(task.id, generation, false)
+  }
+}
+
+async function terminateAudit(id) {
+  if (!id || cancellingIds.value.has(id)) return
+  try {
+    await ElMessageBox.confirm(`确认终止审计 #${id}？正在进行的模型调用会立即停止。`, "终止审计", {
+      type: "warning",
+      confirmButtonText: "确认终止",
+      cancelButtonText: "继续审计"
+    })
+  } catch (error) {
+    if (error === "cancel" || error === "close") return
+    ElMessage.error(error?.message || "终止确认失败")
+    return
+  }
+
+  cancellingIds.value.add(id)
+  try {
+    const cancelled = await cancelAudit(id)
+    if (!componentAlive) return
+    ElMessage.success(`审计 #${id} 已终止`)
+    parallelAudits.value = parallelAudits.value.filter((task) => task.id !== id)
+    if (id === auditId.value) {
+      stopPolling()
+      status.value = cancelled?.status || "cancelled"
+      progress.value = 100
+      await refreshOnce(id, auditGeneration)
+    }
+    await refreshParallelAudits()
+  } catch (error) {
+    if (componentAlive) ElMessage.error(error?.response?.data?.error || error?.message || "终止审计失败")
+  } finally {
+    cancellingIds.value.delete(id)
+  }
+}
+
 function refreshOnce(targetAuditId = auditId.value, targetGeneration = auditGeneration) {
   if (!targetAuditId || !componentAlive) return Promise.resolve()
   const existing = inFlightRefreshes.get(targetAuditId)
@@ -473,10 +630,11 @@ function refreshOnce(targetAuditId = auditId.value, targetGeneration = auditGene
       progress.value = audit.progress ?? 0
       events.value = auditEvents || []
 
-      if (audit.status === "completed" || audit.status === "failed") {
+      if (audit.status === "completed" || audit.status === "failed" || audit.status === "cancelled") {
         progress.value = 100
         stopPolling()
         clearLastAuditId()
+        refreshParallelAudits()
       }
     } catch (e) {
       if (componentAlive && auditId.value === targetAuditId && auditGeneration === targetGeneration) {
@@ -502,6 +660,12 @@ async function submit() {
   }
   submitting.value = true
   try {
+    const aiConfig = await getAuditAiConfig()
+    if (!aiConfig?.configured) {
+      ElMessage.warning("请配置审计 API Key")
+      openAuditAiSettings("请配置审计 API Key 后再开始审计。")
+      return
+    }
     const res = await startAudit({ tokenId: tokenId.value, exportFormats: exportFormats.value })
     if (!componentAlive) return
     stopPolling()
@@ -514,9 +678,20 @@ async function submit() {
     clearedThroughEventId.value = null
     clearedFallbackCounts.value = new Map()
     ElMessage.success("已开始审计，正在实时更新进度")
+    parallelAudits.value = [
+      { id: auditId.value, tokenId: tokenId.value, status: "running", executionState: "queued", progress: 0 },
+      ...parallelAudits.value.filter((task) => task.id !== auditId.value)
+    ]
+    ensureTaskPolling()
     startPolling(auditId.value, auditGeneration)
   } catch (e) {
-    if (componentAlive) ElMessage.error(e?.response?.data?.error || e?.message || "审计失败")
+    const errorCode = e?.response?.data?.error
+    if (componentAlive && errorCode === "audit_ai_not_configured") {
+      ElMessage.warning("请配置审计 API Key")
+      openAuditAiSettings("审计 AI 配置不存在或已过期，请重新配置审计 API Key。")
+    } else if (componentAlive) {
+      ElMessage.error(errorCode || e?.message || "审计失败")
+    }
   } finally {
     submitting.value = false
   }
@@ -541,10 +716,14 @@ function clearView() {
   clearedFallbackCounts.value = nextCounts
 }
 
-function eventTagType(ev) {
+function eventTagType(row) {
+  const ev = typeof row === "string" ? row : row?.event
+  if (ev === "preflight_end") return row?.payload?.status === "passed" ? "success" : "danger"
+  if (ev === "audit_aborted") return "danger"
   if (ev === "token_call_end") return "info"
   if (ev === "deepseek_call_end") return "success"
   if (ev === "audit_failed") return "danger"
+  if (ev === "audit_cancelled") return "danger"
   if (ev === "audit_completed") return "success"
   if (ev === "phase_start") return "warning"
   return "info"
@@ -559,19 +738,26 @@ function eventDatetime(value) {
 function eventText(row) {
   const ev = row.event
   const p = row.payload || {}
+  if (ev === "preflight_start") return `开始中转站连通预检：${p.model || ""}`
+  if (ev === "preflight_end") return p.status === "passed"
+    ? `中转站预检通过：HTTP ${p.status_code}，耗时 ${p.elapsed_ms}ms`
+    : `中转站预检失败：${p.message || p.reason || "无法连通"}`
+  if (ev === "audit_aborted") return `已停止审计：${p.message || p.reason || "前置预检失败"}`
   if (ev === "phase_start") return `开始阶段：${p.phase || ""}`
   if (ev === "phase_end") return `结束阶段：${p.phase || ""}`
   if (ev === "token_call_start") return `调用中转模型：${p.model || ""} ${p.scenario ? `(${p.scenario})` : ""}`
   if (ev === "token_call_end") return `中转返回：status=${p.status_code} 耗时=${p.elapsed_ms}ms`
-  if (ev === "deepseek_call_start") return `DeepSeek 判定：${p.model || ""}`
-  if (ev === "deepseek_call_end") return `DeepSeek 返回：耗时=${p.elapsed_ms}ms`
+  if (ev === "deepseek_call_start") return `审计 AI 判定：${p.model || ""}`
+  if (ev === "deepseek_call_end") return `审计 AI 返回：耗时=${p.elapsed_ms}ms`
   if (ev === "audit_start") return "开始审计任务"
   if (ev === "audit_completed") return `审计完成：${p.overallConclusion || ""}`
   if (ev === "audit_failed") return `审计失败：${p.error || ""}`
+  if (ev === "audit_cancelled") return `审计已终止：${p.message || "用户主动终止"}`
   return JSON.stringify(p)
 }
 
 onMounted(reloadTokens)
+onMounted(refreshParallelAudits)
 onMounted(async () => {
   const lastId = loadLastAuditId()
   if (!lastId) return
@@ -594,6 +780,8 @@ onBeforeUnmount(() => {
   auditGeneration += 1
   tokenRequestSequence += 1
   stopPolling()
+  stopTaskPolling()
+  cancellingIds.value.clear()
   inFlightRefreshes.clear()
 })
 </script>
@@ -773,6 +961,19 @@ onBeforeUnmount(() => {
   border-top: 1px solid var(--ta-line);
 }
 
+.parallel-tasks { padding: 11px 14px 14px; border-top: 1px solid var(--ta-line); background: rgba(67, 224, 162, .018); }
+.parallel-tasks__header { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 9px; color: var(--ta-faint); font-family: var(--ta-mono); font-size: 9px; }
+.parallel-tasks__header strong { display: block; color: var(--ta-text); font-size: 11px; font-weight: 600; }
+.parallel-tasks__list { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 7px; }
+.parallel-task { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; padding: 9px 10px; background: var(--ta-code); border: 1px solid var(--ta-line); border-radius: 4px; cursor: pointer; transition: border-color 160ms ease, background 160ms ease, transform 160ms ease; }
+.parallel-task:hover, .parallel-task:focus-visible, .parallel-task--selected { outline: none; background: rgba(67, 224, 162, .045); border-color: rgba(67, 224, 162, .34); transform: translateY(-1px); }
+.parallel-task__main { display: grid; min-width: 0; gap: 3px; }
+.parallel-task__main strong, .parallel-task__main span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.parallel-task__main strong { color: var(--ta-text); font-size: 10px; font-weight: 600; }
+.parallel-task__main span { color: var(--ta-faint); font-family: var(--ta-mono); font-size: 9px; }
+.parallel-task :deep(.el-progress) { grid-column: 1 / -1; }
+.parallel-task :deep(.el-button) { grid-column: 2; grid-row: 1; align-self: center; margin: 0; padding: 0; font-size: 10px; }
+
 .pipeline-panel--running {
   border-color: rgba(233, 187, 99, 0.25);
 }
@@ -784,6 +985,8 @@ onBeforeUnmount(() => {
 .pipeline-panel--failed {
   border-color: rgba(255, 125, 121, 0.34);
 }
+
+.pipeline-panel--cancelled { border-color: rgba(255, 125, 121, 0.34); }
 
 .status-chip {
   padding: 3px 8px;
@@ -810,6 +1013,8 @@ onBeforeUnmount(() => {
   color: var(--ta-danger);
   border-color: rgba(255, 125, 121, 0.32);
 }
+
+.status-chip--cancelled { color: var(--ta-danger); border-color: rgba(255, 125, 121, 0.32); }
 
 .progress-overview {
   padding: 15px 14px 13px;
@@ -869,6 +1074,30 @@ onBeforeUnmount(() => {
   margin: 10px 0 0;
   color: var(--ta-muted);
   font-size: 11px;
+}
+
+.failure-detail {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 12px;
+  margin-top: 10px;
+  padding: 9px 10px;
+  color: var(--ta-danger);
+  background: rgba(255, 125, 121, 0.055);
+  border: 1px solid rgba(255, 125, 121, 0.22);
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.failure-detail strong {
+  font-family: var(--ta-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.failure-detail span {
+  overflow-wrap: anywhere;
+  color: var(--ta-text);
 }
 
 .stage-list {

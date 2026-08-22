@@ -217,6 +217,8 @@ class OrchestratorAgent:
                 "token_masked": _mask_sensitive(inp.audited_token),
                 "platform": inp.platform,
                 "claimed_model": inp.claimed_model,
+                "target_model_audit_enabled": bool(inp.non_claimed_model.strip()),
+                "target_audit_model": inp.non_claimed_model.strip() or None,
                 "audit_time": inp.audit_time,
                 "front_end_url": inp.front_end_url,
                 "back_end_url": inp.back_end_url,
@@ -256,7 +258,11 @@ class OrchestratorAgent:
                     "建议用 /v1/models 验证模型是否在该Token可见列表中，并改用列表里精确模型ID重试。"
                 ),
                 "risk_warnings": ["模型路由/配额/分组异常会导致大面积503，需在中转后台确认该Token的可用模型与分组。"],
-                "usage_suggestions": ["宣称模型与非宣称模型都建议从该Token的 /v1/models 返回列表里选择精确ID。"],
+                "usage_suggestions": [
+                    "宣称模型建议从该Token的 /v1/models 返回列表里选择精确ID。"
+                    if not inp.non_claimed_model.strip()
+                    else "宣称模型与目标审计模型都建议使用平台提供的精确模型ID。"
+                ],
             }
         judge_prompt = [
             {
@@ -266,15 +272,18 @@ class OrchestratorAgent:
             {
                 "role": "user",
                 "content": (
-                    "基于以下5项审计结果，输出综合结论与风险建议，必须客观、可追溯。"
+                    "基于以下6项审计结果，输出综合结论与风险建议，必须客观、可追溯。"
                     "输出JSON字段：overall_conclusion、risk_warnings、usage_suggestions。\n\n"
-                    f"审计基础信息：{inp}\n\n"
+                    "审计基础信息："
+                    f"token_id={inp.token_id}, platform={inp.platform}, "
+                    f"claimed_model={inp.claimed_model}, target_model_audit={_target_model_label(inp)}, "
+                    f"audit_time={inp.audit_time}\n\n"
                     f"分项结果：{sections}\n"
                 ),
             },
         ]
         log_event("deepseek_call_start", {"phase": "overall", "model": config.deepseek_model})
-        judge_raw = deepseek_chat(config=config, messages=judge_prompt)
+        judge_raw = deepseek_chat(config=config, messages=judge_prompt, sensitive_values=[inp.audited_token])
         log_event("deepseek_call_end", {"phase": "overall", "elapsed_ms": judge_raw.get("elapsed_ms")})
         judge_text = _extract_deepseek_content(judge_raw["response"])
         judge_obj = coerce_json_object(judge_text)
@@ -445,7 +454,7 @@ def build_report_markdown(
 - 中转平台：{inp.platform}
 - 宣称模型：{inp.claimed_model}
 - 审计时间：{audit_time}
-- 审计执行项：5项全维度审计
+- 审计执行项：6项全维度审计
 - 审计方式：API调用测试+特征比对+多Agent协同+DeepSeek基座判定
 - 审计架构技术栈：Vue3+Element-Plus（前端）、SpringBoot（后端）、Python+LangGraph（多Agent）
 - DeepSeek API Key：{deepseek_key_masked}（审计基座）
@@ -467,7 +476,7 @@ def build_report_markdown(
 - 执行Agent：{p.get("agent")}
 - 权限测试记录：
   1.  测试调用宣称模型：{inp.claimed_model}，结果：{_perm_result(p, 0)}
-  2.  测试调用非宣称模型：{inp.non_claimed_model}，结果：{_perm_result(p, 1)}
+  2.  目标模型权限边界：{_target_model_label(inp)}，结果：{_perm_result(p, 1)}
   3.  匿名调用测试：{inp.claimed_model}，结果：{_perm_result(p, 2)}
 - DeepSeek判定结果：{p.get("deepseek_judgement")}
 - 审计结论：{p.get("conclusion")}
@@ -558,8 +567,15 @@ def _perm_result(section: dict[str, Any], idx: int) -> str:
     tests = section.get("tests") or []
     if isinstance(tests, list) and len(tests) > idx:
         t = tests[idx]
+        if t.get("skipped"):
+            return "未启用（已跳过）"
         return f"status={t.get('status_code')} ok={t.get('ok')} preview={t.get('response_preview')}"
     return ""
+
+
+def _target_model_label(inp: OrchestratorInput) -> str:
+    model = inp.non_claimed_model.strip()
+    return f"已启用（{model}）" if model else "未启用"
 
 
 def _water_feature_line(section: dict[str, Any], idx: int) -> str:

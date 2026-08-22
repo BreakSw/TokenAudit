@@ -55,10 +55,11 @@
         </section>
 
         <section id="configure" v-reveal>
-          <h2><a href="#configure">配置环境变量</a></h2>
+          <h2><a href="#configure">配置环境变量与审计 AI</a></h2>
           <p>
-            在仓库根目录创建或修改 <code>.env</code>，供 Spring 后端和 Python 审计核心读取。
-            <code>DEEPSEEK_API_KEY</code> 用于审计判定；<code>BACKEND_API_KEY</code> 留空时不启用后端访问密钥。
+            在仓库根目录创建或修改 <code>.env</code>，配置后端、Python 与 Redis 连接。
+            启动项目后，从右上角“设置”的“审计判定模型”中填写服务商、完整 API URL、模型、API Key 与有效期。
+            审计 API Key 会加密存入 Redis，每次保存都会重置有效期。
           </p>
           <div class="code-shell" data-testid="copy-environment">
             <div class="code-toolbar">
@@ -151,8 +152,9 @@
         <section id="token" v-reveal>
           <h2><a href="#token">录入 Token</a></h2>
           <p>
-            可在“Token 管理”页面录入，也可调用 <code>POST /api/tokens</code>。Base URL 只填写服务根地址，
-            不要包含 <code>/v1/chat/completions</code>。接口返回掩码后的 <code>tokenMasked</code>，不会回传明文。
+            可在“Token 管理”页面录入，也可调用 <code>POST /api/tokens</code>。API 地址既可填写基础地址（允许 <code>/api/v1</code> 等路径），
+            也可填写完整的 <code>/chat/completions</code> 或 <code>/responses</code> 推理端点。平台名称仅作备注，模型 ID 会原样发送。
+            接口返回掩码后的 <code>tokenMasked</code>，不会回传明文。
           </p>
           <div class="code-shell" data-testid="copy-token">
             <div class="code-toolbar">
@@ -175,6 +177,10 @@
 
         <section id="run-audit" v-reveal>
           <h2><a href="#run-audit">发起审计</a></h2>
+          <p>
+            每次任务都会先执行中转站前置预检，以最小请求验证 Base URL、Token 鉴权、声明模型和 OpenAI 兼容响应格式。
+            预检失败时会写入 <code>preflight_end</code>、<code>audit_aborted</code> 和 <code>audit_failed</code> 事件并立即停止，不会启动任何审计 Agent。
+          </p>
           <p>
             审计覆盖六个维度：<strong>有效性</strong>、<strong>权限</strong>、<strong>模型真实性</strong>、
             <strong>合规</strong>、<strong>稳定性</strong>、<strong>安全性</strong>。未传
@@ -255,7 +261,7 @@
           </div>
           <div class="error-row">
             <code>Model Not Exist</code>
-            <p>检查 <code>DEEPSEEK_MODEL</code> 是否为当前账号可用模型，修改后重启后端。</p>
+            <p>在“设置 → 审计判定模型”中检查模型名是否为当前 API Key 可用模型，保存后无需重启后端。</p>
           </div>
           <div class="error-row">
             <code>Cannot run program "python"</code>
@@ -263,7 +269,7 @@
           </div>
           <div class="error-row">
             <code>503 / audit_failed</code>
-            <p>先读取事件接口中的 <code>audit_failed</code> payload，再检查目标模型服务与 DeepSeek 配置。</p>
+            <p>先读取事件接口中的 <code>audit_failed</code> payload，再检查目标模型服务与审计 AI 配置。</p>
           </div>
         </section>
       </article>
@@ -296,7 +302,7 @@ const navigationGroups = [
 
 const tableOfContents = [
   { id: "requirements", title: "运行要求" },
-  { id: "configure", title: "配置环境变量" },
+  { id: "configure", title: "配置环境变量与审计 AI" },
   { id: "start", title: "启动项目" },
   { id: "token", title: "录入 Token" },
   { id: "run-audit", title: "发起审计" },
@@ -306,10 +312,11 @@ const tableOfContents = [
 ]
 
 const codeSamples = {
-  environment: `DEEPSEEK_API_KEY=<your-deepseek-key>
-DEEPSEEK_BASE_URL=https://api.deepseek.com/v1/chat/completions
-DEEPSEEK_MODEL=deepseek-chat
-BACKEND_API_KEY=`,
+  environment: `BACKEND_API_KEY=
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DATABASE=1`,
   frontEnvironment: `VITE_BACKEND_BASE_URL=http://localhost:8086`,
   start: `# 安装步骤：在仓库根目录执行一次
 cd audit-core

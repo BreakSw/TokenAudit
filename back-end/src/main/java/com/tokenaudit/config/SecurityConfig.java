@@ -31,6 +31,12 @@ public class SecurityConfig {
             ) throws ServletException, IOException {
                 String configured = props.getApiKey();
                 if (configured == null || configured.isBlank()) {
+                    if ("production".equalsIgnoreCase(props.getEnvironment())) {
+                        response.setStatus(503);
+                        response.setContentType("application/json;charset=UTF-8");
+                        response.getWriter().write("{\"error\":\"security_configuration_required\"}");
+                        return;
+                    }
                     filterChain.doFilter(request, response);
                     return;
                 }

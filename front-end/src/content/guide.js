@@ -7,7 +7,7 @@ export const GUIDE_SECTIONS = [
   {
     id: "configure",
     title: "配置环境变量",
-    keywords: ".env VITE_BACKEND_BASE_URL DEEPSEEK_API_KEY DEEPSEEK_MODEL API Key"
+    keywords: ".env VITE_BACKEND_BASE_URL Redis 审计 AI API Key 模型 URL 有效期"
   },
   {
     id: "start",

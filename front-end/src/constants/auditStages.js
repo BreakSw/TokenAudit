@@ -7,7 +7,7 @@ export const AUDIT_STAGES = [
   {
     key: "permission",
     label: "权限",
-    detail: "比较宣称模型、非宣称模型和匿名调用"
+    detail: "验证宣称模型、可选目标模型和匿名调用"
   },
   {
     key: "watering",

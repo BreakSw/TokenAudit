@@ -7,6 +7,13 @@ spring:
   datasource:
     driver-class-name: org.sqlite.JDBC
     url: jdbc:sqlite:../data/database/token_audit.db
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:1}
+      timeout: 3s
   sql:
     init:
       mode: always
@@ -17,7 +24,15 @@ mybatis:
     map-underscore-to-camel-case: true
 
 app:
+  environment: ${APP_ENVIRONMENT:development}
   apiKey: ${BACKEND_API_KEY:}
+  allowedOrigins: ${BACKEND_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174}
+  allowPrivateAuditTargets: ${AUDIT_ALLOW_PRIVATE_TARGETS:false}
+  tokenEncryptionKey: ${TOKEN_ENCRYPTION_KEY:}
+  tokenEncryptionKeyFile: ${TOKEN_ENCRYPTION_KEY_FILE:../data/token-encryption.key}
   pythonExecutable: ${PYTHON_EXECUTABLE:python}
   auditCoreWorkingDir: ${AUDIT_CORE_WORKDIR:../audit-core}
   auditExportFormats: ${AUDIT_EXPORT_FORMATS:json,md,xlsx}
+  auditMaxConcurrency: ${AUDIT_MAX_CONCURRENCY:4}
+  auditQueueCapacity: ${AUDIT_QUEUE_CAPACITY:20}
+  auditProcessTimeoutSeconds: ${AUDIT_PROCESS_TIMEOUT_SECONDS:900}

@@ -19,7 +19,7 @@
             <span class="panel-index">01 / REGISTER</span>
             <h2 id="token-form-title">录入审计 Token</h2>
           </div>
-          <span class="panel-note">6 FIELDS</span>
+          <span class="panel-note">5 CORE + 1 OPTIONAL</span>
         </header>
 
         <div class="storage-note" role="note">
@@ -45,46 +45,53 @@
             <p class="field-help">列表仅显示后端返回的脱敏值；请勿在截图或日志中暴露原文。</p>
           </el-form-item>
 
-          <el-form-item label="平台" required>
-            <el-input id="token-platform" v-model="form.platform" placeholder="例如：OpenAI 兼容中转" />
-            <p class="field-help">填写 Token 所属服务或中转平台。</p>
+          <el-form-item label="平台（仅备注）" required>
+            <el-input id="token-platform" v-model="form.platform" placeholder="例如：自建中转 / 第三方服务" />
+            <p class="field-help">仅用于列表识别，不参与端点拼接、鉴权或模型判断。</p>
           </el-form-item>
 
-          <el-form-item label="Base URL" required>
-            <el-input id="token-base-url" v-model="form.tokenBaseUrl" placeholder="https://api.example.com" />
-            <p class="field-help">仅填写 http(s) 服务根地址，不附加具体 completions 路径。</p>
+          <el-form-item label="API 地址" required>
+            <el-input id="token-base-url" v-model="form.tokenBaseUrl" placeholder="https://api.example.com/v1" />
+            <p class="field-help">可填写基础地址或完整的 /chat/completions、/responses 端点；基础地址默认按 OpenAI Chat Completions 协议补全。</p>
           </el-form-item>
 
           <el-form-item label="宣称模型" required>
-            <el-select
+            <ModelCombobox
               id="claimed-model"
               v-model="form.claimedModel"
-              filterable
-              allow-create
-              default-first-option
-              placeholder="选择或输入宣称模型"
-            >
-              <el-option-group v-for="group in claimedModelGroups" :key="group.label" :label="group.label">
-                <el-option v-for="model in group.options" :key="model" :label="model" :value="model" />
-              </el-option-group>
-            </el-select>
-            <p class="field-help">平台声称或接口响应中的目标 model 标识。</p>
+              :groups="claimedModelGroups"
+              placeholder="输入完整模型 ID，或选择常见格式"
+            />
+            <p class="field-help">可直接输入并保留任意 model 标识；建议复制服务商 /v1/models 返回的完整 ID，系统不会改写。</p>
           </el-form-item>
 
-          <el-form-item label="非宣称模型" required>
-            <el-select
+          <el-form-item class="target-audit-option" label="目标模型审计">
+            <div class="target-audit-control">
+              <div>
+                <strong>{{ form.enableTargetModelAudit ? "已启用" : "已关闭" }}</strong>
+                <p>开启后会额外调用一个目标模型，用于验证 Token 的模型权限边界。</p>
+              </div>
+              <el-switch
+                id="target-model-audit"
+                v-model="form.enableTargetModelAudit"
+                inline-prompt
+                active-text="开"
+                inactive-text="关"
+                aria-label="是否启用目标模型审计"
+                @change="handleTargetAuditChange"
+              />
+            </div>
+            <p class="field-help">支持多模型的中转站通常保持关闭；仅在需要验证模型权限边界时开启。</p>
+          </el-form-item>
+
+          <el-form-item v-if="form.enableTargetModelAudit" class="target-model-field" label="目标审计模型" required>
+            <ModelCombobox
               id="non-claimed-model"
               v-model="form.nonClaimedModel"
-              filterable
-              allow-create
-              default-first-option
-              placeholder="选择或输入对照模型"
-            >
-              <el-option-group v-for="group in nonClaimedModelGroups" :key="group.label" :label="group.label">
-                <el-option v-for="model in group.options" :key="model" :label="model" :value="model" />
-              </el-option-group>
-            </el-select>
-            <p class="field-help">用于模型越权与身份边界测试的对照 model。</p>
+              :groups="nonClaimedModelGroups"
+              placeholder="输入完整目标模型 ID，或选择常见格式"
+            />
+            <p class="field-help">仅在启用后调用；应填写预期不在当前 Token 权限内的 model。</p>
           </el-form-item>
 
           <div v-if="formError" data-testid="form-error" class="inline-error" role="alert">
@@ -133,7 +140,27 @@
               <template #default="{ row }"><code class="token-masked">{{ row.tokenMasked }}</code></template>
             </el-table-column>
             <el-table-column prop="platform" label="平台" min-width="120" />
-            <el-table-column prop="claimedModel" label="宣称模型" min-width="150" />
+            <el-table-column label="宣称模型" min-width="280">
+              <template #default="{ row }">
+                <div class="model-cell" :data-testid="`model-selector-${row.id}`">
+                  <ModelCombobox
+                    :id="`claimed-model-selector-${row.id}`"
+                    v-model="modelDrafts[row.id]"
+                    :groups="claimedModelGroups"
+                    placeholder="输入或选择模型 ID"
+                    :disabled="updatingModelIds.has(row.id)"
+                    @commit="saveClaimedModel(row, $event)"
+                  />
+                  <span v-if="updatingModelIds.has(row.id)" class="model-save-state">保存中...</span>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="目标模型审计" min-width="150">
+              <template #default="{ row }">
+                <span v-if="row.nonClaimedModel" class="target-state target-state--on">已启用 · {{ row.nonClaimedModel }}</span>
+                <span v-else class="target-state">已关闭</span>
+              </template>
+            </el-table-column>
             <el-table-column label="操作" width="88">
               <template #default="{ row }">
                 <el-button
@@ -158,7 +185,9 @@
 <script setup>
 import { onBeforeUnmount, onMounted, reactive, ref } from "vue"
 import { ElMessage, ElMessageBox } from "element-plus"
-import { createToken, deleteToken, listTokens } from "../request/api"
+import ModelCombobox from "./ModelCombobox.vue"
+import { MODEL_GROUPS } from "../constants/modelCatalog"
+import { createToken, deleteToken, listTokens, updateTokenClaimedModel } from "../request/api"
 import { isBaseUrl, required } from "../utils/validate"
 
 const tokens = ref([])
@@ -168,23 +197,13 @@ const loadError = ref("")
 const formError = ref("")
 const operationError = ref("")
 const deletingIds = ref(new Set())
+const modelDrafts = reactive({})
+const updatingModelIds = ref(new Set())
 let requestSequence = 0
 let componentAlive = true
 
-const claimedModelGroups = [
-  { label: "OpenAI", options: ["gpt-5.4", "gpt-5.3", "gpt-5.2", "o1", "o1-mini", "gpt-4o", "gpt-4o-mini"] },
-  { label: "Anthropic", options: ["claude-opus-4.6", "claude-opus-4-6", "claude-sonnet-4", "claude-3-5-sonnet", "claude-3-opus", "claude-3-sonnet", "claude-3-haiku"] },
-  { label: "Google", options: ["gemini-1.5-pro", "gemini-1.5-flash"] },
-  { label: "Mistral", options: ["mistral-large-latest", "mistral-small-latest", "codestral-latest"] },
-  { label: "Meta", options: ["llama-3.1-405b-instruct", "llama-3.1-70b-instruct", "llama-3.1-8b-instruct"] },
-  { label: "Cohere", options: ["command-r-plus", "command-r"] },
-  { label: "xAI", options: ["grok-2"] }
-]
-
-const nonClaimedModelGroups = [
-  { label: "轻量快速", options: ["gpt-4o-mini", "claude-3-haiku", "gemini-1.5-flash", "mistral-small-latest"] },
-  { label: "强力对照", options: ["o1", "gpt-4o", "claude-3-5-sonnet", "gemini-1.5-pro", "mistral-large-latest"] }
-]
+const claimedModelGroups = MODEL_GROUPS
+const nonClaimedModelGroups = MODEL_GROUPS
 
 const form = reactive({
   name: "",
@@ -192,6 +211,7 @@ const form = reactive({
   platform: "",
   tokenBaseUrl: "",
   claimedModel: "",
+  enableTargetModelAudit: false,
   nonClaimedModel: ""
 })
 
@@ -205,6 +225,7 @@ function reset() {
   form.platform = ""
   form.tokenBaseUrl = ""
   form.claimedModel = ""
+  form.enableTargetModelAudit = false
   form.nonClaimedModel = ""
   formError.value = ""
   operationError.value = ""
@@ -219,6 +240,7 @@ async function reload() {
     const loadedTokens = await listTokens()
     if (!componentAlive || sequence !== requestSequence) return
     tokens.value = loadedTokens || []
+    syncModelDrafts(tokens.value)
   } catch (error) {
     if (!componentAlive || sequence !== requestSequence) return
     loadError.value = errorText(error, "加载失败")
@@ -232,18 +254,29 @@ async function save() {
   if (saving.value) return
   formError.value = ""
   operationError.value = ""
-  const fields = [form.name, form.token, form.platform, form.tokenBaseUrl, form.claimedModel, form.nonClaimedModel]
+  const fields = [form.name, form.token, form.platform, form.tokenBaseUrl, form.claimedModel]
   if (fields.some((value) => !required(value))) {
     formError.value = "请补全必填项后再保存。"
     return
   }
+  if (form.enableTargetModelAudit && !required(form.nonClaimedModel)) {
+    formError.value = "启用目标模型审计后，请填写目标审计模型。"
+    return
+  }
   if (!isBaseUrl(form.tokenBaseUrl)) {
-    formError.value = "Base URL 必须是 http(s) 服务根地址，不能包含路径、查询参数、片段或用户信息。"
+    formError.value = "API 地址必须是安全的 http(s) 地址，可填写基础地址或完整推理端点，但不能包含查询参数、片段或用户信息。"
     return
   }
   saving.value = true
   try {
-    await createToken({ ...form })
+    await createToken({
+      name: form.name,
+      token: form.token,
+      platform: form.platform,
+      tokenBaseUrl: form.tokenBaseUrl,
+      claimedModel: form.claimedModel,
+      nonClaimedModel: form.enableTargetModelAudit ? form.nonClaimedModel : ""
+    })
     if (!componentAlive) return
     ElMessage.success("Token 已保存")
     reset()
@@ -254,6 +287,50 @@ async function save() {
     ElMessage.error(operationError.value)
   } finally {
     if (componentAlive) saving.value = false
+  }
+}
+
+function handleTargetAuditChange(enabled) {
+  if (!enabled) form.nonClaimedModel = ""
+  formError.value = ""
+}
+
+function syncModelDrafts(items) {
+  const activeIds = new Set(items.map((token) => String(token.id)))
+  for (const id of Object.keys(modelDrafts)) {
+    if (!activeIds.has(id)) delete modelDrafts[id]
+  }
+  for (const token of items) {
+    if (!updatingModelIds.value.has(token.id)) modelDrafts[token.id] = token.claimedModel || ""
+  }
+}
+
+async function saveClaimedModel(row, selectedModel) {
+  if (updatingModelIds.value.has(row.id)) return
+  const claimedModel = String(selectedModel || "").trim()
+  if (!required(claimedModel)) {
+    operationError.value = "请先选择或输入宣称模型。"
+    modelDrafts[row.id] = row.claimedModel || ""
+    return
+  }
+  if (claimedModel === row.claimedModel) return
+
+  updatingModelIds.value.add(row.id)
+  operationError.value = ""
+  try {
+    const updated = await updateTokenClaimedModel(row.id, claimedModel)
+    if (!componentAlive) return
+    const index = tokens.value.findIndex((token) => token.id === row.id)
+    if (index >= 0) tokens.value[index] = updated
+    modelDrafts[row.id] = updated.claimedModel
+    ElMessage.success("宣称模型已更新")
+  } catch (error) {
+    if (!componentAlive) return
+    modelDrafts[row.id] = row.claimedModel || ""
+    operationError.value = errorText(error, "模型更新失败")
+    ElMessage.error(operationError.value)
+  } finally {
+    if (componentAlive) updatingModelIds.value.delete(row.id)
   }
 }
 
@@ -289,6 +366,8 @@ onBeforeUnmount(() => {
   componentAlive = false
   requestSequence += 1
   deletingIds.value.clear()
+  updatingModelIds.value.clear()
+  for (const id of Object.keys(modelDrafts)) delete modelDrafts[id]
 })
 </script>
 
@@ -315,8 +394,15 @@ onBeforeUnmount(() => {
 .token-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; padding: 13px 14px 14px; }
 .token-form :deep(.el-form-item) { min-width: 0; margin-bottom: 13px; }
 .token-form :deep(.el-form-item__label) { height: auto; margin-bottom: 5px; color: var(--ta-text) !important; font-family: var(--ta-mono); font-size: 10px; line-height: 1.4; letter-spacing: .04em; }
-.token-form :deep(.el-select) { width: 100%; }
+.token-form :deep(.el-autocomplete) { width: 100%; }
 .field-help { width: 100%; margin: 5px 0 0; color: var(--ta-faint); font-size: 9px; line-height: 1.45; }
+.target-audit-option { min-width: 0; }
+.target-audit-control { display: flex; width: 100%; min-height: 48px; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 10px; background: var(--ta-code); border: 1px solid var(--ta-line); border-radius: 4px; }
+.target-audit-control strong { color: var(--ta-text); font-size: 11px; font-weight: 600; }
+.target-audit-control p { margin: 3px 0 0; color: var(--ta-faint); font-size: 9px; line-height: 1.45; }
+.target-audit-control :deep(.el-switch) { flex: 0 0 auto; }
+.target-model-field { grid-column: 1 / -1; }
+.target-model-field :deep(.el-autocomplete) { max-width: calc(50% - 6px); }
 .inline-error { grid-column: 1 / -1; margin-bottom: 10px; padding: 8px 10px; color: var(--ta-danger); background: rgba(255, 125, 121, .055); border: 1px solid rgba(255, 125, 121, .2); border-radius: 4px; font-size: 11px; }
 .form-actions { display: flex; grid-column: 1 / -1; gap: 8px; padding-top: 1px; }
 .form-actions :deep(.el-button) { margin-left: 0; }
@@ -326,12 +412,17 @@ onBeforeUnmount(() => {
 .state-panel strong { color: var(--ta-text); font-size: 12px; font-weight: 550; }
 .state-panel p { margin: 5px 0 11px; color: var(--ta-faint); font-size: 10px; }
 .table-scroll { overflow-x: auto; }
-.compact-table { min-width: 720px; }
+.compact-table { min-width: 1000px; }
 .compact-table :deep(.el-table__cell) { padding: 8px 0; }
 .compact-table :deep(.cell) { font-size: 11px; }
 .token-masked { color: var(--ta-green); font-size: 10px; white-space: nowrap; }
+.model-cell { display: grid; gap: 4px; min-width: 240px; padding: 4px 0; }
+.model-cell :deep(.el-autocomplete) { width: 100%; }
+.model-save-state { color: var(--ta-green); font-family: var(--ta-mono); font-size: 9px; }
+.target-state { color: var(--ta-faint); font-family: var(--ta-mono); font-size: 9px; }
+.target-state--on { color: var(--ta-green); }
 .delete-button { color: var(--ta-danger) !important; background: rgba(255, 125, 121, .045) !important; border-color: rgba(255, 125, 121, .22) !important; }
 .delete-button:hover, .delete-button:focus-visible { background: rgba(255, 125, 121, .1) !important; border-color: rgba(255, 125, 121, .42) !important; }
 @media (max-width: 900px) { .workspace-grid { grid-template-columns: 1fr; } }
-@media (max-width: 600px) { .page-heading { align-items: flex-start; } .token-form { grid-template-columns: 1fr; } .form-actions :deep(.el-button) { flex: 1; } }
+@media (max-width: 600px) { .page-heading { align-items: flex-start; } .token-form { grid-template-columns: 1fr; } .target-model-field :deep(.el-autocomplete) { max-width: 100%; } .form-actions :deep(.el-button) { flex: 1; } }
 </style>

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const axiosMock = vi.hoisted(() => {
-  const state = { requestInterceptor: null }
+  const state = { requestInterceptor: null, createOptions: null }
   const http = {
     interceptors: {
       request: {
@@ -12,18 +12,23 @@ const axiosMock = vi.hoisted(() => {
     },
     get: vi.fn(),
     post: vi.fn(),
+    put: vi.fn(),
     delete: vi.fn()
   }
-  return { http, state }
+  const create = vi.fn((options) => {
+    state.createOptions = options
+    return http
+  })
+  return { create, http, state }
 })
 
 vi.mock("axios", () => ({
   default: {
-    create: vi.fn(() => axiosMock.http)
+    create: axiosMock.create
   }
 }))
 
-await import("./api")
+const api = await import("./api")
 
 describe("API key request interceptor", () => {
   beforeEach(() => {
@@ -52,5 +57,33 @@ describe("API key request interceptor", () => {
     }).not.toThrow()
     expect(result).toBe(config)
     expect(config.headers).toEqual({ Accept: "application/json" })
+  })
+})
+
+describe("API client defaults", () => {
+  it("targets the backend's actual default port", () => {
+    expect(axiosMock.state.createOptions).toEqual(expect.objectContaining({
+      baseURL: "http://localhost:8086"
+    }))
+  })
+
+  it("updates a token model through the dedicated endpoint", async () => {
+    axiosMock.http.put.mockResolvedValueOnce({ data: { id: 9, claimedModel: "vendor/new-model" } })
+
+    const result = await api.updateTokenClaimedModel(9, "vendor/new-model")
+
+    expect(axiosMock.http.put).toHaveBeenCalledWith("/api/tokens/9/model", {
+      claimedModel: "vendor/new-model"
+    })
+    expect(result.claimedModel).toBe("vendor/new-model")
+  })
+
+  it("cancels a running audit through its task endpoint", async () => {
+    axiosMock.http.post.mockResolvedValueOnce({ data: { id: 17, status: "cancelled" } })
+
+    const result = await api.cancelAudit(17)
+
+    expect(axiosMock.http.post).toHaveBeenCalledWith("/api/audits/17/cancel")
+    expect(result.status).toBe("cancelled")
   })
 })
