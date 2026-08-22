@@ -2,6 +2,8 @@
 
 TokenAudit 是一个「Token 审计工具」示例项目：前端（Vue3 + Element Plus）负责录入 Token / 发起审计 / 展示报告与进度；后端（Spring Boot + MyBatis + SQLite + Redis）负责持久化与调度；审计核心（Python 多 Agent）负责对中转平台 Token 做多维审计，并通过用户配置的 OpenAI 兼容审计 AI 做判定与汇总。
 
+目前审计的核心流程还是静态，正在开发中（后续会加入多agent动态合作，RAG 模型特性知识检索，Harness engineering等新技术）
+
 ## 功能概览
 
 - Token 管理：录入/删除中转平台 Token（后端 SQLite 持久化）
