@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Opus 4.6",
+  "modelReviewStatus": "CONDITIONAL",
+  "priority": "P0",
+  "sourceId": "01-anthropic-opus",
+  "label": "Claude Opus · Anthropic",
+  "requestedUrl": "https://www.anthropic.com/claude/opus",
+  "finalUrl": "https://www.anthropic.com/claude/opus",
+  "capturedAt": "2026-08-23T10:50:21.848Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 15660,
+  "markdownSha256": "81f752803cbba63821e2db824325aef1915c66d54142b6131e329643bede76ca",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Claude Opus \\ Anthropic",
+    "description": "Hybrid reasoning model built for serious coding and AI agents, featuring a 1M context window.",
+    "language": "en",
+    "sourceURL": "https://www.anthropic.com/claude/opus",
+    "url": "https://www.anthropic.com/claude/opus",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Claude Opus",
+    "ogDescription": "Hybrid reasoning model built for serious coding and AI agents, featuring a 1M context window."
+  }
+}

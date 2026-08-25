@@ -1,0 +1,27 @@
+{
+  "dedup_engine": "llama-index-core",
+  "dedup_strategy": "DocstoreStrategy.DUPLICATES_ONLY",
+  "duplicates_removed": 289,
+  "input_rows": 5948,
+  "input_rows_by_model": {
+    "claude-fable-5": 500,
+    "claude-opus-4.6": 886,
+    "deepseek-v4-pro": 400,
+    "glm-5.2": 1556,
+    "gpt-5.6-luna": 890,
+    "gpt-5.6-sol": 553,
+    "kimi-k3": 1163
+  },
+  "normalized_records": 4434,
+  "records_by_model": {
+    "claude-fable-5": 500,
+    "claude-opus-4.6": 886,
+    "deepseek-v4-pro": 399,
+    "glm-5.2": 42,
+    "gpt-5.6-luna": 890,
+    "gpt-5.6-sol": 553,
+    "kimi-k3": 875
+  },
+  "schema_version": 1,
+  "unique_records": 4145
+}

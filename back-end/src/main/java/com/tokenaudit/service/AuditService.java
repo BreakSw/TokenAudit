@@ -12,6 +12,7 @@ import com.tokenaudit.util.DateUtil;
 import com.tokenaudit.util.JsonUtil;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.annotation.PreDestroy;
 
 import java.io.BufferedReader;
@@ -67,6 +68,19 @@ public class AuditService {
     }
 
     public AuditResponse startAudit(Long tokenId, List<String> exportFormats, List<String> auditDimensions) {
+        return startAudit(tokenId, exportFormats, auditDimensions, "quick", 1, false);
+    }
+
+    public AuditResponse startDeepAudit(Long tokenId, List<String> exportFormats, List<String> auditDimensions) {
+        return startDeepAudit(tokenId, exportFormats, auditDimensions, 2, false);
+    }
+
+    public AuditResponse startDeepAudit(Long tokenId, List<String> exportFormats, List<String> auditDimensions, Integer auditRounds, Boolean adaptiveEarlyStop) {
+        int normalizedRounds = auditRounds == null ? 2 : Math.max(1, Math.min(5, auditRounds));
+        return startAudit(tokenId, exportFormats, auditDimensions, "deep", normalizedRounds, Boolean.TRUE.equals(adaptiveEarlyStop));
+    }
+
+    private AuditResponse startAudit(Long tokenId, List<String> exportFormats, List<String> auditDimensions, String auditMode, int auditRounds, boolean adaptiveEarlyStop) {
         AuditAiConfigService.RuntimeConfig aiConfig = auditAiConfigService.requireActiveConfig();
         TokenInfo token = tokenService.getEntity(tokenId);
         String auditTime = DateUtil.now();
@@ -79,6 +93,12 @@ public class AuditService {
         input.put("claimed_model", token.getClaimedModel());
         input.put("non_claimed_model", token.getNonClaimedModel());
         input.put("audit_time", auditTime);
+        input.put("audit_mode", auditMode);
+        if ("deep".equals(auditMode)) {
+            input.put("deep_audit_rounds", auditRounds);
+            input.put("adaptive_early_stop", adaptiveEarlyStop);
+            input.put("deep_target_concurrency", 1);
+        }
         List<String> dimensions = validateDimensions(auditDimensions);
         if (!dimensions.isEmpty()) {
             input.put("audit_dimensions", dimensions);
@@ -97,7 +117,15 @@ public class AuditService {
         auditRecordMapper.insert(rec);
 
         Long auditId = rec.getId();
-        appendEvent(auditId, "audit_start", Map.of("tokenId", tokenId, "auditTime", auditTime, "exportFormats", formats));
+        Map<String, Object> startPayload = new LinkedHashMap<>();
+        startPayload.put("tokenId", tokenId);
+        startPayload.put("auditTime", auditTime);
+        startPayload.put("auditMode", auditMode);
+        startPayload.put("exportFormats", formats);
+        startPayload.put("auditRounds", auditRounds);
+        startPayload.put("adaptiveEarlyStop", adaptiveEarlyStop);
+        startPayload.put("expectedOps", "deep".equals(auditMode) ? 3 + 16 * auditRounds : 32);
+        appendEvent(auditId, "audit_start", startPayload);
 
         String stdinJson = JsonUtil.toJson(input);
         AuditTask task = new AuditTask();
@@ -118,6 +146,7 @@ public class AuditService {
 
         AuditResponse resp = new AuditResponse();
         resp.setAuditId(auditId);
+        resp.setAuditMode(auditMode);
         resp.setReport(null);
         return resp;
     }
@@ -133,6 +162,7 @@ public class AuditService {
         m.put("tokenId", rec.getTokenId());
         m.put("auditTime", rec.getAuditTime());
         m.put("status", rec.getStatus());
+        m.put("auditMode", resolveAuditMode(rec));
         m.put("overallConclusion", rec.getOverallConclusion());
         m.put("report", JsonUtil.toMap(rec.getReportJson()));
         m.put("progress", progress);
@@ -149,6 +179,7 @@ public class AuditService {
             m.put("tokenId", r.getTokenId());
             m.put("auditTime", r.getAuditTime());
             m.put("status", r.getStatus());
+            m.put("auditMode", resolveAuditMode(r));
             m.put("overallConclusion", r.getOverallConclusion());
             m.put("progress", computeProgressPercent(r.getId(), r.getStatus()));
             m.put("executionState", executionState(r));
@@ -171,6 +202,29 @@ public class AuditService {
         return res;
     }
 
+    private String resolveAuditMode(AuditRecord record) {
+        Map<String, Object> report = JsonUtil.toMap(record.getReportJson());
+        Object baseInfo = report.get("base_info");
+        if (baseInfo instanceof Map<?, ?> baseMap) {
+            Object value = baseMap.get("audit_mode");
+            if (value != null && !String.valueOf(value).isBlank()) {
+                return "deep".equalsIgnoreCase(String.valueOf(value)) ? "deep" : "quick";
+            }
+        }
+        if (report.get("deep_audit") instanceof Map<?, ?>) {
+            return "deep";
+        }
+        List<AuditEvent> auditEvents = auditEventMapper.listByAuditId(record.getId());
+        if (auditEvents == null) return "quick";
+        for (AuditEvent event : auditEvents) {
+            if (!"audit_start".equals(event.getEvent())) continue;
+            Object value = JsonUtil.toMap(event.getPayloadJson()).get("auditMode");
+            if (value != null && "deep".equalsIgnoreCase(String.valueOf(value))) return "deep";
+            return "quick";
+        }
+        return "quick";
+    }
+
     public Map<String, Object> cancelAudit(Long id) {
         AuditRecord rec = auditRecordMapper.findById(id);
         if (rec == null) throw new ApiException("audit_not_found");
@@ -191,6 +245,21 @@ public class AuditService {
         return getAudit(id);
     }
 
+    @Transactional
+    public void deleteAudit(Long id) {
+        AuditRecord record = auditRecordMapper.findById(id);
+        if (record == null) {
+            throw new ApiException("audit_not_found");
+        }
+        if (!isTerminalStatus(record.getStatus()) || auditTasks.containsKey(id)) {
+            throw new ApiException("audit_running_cannot_delete");
+        }
+        auditEventMapper.deleteByAuditId(id);
+        if (auditRecordMapper.deleteById(id) <= 0) {
+            throw new ApiException("audit_not_found");
+        }
+    }
+
     private int computeProgressPercent(Long auditId, String status) {
         if ("completed".equals(status)) {
             return 100;
@@ -199,12 +268,28 @@ public class AuditService {
             return 100;
         }
         int doneOps = auditEventMapper.countProgressOps(auditId);
-        int totalOps = 32;
+        int totalOps = expectedProgressOps(auditId);
         int p = (int) Math.floor((doneOps * 100.0) / totalOps);
         if (p >= 100) {
             return 99;
         }
         return Math.max(0, p);
+    }
+
+    private int expectedProgressOps(Long auditId) {
+        for (AuditEvent event : auditEventMapper.listByAuditId(auditId)) {
+            if (!"audit_start".equals(event.getEvent())) continue;
+            Object value = JsonUtil.toMap(event.getPayloadJson()).get("expectedOps");
+            if (value instanceof Number number) return Math.max(1, number.intValue());
+            if (value != null) {
+                try {
+                    return Math.max(1, Integer.parseInt(String.valueOf(value)));
+                } catch (NumberFormatException ignored) {
+                    return 32;
+                }
+            }
+        }
+        return 32;
     }
 
     private void runAuditInBackground(Long auditId, String stdinJson, AuditAiConfigService.RuntimeConfig aiConfig, AuditTask task) {
@@ -393,6 +478,7 @@ public class AuditService {
         putIfPresent(e, "DEEPSEEK_TEMPERATURE");
         putIfPresent(e, "DEEPSEEK_MAX_TOKENS");
         putIfPresent(e, "AUDIT_REQUEST_TIMEOUT_S");
+        putIfPresent(e, "AUDIT_DNS_INTEGRITY_CHECK");
         putIfPresent(e, "AUDIT_EXPORT_DIR");
         putIfPresent(e, "AUDIT_PDF_FONT_TTF");
         e.put("DEEPSEEK_API_KEY", aiConfig.apiKey());
@@ -420,6 +506,7 @@ public class AuditService {
             putIfKeyPresent(envMap, parsed, "DEEPSEEK_TEMPERATURE");
             putIfKeyPresent(envMap, parsed, "DEEPSEEK_MAX_TOKENS");
             putIfKeyPresent(envMap, parsed, "AUDIT_REQUEST_TIMEOUT_S");
+            putIfKeyPresent(envMap, parsed, "AUDIT_DNS_INTEGRITY_CHECK");
             putIfKeyPresent(envMap, parsed, "AUDIT_EXPORT_DIR");
             putIfKeyPresent(envMap, parsed, "AUDIT_PDF_FONT_TTF");
         } catch (Exception ignored) {

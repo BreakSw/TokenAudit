@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Luna",
+  "modelReviewStatus": "APPROVE",
+  "generatedAt": "2026-08-23T10:48:43.781Z",
+  "total": 5,
+  "accepted": 5,
+  "rejected": 0,
+  "results": [
+    {
+      "sourceId": "01-openai-model-page",
+      "priority": "P0",
+      "requestedUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 6065,
+      "directory": "p0/01-openai-model-page",
+      "error": null
+    },
+    {
+      "sourceId": "02-openai-family-release",
+      "priority": "P0",
+      "requestedUrl": "https://openai.com/index/gpt-5-6/",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 38110,
+      "directory": "p0/02-openai-family-release",
+      "error": null
+    },
+    {
+      "sourceId": "03-openai-help",
+      "priority": "P1",
+      "requestedUrl": "https://help.openai.com/en/articles/20001325-a-preview-of-gpt-56-sol-terra-and-luna",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 9604,
+      "directory": "p1/03-openai-help",
+      "error": null
+    },
+    {
+      "sourceId": "04-artificial-analysis",
+      "priority": "P2",
+      "requestedUrl": "https://artificialanalysis.ai/models/gpt-5-6-luna",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 123118,
+      "directory": "p2/04-artificial-analysis",
+      "error": null
+    },
+    {
+      "sourceId": "05-ai-souken",
+      "priority": "P3",
+      "requestedUrl": "https://www.ai-souken.com/article/what-is-gpt-5-6",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 45908,
+      "directory": "p3/05-ai-souken",
+      "error": null
+    }
+  ]
+}

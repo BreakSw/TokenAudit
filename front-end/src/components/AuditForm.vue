@@ -1,5 +1,5 @@
 <template>
-  <div class="audit-console">
+  <div class="audit-console" :class="`audit-console--${mode}`" :data-audit-mode="mode">
     <section
       v-reveal
       class="audit-heading"
@@ -7,9 +7,9 @@
       aria-labelledby="audit-workflow-title"
     >
       <div data-testid="audit-heading">
-        <div class="eyebrow"><span class="signal-dot" />LIVE AUDIT / 实时取证</div>
-        <h1 id="audit-workflow-title">实时审计工作流</h1>
-        <p>面向 Token 的六个审计维度 + 综合判定，过程证据持续写入事件终端。</p>
+        <div class="eyebrow"><span class="signal-dot" />{{ modeContent.eyebrow }}</div>
+        <h1 id="audit-workflow-title">{{ modeContent.title }}</h1>
+        <p>{{ modeContent.description }}</p>
       </div>
       <div class="heading-actions" aria-label="审计快捷入口">
         <el-button @click="router.push('/history')">历史审计</el-button>
@@ -30,6 +30,15 @@
         </div>
         <span class="panel-note">选择审计对象与交付格式</span>
       </header>
+
+      <div v-if="isDeepAudit" class="deep-engine-notice" data-testid="deep-engine-notice">
+        <span class="deep-engine-notice__mark" aria-hidden="true">◇</span>
+        <div>
+          <strong>深度审计工作区已就绪</strong>
+          <p>双知识库检索、动态出题、三路模糊变体与并行 Judge 已启用；快速审计核心保持独立。</p>
+        </div>
+        <span class="deep-engine-notice__state">RAG + MULTI AGENT</span>
+      </div>
 
       <div class="configuration-grid">
         <div class="field-block token-field">
@@ -71,6 +80,32 @@
         </fieldset>
       </div>
 
+      <div v-if="isDeepAudit" class="deep-run-options" data-testid="deep-run-options">
+        <div class="deep-option">
+          <label class="field-label" for="deep-audit-rounds">审计轮次</label>
+          <el-input-number
+            id="deep-audit-rounds"
+            v-model="auditRounds"
+            :min="1"
+            :max="5"
+            controls-position="right"
+          />
+          <p class="field-help">每轮动态生成 3 道母题，每题执行 3 个模糊变体。</p>
+        </div>
+        <div class="deep-option deep-option--switch">
+          <div>
+            <span class="field-label">智能提前结束</span>
+            <p class="field-help">至少完成两轮且结论稳定、置信度充分时才会触发。</p>
+          </div>
+          <el-switch v-model="adaptiveEarlyStop" />
+        </div>
+        <div class="deep-call-estimate">
+          <span>预计中转站调用</span>
+          <strong>{{ estimatedTargetCalls }}</strong>
+          <small>次 / 不含审计者 Agent 调用</small>
+        </div>
+      </div>
+
       <div class="configuration-actions">
         <el-button
           type="primary"
@@ -78,7 +113,7 @@
           :disabled="!tokenId"
           @click="submit"
         >
-          {{ status === "running" ? "并行新建审计" : "开始审计" }}
+          {{ submitButtonText }}
         </el-button>
         <el-button :loading="loadingTokens" @click="reloadTokens">刷新 Token</el-button>
         <el-button @click="router.push('/tokens')">管理 Token</el-button>
@@ -146,7 +181,7 @@
       <header class="panel-header" data-testid="audit-pipeline">
         <div>
           <span class="panel-index">02 / PIPELINE</span>
-          <h2 id="pipeline-title">七阶段审计管线</h2>
+          <h2 id="pipeline-title">{{ modeContent.pipelineTitle }}</h2>
         </div>
         <div class="pipeline-controls">
           <span class="status-chip" :class="`status-chip--${status || 'ready'}`">{{ statusText }}</span>
@@ -177,7 +212,7 @@
           </div>
         </dl>
         <p class="progress-hint">
-          {{ progressHint || "选择 Token 并开始审计后，七阶段证据将在此实时推进。" }}
+          {{ progressHint || modeContent.progressPlaceholder }}
         </p>
         <div v-if="failureDetail" class="failure-detail" role="alert" data-testid="audit-failure-detail">
           <strong>失败原因</strong>
@@ -187,7 +222,7 @@
 
       <ol class="stage-list" aria-label="审计阶段">
         <li
-          v-for="(stage, index) in AUDIT_STAGES"
+          v-for="(stage, index) in activeAuditStages"
           :key="stage.key"
           class="audit-stage"
           :class="`audit-stage--${stageState(index)}`"
@@ -244,7 +279,7 @@
           </div>
           <p class="event-explanation" data-testid="event-explanation">{{ eventText(row) }}</p>
           <dl v-if="eventDetails(row).length" class="event-details">
-            <div v-for="detail in eventDetails(row)" :key="detail.key">
+            <div v-for="detail in eventDetails(row)" :key="detail.key" :class="{ 'event-detail--wide': detail.wide }">
               <dt>{{ detail.label }}</dt>
               <dd>{{ detail.value }}</dd>
             </div>
@@ -259,15 +294,24 @@
 import { computed, inject, onBeforeUnmount, onMounted, ref } from "vue"
 import { useRouter } from "vue-router"
 import { ElMessage, ElMessageBox } from "element-plus"
-import { cancelAudit, getAudit, getAuditAiConfig, listAuditEvents, listAudits, listTokens, startAudit } from "../request/api"
-import { AUDIT_STAGES, stageLabel } from "../constants/auditStages"
+import { cancelAudit, getAudit, getAuditAiConfig, listAuditEvents, listAudits, listTokens, startAudit, startDeepAudit } from "../request/api"
+import { AUDIT_STAGES, DEEP_AUDIT_STAGES, stageLabel } from "../constants/auditStages"
 import { readStorage, removeStorage, writeStorage } from "../utils/storage"
 
 const router = useRouter()
+const props = defineProps({
+  mode: {
+    type: String,
+    default: "quick",
+    validator: (value) => ["quick", "deep"].includes(value)
+  }
+})
 const openAuditAiSettings = inject("openAuditAiSettings", () => {})
 const tokens = ref([])
 const tokenId = ref(null)
 const exportFormats = ref(["json", "md", "xlsx"])
+const auditRounds = ref(2)
+const adaptiveEarlyStop = ref(false)
 const loadingTokens = ref(true)
 const tokenError = ref("")
 const submitting = ref(false)
@@ -290,8 +334,29 @@ let refreshSequence = 0
 let latestAppliedSequence = 0
 let tokenRequestSequence = 0
 const inFlightRefreshes = new Map()
-const LAST_AUDIT_ID_KEY = "lastAuditId"
-const validPhases = new Set(AUDIT_STAGES.map((stage) => stage.key))
+const isDeepAudit = computed(() => props.mode === "deep")
+const mode = computed(() => isDeepAudit.value ? "deep" : "quick")
+const estimatedTargetCalls = computed(() => auditRounds.value * 3 * 3)
+const activeAuditStages = computed(() => isDeepAudit.value ? DEEP_AUDIT_STAGES : AUDIT_STAGES)
+const modeContent = computed(() => isDeepAudit.value ? {
+  eyebrow: "DEEP AUDIT / 深度分析",
+  title: "深度审计工作流",
+  description: "面向模型特征与复杂行为的深层核验工作区，当前兼容现有审计核心并保留完整证据链。",
+  pipelineTitle: "深度审计兼容管线",
+  progressPlaceholder: "选择 Token 并开始深度审计后，兼容管线证据将在此实时推进。"
+} : {
+  eyebrow: "QUICK AUDIT / 快速取证",
+  title: "快速审计工作流",
+  description: "面向 Token 的六个审计维度 + 综合判定，以较短路径完成连通性、权限与模型行为核验。",
+  pipelineTitle: "七阶段快速审计管线",
+  progressPlaceholder: "选择 Token 并开始快速审计后，七阶段证据将在此实时推进。"
+})
+const submitButtonText = computed(() => {
+  if (status.value === "running") return isDeepAudit.value ? "并行新建深度审计" : "并行新建快速审计"
+  return isDeepAudit.value ? "开始深度审计" : "开始快速审计"
+})
+const LAST_AUDIT_ID_KEY = isDeepAudit.value ? "lastDeepAuditId" : "lastAuditId"
+const validPhases = computed(() => new Set(activeAuditStages.value.map((stage) => stage.key)))
 
 function tokenName(id) {
   return tokens.value.find((token) => token.id === id)?.name || `Token ${id}`
@@ -299,7 +364,31 @@ function tokenName(id) {
 
 function stageKeysForPhase(phase) {
   if (phase === "compliance_stability") return ["compliance", "stability"]
-  return validPhases.has(phase) ? [phase] : []
+  return validPhases.value.has(phase) ? [phase] : []
+}
+
+function stageKeysForDeepEvent(row) {
+  const ev = row?.event
+  const payload = row?.payload || {}
+  if ((ev === "phase_start" || ev === "phase_end") && payload.phase === "deep_rag_retrieval") {
+    return ["rag_retrieval"]
+  }
+  if (["deep_target_call_start", "deep_target_call_retry", "deep_target_call_end", "deep_fuzz_variants_ready"].includes(ev)) return ["fuzz_execute"]
+  if (ev === "deep_rag_evidence") return ["rag_retrieval"]
+  if (ev === "deep_ground_truth_ready") return ["ground_truth"]
+  if (ev === "deep_probes_designed") return ["probe_design"]
+  if (ev === "deep_judges_completed") return ["parallel_judging"]
+  if (ev === "deep_red_team_completed") return ["red_team"]
+  if (ev === "deep_final_decision") return ["final_decision"]
+  if (ev !== "deep_agent_start" && ev !== "deep_agent_end") return []
+  const agent = payload.agent
+  if (agent === "GroundTruthCuratorAgent") return ["ground_truth"]
+  if (agent === "ProbeDesignerAgent") return ["probe_design"]
+  if (agent === "FuzzAgent") return ["fuzz_execute"]
+  if (["AuditJudgeAgent", "BehaviorJudgeAgent", "ConsistencyJudgeAgent"].includes(agent)) return ["parallel_judging"]
+  if (agent === "RedTeamReviewerAgent") return ["red_team"]
+  if (agent === "FinalDecisionAgent") return ["final_decision"]
+  return []
 }
 
 function numericEventId(row) {
@@ -338,18 +427,22 @@ const displayEvents = computed(() => {
 
 const stageProgress = computed(() => {
   const states = Object.fromEntries(
-    AUDIT_STAGES.map((stage) => [stage.key, auditId.value ? "pending" : "ready"])
+    activeAuditStages.value.map((stage) => [stage.key, auditId.value ? "pending" : "ready"])
   )
   const activeStageKeys = []
+  const activeCounts = Object.fromEntries(activeAuditStages.value.map((stage) => [stage.key, 0]))
   let latestStageKeys = []
 
   for (const row of events.value) {
     const phase = row?.payload?.phase
-    const stageKeys = stageKeysForPhase(phase)
+    const stageKeys = isDeepAudit.value ? stageKeysForDeepEvent(row) : stageKeysForPhase(phase)
     if (!stageKeys.length) continue
 
-    if (row.event === "phase_start" || (row.event === "deepseek_call_start" && phase === "overall")) {
+    const isStartEvent = row.event === "phase_start" || row.event === "deep_agent_start" || row.event === "deep_target_call_start" || (row.event === "deepseek_call_start" && phase === "overall")
+    const isEndEvent = row.event === "phase_end" || row.event === "deep_agent_end" || row.event === "deep_target_call_end"
+    if (isStartEvent) {
       for (const key of stageKeys) {
+        activeCounts[key] = (activeCounts[key] || 0) + 1
         states[key] = "running"
         const priorIndex = activeStageKeys.indexOf(key)
         if (priorIndex !== -1) activeStageKeys.splice(priorIndex, 1)
@@ -359,12 +452,15 @@ const stageProgress = computed(() => {
       continue
     }
 
-    if (row.event === "phase_end") {
+    if (isEndEvent) {
       const endState = row.payload?.status === "error" ? "failed" : "completed"
       for (const key of stageKeys) {
-        states[key] = endState
-        const activeIndex = activeStageKeys.indexOf(key)
-        if (activeIndex !== -1) activeStageKeys.splice(activeIndex, 1)
+        activeCounts[key] = Math.max(0, (activeCounts[key] || 0) - 1)
+        states[key] = activeCounts[key] > 0 ? "running" : endState
+        if (activeCounts[key] === 0) {
+          const activeIndex = activeStageKeys.indexOf(key)
+          if (activeIndex !== -1) activeStageKeys.splice(activeIndex, 1)
+        }
       }
       latestStageKeys = stageKeys
       continue
@@ -379,12 +475,12 @@ const stageProgress = computed(() => {
   }
 
   if (status.value === "completed") {
-    for (const stage of AUDIT_STAGES) {
+    for (const stage of activeAuditStages.value) {
       if (states[stage.key] === "running") states[stage.key] = "completed"
     }
     activeStageKeys.splice(0)
   } else if (status.value === "failed" || status.value === "cancelled") {
-    for (const stage of AUDIT_STAGES) {
+    for (const stage of activeAuditStages.value) {
       if (states[stage.key] === "running") states[stage.key] = "failed"
     }
     activeStageKeys.splice(0)
@@ -397,7 +493,11 @@ const currentStageLabel = computed(() => {
   const keys = stageProgress.value.activeStageKeys.length
     ? stageProgress.value.activeStageKeys
     : stageProgress.value.latestStageKeys
-  return keys.length ? keys.map(stageLabel).join(" / ") : "-"
+  return keys.length ? keys.map((key) => {
+    const stage = activeAuditStages.value.find((item) => item.key === key)
+    if (isDeepAudit.value) return stage ? stage.label : key
+    return stageLabel(key)
+  }).join(" / ") : "-"
 })
 
 const statusText = computed(() => {
@@ -436,7 +536,8 @@ const failureDetail = computed(() => {
 })
 
 function stageState(index) {
-  return stageProgress.value.states[AUDIT_STAGES[index].key]
+  const stage = activeAuditStages.value[index]
+  return stage ? stageProgress.value.states[stage.key] : "ready"
 }
 
 function stageStateText(index) {
@@ -461,10 +562,15 @@ function eventDetails(row) {
     details.push({ key: "elapsed_ms", label: "LATENCY", value: `${payload.elapsed_ms} ms` })
   }
   if (payload.model) details.push({ key: "model", label: "MODEL", value: payload.model })
+  if (payload.agent) details.push({ key: "agent", label: "AGENT", value: payload.agent })
+  if (payload.recovery_agent) details.push({ key: "recovery_agent", label: "RECOVERY", value: payload.recovery_agent })
   if (payload.phase) {
-    const phaseName = stageLabel(payload.phase)
+    const deepPhaseKey = payload.phase === "deep_rag_retrieval" ? "rag_retrieval" : payload.phase
+    const deepStage = DEEP_AUDIT_STAGES.find((item) => item.key === deepPhaseKey)
+    const phaseName = isDeepAudit.value && deepStage ? deepStage.label : stageLabel(payload.phase)
     details.push({ key: "phase", label: "PHASE", value: phaseName === "-" ? payload.phase : phaseName })
   }
+  if (payload.index !== undefined && payload.index !== null) details.push({ key: "index", label: "CALL", value: payload.index })
   if (payload.scenario) details.push({ key: "scenario", label: "SCENARIO", value: payload.scenario })
   if (payload.status !== undefined && payload.status !== null) {
     details.push({ key: "status", label: "RESULT", value: payload.status })
@@ -472,6 +578,29 @@ function eventDetails(row) {
   if (payload.reason) details.push({ key: "reason", label: "REASON", value: payload.reason })
   if (payload.endpoint) details.push({ key: "endpoint", label: "ENDPOINT", value: payload.endpoint })
   if (payload.message) details.push({ key: "message", label: "MESSAGE", value: payload.message })
+  if (payload.round !== undefined) details.push({ key: "round", label: "ROUND", value: payload.round })
+  if (payload.probe_group_id) details.push({ key: "probe_group_id", label: "PROBE", value: payload.probe_group_id })
+  if (payload.variant_id) details.push({ key: "variant_id", label: "VARIANT", value: payload.variant_id })
+  if (payload.max_tokens) details.push({ key: "max_tokens", label: "BUDGET", value: `${payload.max_tokens} tokens` })
+  if (payload.previous_max_tokens) details.push({ key: "previous_max_tokens", label: "PREVIOUS BUDGET", value: `${payload.previous_max_tokens} tokens` })
+  if (payload.affordable_max_tokens) details.push({ key: "affordable_max_tokens", label: "AFFORDABLE", value: `${payload.affordable_max_tokens} tokens` })
+  if (payload.requested_max_tokens) details.push({ key: "requested_max_tokens", label: "REQUESTED BUDGET", value: `${payload.requested_max_tokens} tokens` })
+  if (payload.used_max_tokens) details.push({ key: "used_max_tokens", label: "USED BUDGET", value: `${payload.used_max_tokens} tokens` })
+  if (payload.response_chars !== undefined) details.push({ key: "response_chars", label: "ANSWER", value: `${payload.response_chars} chars` })
+  if (payload.retry_count !== undefined) details.push({ key: "retry_count", label: "RETRY", value: payload.retry_count })
+  if (payload.spec_hits !== undefined) details.push({ key: "spec_hits", label: "SPEC HITS", value: payload.spec_hits })
+  if (payload.claimed_behavior_hits !== undefined) details.push({ key: "claimed_behavior_hits", label: "CLAIMED HITS", value: payload.claimed_behavior_hits })
+  if (payload.contrast_behavior_hits !== undefined) details.push({ key: "contrast_behavior_hits", label: "CONTRAST HITS", value: payload.contrast_behavior_hits })
+  if (payload.prompt_preview) details.push({ key: "prompt_preview", label: "QUESTION", value: payload.prompt_preview, wide: true })
+  if (payload.response_preview) details.push({ key: "response_preview", label: "RESPONSE", value: payload.response_preview, wide: true })
+  if (payload.error) details.push({ key: "error", label: "ERROR", value: payload.error, wide: true })
+  if (Array.isArray(payload.discriminative_features)) details.push({ key: "features", label: "FEATURES", value: payload.discriminative_features.join("；"), wide: true })
+  if (Array.isArray(payload.probes)) details.push({ key: "probes", label: "QUESTIONS", value: payload.probes.map((item) => `${item.probe_group_id}: ${item.prompt}`).join("\n"), wide: true })
+  if (Array.isArray(payload.items)) details.push({ key: "variants", label: "FUZZ VARIANTS", value: payload.items.map((item) => `${item.variant_id}: ${item.prompt}`).join("\n"), wide: true })
+  const scoreFields = ["objective_score", "semantic_score", "ground_truth_alignment_score", "behavior_score", "consistency_score", "total_score", "confidence", "valid_response_ratio"]
+  for (const key of scoreFields) {
+    if (payload[key] !== undefined && payload[key] !== null) details.push({ key, label: key.replaceAll("_", " ").toUpperCase(), value: payload[key] })
+  }
   return details
 }
 
@@ -666,7 +795,13 @@ async function submit() {
       openAuditAiSettings("请配置审计 API Key 后再开始审计。")
       return
     }
-    const res = await startAudit({ tokenId: tokenId.value, exportFormats: exportFormats.value })
+    const start = isDeepAudit.value ? startDeepAudit : startAudit
+    const payload = { tokenId: tokenId.value, exportFormats: exportFormats.value }
+    if (isDeepAudit.value) {
+      payload.auditRounds = auditRounds.value
+      payload.adaptiveEarlyStop = adaptiveEarlyStop.value
+    }
+    const res = await start(payload)
     if (!componentAlive) return
     stopPolling()
     auditGeneration += 1
@@ -677,7 +812,7 @@ async function submit() {
     events.value = []
     clearedThroughEventId.value = null
     clearedFallbackCounts.value = new Map()
-    ElMessage.success("已开始审计，正在实时更新进度")
+    ElMessage.success(`已开始${isDeepAudit.value ? "深度" : "快速"}审计，正在实时更新进度`)
     parallelAudits.value = [
       { id: auditId.value, tokenId: tokenId.value, status: "running", executionState: "queued", progress: 0 },
       ...parallelAudits.value.filter((task) => task.id !== auditId.value)
@@ -718,10 +853,20 @@ function clearView() {
 
 function eventTagType(row) {
   const ev = typeof row === "string" ? row : row?.event
+  const payload = typeof row === "string" ? {} : (row?.payload || {})
   if (ev === "preflight_end") return row?.payload?.status === "passed" ? "success" : "danger"
   if (ev === "audit_aborted") return "danger"
   if (ev === "token_call_end") return "info"
   if (ev === "deepseek_call_end") return "success"
+  if (ev === "deep_agent_start") return "warning"
+  if (ev === "deep_agent_end") return payload.status === "error" ? "danger" : "success"
+  if (ev === "deep_judge_recovery_start") return "warning"
+  if (ev === "deep_judge_recovery_end") return payload.status === "success" ? "success" : "danger"
+  if (ev === "deep_target_call_start") return "warning"
+  if (ev === "deep_target_call_retry") return "warning"
+  if (ev === "deep_target_call_end") return row?.payload?.status_code >= 200 && row?.payload?.status_code < 300 ? "success" : "danger"
+  if (["deep_rag_evidence", "deep_ground_truth_ready", "deep_probes_designed", "deep_fuzz_variants_ready", "deep_judges_completed", "deep_red_team_completed", "deep_final_decision"].includes(ev)) return "success"
+  if (ev === "deep_early_stop") return "success"
   if (ev === "audit_failed") return "danger"
   if (ev === "audit_cancelled") return "danger"
   if (ev === "audit_completed") return "success"
@@ -749,7 +894,33 @@ function eventText(row) {
   if (ev === "token_call_end") return `中转返回：status=${p.status_code} 耗时=${p.elapsed_ms}ms`
   if (ev === "deepseek_call_start") return `审计 AI 判定：${p.model || ""}`
   if (ev === "deepseek_call_end") return `审计 AI 返回：耗时=${p.elapsed_ms}ms`
-  if (ev === "audit_start") return "开始审计任务"
+  if (ev === "deep_agent_start") return `启动深度审计 Agent：${p.agent || ""}`
+  if (ev === "deep_agent_end") return `深度审计 Agent 完成：${p.agent || ""}`
+  if (ev === "deep_judge_recovery_start") return `${p.agent || "裁判 Agent"} 输出不可解析，启动精简恢复裁判`
+  if (ev === "deep_judge_recovery_end") return `${p.agent || "裁判 Agent"} 恢复裁判${p.status === "success" ? "完成" : "失败"}`
+  if (ev === "deep_target_call_start") return `第 ${p.round || "-"} 轮调用目标模型：${p.probe_group_id || ""} / ${p.variant_id || ""}`
+  if (ev === "deep_target_call_retry") {
+    if (p.reason === "insufficient_credits_reduce_budget") {
+      return `目标站额度不足，自动将输出预算从 ${p.previous_max_tokens || "-"} 降至 ${p.max_tokens || "-"} tokens 后重试：${p.probe_group_id || ""} / ${p.variant_id || ""}`
+    }
+    return `目标响应为空或被截断，自动将输出预算从 ${p.previous_max_tokens || "-"} 提高至 ${p.max_tokens || "-"} tokens 后重试：${p.probe_group_id || ""} / ${p.variant_id || ""}`
+  }
+  if (ev === "deep_target_call_end") {
+    if (p.ok) return `目标模型返回：答案可评分，HTTP ${p.status_code || 0}，${p.response_chars || 0} 字符，耗时 ${p.elapsed_ms || 0}ms`
+    if (Number(p.status_code) === 402) return `目标模型调用失败：账户额度或输出预算不足，HTTP 402，耗时 ${p.elapsed_ms || 0}ms`
+    if (Number(p.status_code) === 0) return `目标模型调用异常：网络连接未完成，耗时 ${p.elapsed_ms || 0}ms`
+    if (Number(p.status_code) >= 400) return `目标模型调用失败：HTTP ${p.status_code}，耗时 ${p.elapsed_ms || 0}ms`
+    return `目标响应不可评分：正文为空或被截断，HTTP ${p.status_code || 0}，耗时 ${p.elapsed_ms || 0}ms`
+  }
+  if (ev === "deep_rag_evidence") return `双库检索完成：规格 ${p.spec_hits || 0} 条，宣称行为 ${p.claimed_behavior_hits || 0} 条，对照行为 ${p.contrast_behavior_hits || 0} 条`
+  if (ev === "deep_ground_truth_ready") return `Ground Truth 已整理：${p.hard_constraints || 0} 项硬约束，${p.behavior_signatures || 0} 项行为特征，覆盖率 ${Math.round((p.coverage || 0) * 100)}%`
+  if (ev === "deep_probes_designed") return `第 ${p.round || "-"} 轮生成 ${p.count || 0} 道动态母题`
+  if (ev === "deep_fuzz_variants_ready") return `第 ${p.round || "-"} 轮 Fuzz 完成：${p.groups || 0} 组，共 ${p.variants || 0} 个变体`
+  if (ev === "deep_judges_completed") return `第 ${p.round || "-"} 轮并行裁判完成：客观 ${p.objective_score ?? 0}，语义 ${p.semantic_score ?? 0}，基线 ${p.ground_truth_alignment_score ?? 0}，行为 ${p.behavior_score ?? 0}，一致性 ${p.consistency_score ?? 0}`
+  if (ev === "deep_red_team_completed") return `RedTeam 复核完成：${p.alternative_explanations || 0} 个替代解释，${p.unresolved_contradictions || 0} 个未解决矛盾`
+  if (ev === "deep_final_decision") return `最终判定：${p.total_score ?? 0} 分，${p.band || "-"}，置信度 ${Math.round((p.confidence || 0) * 100)}%`
+  if (ev === "deep_early_stop") return `深度审计已稳定收敛，在第 ${p.round || "-"} 轮提前结束`
+  if (ev === "audit_start") return p.auditMode === "deep" ? "开始深度审计任务" : "开始快速审计任务"
   if (ev === "audit_completed") return `审计完成：${p.overallConclusion || ""}`
   if (ev === "audit_failed") return `审计失败：${p.error || ""}`
   if (ev === "audit_cancelled") return `审计已终止：${p.message || "用户主动终止"}`
@@ -841,6 +1012,19 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 10px rgba(67, 224, 162, 0.58);
 }
 
+.audit-console--deep .eyebrow {
+  color: #8eb9ff;
+}
+
+.audit-console--deep .signal-dot {
+  background: #8eb9ff;
+  box-shadow: 0 0 12px rgba(94, 153, 255, 0.5);
+}
+
+.audit-console--deep .audit-heading {
+  border-bottom-color: rgba(94, 153, 255, 0.22);
+}
+
 .audit-heading h1 {
   margin: 5px 0 2px;
   color: var(--ta-text);
@@ -904,6 +1088,47 @@ onBeforeUnmount(() => {
   font-size: 11px;
 }
 
+.deep-engine-notice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 14px 0;
+  padding: 11px 13px;
+  background:
+    linear-gradient(90deg, rgba(94, 153, 255, 0.09), rgba(94, 153, 255, 0.025) 54%, transparent),
+    var(--ta-panel);
+  border: 1px solid rgba(94, 153, 255, 0.2);
+  border-radius: 5px;
+}
+
+.deep-engine-notice__mark {
+  color: #8eb9ff;
+  font-size: 18px;
+}
+
+.deep-engine-notice strong {
+  display: block;
+  color: var(--ta-text);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.deep-engine-notice p {
+  margin: 2px 0 0;
+  color: var(--ta-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.deep-engine-notice__state {
+  color: #8eb9ff;
+  font-family: var(--ta-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
 .configuration-grid {
   display: grid;
   grid-template-columns: minmax(260px, 1.1fr) minmax(320px, 1fr);
@@ -954,6 +1179,59 @@ onBeforeUnmount(() => {
 
 .format-options :deep(.el-checkbox) {
   margin-right: 0;
+}
+
+.deep-run-options {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(300px, 1.2fr) minmax(190px, 0.7fr);
+  gap: 1px;
+  margin: 0 14px 14px;
+  overflow: hidden;
+  background: rgba(94, 153, 255, 0.16);
+  border: 1px solid rgba(94, 153, 255, 0.2);
+  border-radius: 5px;
+}
+
+.deep-option,
+.deep-call-estimate {
+  min-width: 0;
+  padding: 13px 14px;
+  background: var(--ta-code);
+}
+
+.deep-option--switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.deep-option .field-label {
+  margin-bottom: 7px;
+}
+
+.deep-option :deep(.el-input-number) {
+  width: 138px;
+}
+
+.deep-call-estimate {
+  display: grid;
+  align-content: center;
+  justify-items: end;
+  color: var(--ta-faint);
+  font-family: var(--ta-mono);
+  font-size: 9px;
+}
+
+.deep-call-estimate strong {
+  margin: 2px 0;
+  color: #8eb9ff;
+  font-size: 25px;
+  font-weight: 600;
+}
+
+.deep-call-estimate small {
+  font-size: 8px;
 }
 
 .configuration-actions {
@@ -1304,6 +1582,16 @@ onBeforeUnmount(() => {
   border-radius: 4px;
 }
 
+.event-details .event-detail--wide {
+  flex: 1 1 100%;
+  align-items: flex-start;
+}
+
+.event-detail--wide dd {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .event-details dt {
   color: var(--ta-faint);
   font-size: 8px;
@@ -1343,6 +1631,14 @@ onBeforeUnmount(() => {
   .format-field {
     border-top: 1px solid var(--ta-line);
     border-left: 0;
+  }
+
+  .deep-run-options {
+    grid-template-columns: 1fr;
+  }
+
+  .deep-call-estimate {
+    justify-items: start;
   }
 }
 
@@ -1389,6 +1685,14 @@ onBeforeUnmount(() => {
   .panel-header {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .deep-engine-notice {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .deep-engine-notice__state {
+    display: none;
   }
 
   .heading-actions,

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Fable 5",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P1",
+  "sourceId": "03-anthropic-research",
+  "label": "Claude Fable 5 and Claude Mythos 5 · Anthropic Research",
+  "requestedUrl": "https://www.anthropic.com/research/claude-fable-5-mythos-5",
+  "finalUrl": "https://www.anthropic.com/research/claude-fable-5-mythos-5",
+  "capturedAt": "2026-08-23T10:51:25.568Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 33134,
+  "markdownSha256": "69b507447454e877b5b9cb24e1994b9a681644b54fd72deaf656e4baabb43107",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Claude Fable 5 and Claude Mythos 5 \\ Anthropic",
+    "description": "Today we’re launching Claude Fable 5: a Mythos-class model that we’ve made safe for general use.",
+    "language": "en",
+    "sourceURL": "https://www.anthropic.com/research/claude-fable-5-mythos-5",
+    "url": "https://www.anthropic.com/research/claude-fable-5-mythos-5",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Claude Fable 5 and Claude Mythos 5",
+    "ogDescription": "Today we’re launching Claude Fable 5: a Mythos-class model that we’ve made safe for general use."
+  }
+}

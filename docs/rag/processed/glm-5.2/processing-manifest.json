@@ -1,0 +1,144 @@
+{
+  "chunking_policy": {
+    "combine_text_under_n_characters": 300,
+    "isolate_table": true,
+    "max_characters": 1800,
+    "new_after_n_characters": 1200,
+    "overlap_all": false,
+    "overlap_characters": 120,
+    "strategy": "by_title"
+  },
+  "coverage": {
+    "admitted_categories": [
+      "model_identity",
+      "context_output",
+      "reasoning_behavior",
+      "modalities",
+      "tools_agents",
+      "performance",
+      "architecture",
+      "api_behavior"
+    ],
+    "coverage_gaps": [],
+    "explicit_model_chunks": 45,
+    "missing_categories": [
+      "pricing",
+      "safety_behavior"
+    ],
+    "p0_p1_explicit_model_chunks": 37,
+    "rejected_categories": [],
+    "source_review_status": "APPROVE"
+  },
+  "dedup": {
+    "duplicates_removed": 0,
+    "engine": "llama-index-core",
+    "input_chunks": 73,
+    "strategy": "DocstoreStrategy.DUPLICATES_ONLY",
+    "unique_chunks": 73
+  },
+  "documents": [
+    {
+      "captured_at": "2026-08-24T14:14:57.182Z",
+      "chunks_before_dedup": 11,
+      "clean_characters": 11406,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\glm-5.2\\p0\\01-bigmodel-docs\\content.md",
+      "elements": 108,
+      "images": 6,
+      "source_id": "01-bigmodel-docs",
+      "source_level": "P0",
+      "source_url": "https://docs.bigmodel.cn/cn/guide/models/text/glm-5.2",
+      "tables": 0
+    },
+    {
+      "captured_at": "2026-08-24T14:15:06.664Z",
+      "chunks_before_dedup": 18,
+      "clean_characters": 20144,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\glm-5.2\\p0\\02-zai-docs\\content.md",
+      "elements": 102,
+      "images": 4,
+      "source_id": "02-zai-docs",
+      "source_level": "P0",
+      "source_url": "https://docs.z.ai/guides/llm/glm-5.2",
+      "tables": 0
+    },
+    {
+      "captured_at": "2026-08-24T14:15:15.906Z",
+      "chunks_before_dedup": 18,
+      "clean_characters": 18541,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\glm-5.2\\p1\\03-zai-blog\\content.md",
+      "elements": 68,
+      "images": 12,
+      "source_id": "03-zai-blog",
+      "source_level": "P1",
+      "source_url": "https://z.ai/blog/glm-5.2",
+      "tables": 2
+    },
+    {
+      "captured_at": "2026-08-24T14:15:24.932Z",
+      "chunks_before_dedup": 18,
+      "clean_characters": 22565,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\glm-5.2\\p2\\04-glm-52-bench\\content.md",
+      "elements": 9,
+      "images": 1,
+      "source_id": "04-glm-52-bench",
+      "source_level": "P2",
+      "source_url": "https://huggingface.co/datasets/AletheiaResearch/GLM-5.2-Bench",
+      "tables": 1
+    },
+    {
+      "captured_at": "2026-08-24T14:15:37.682Z",
+      "chunks_before_dedup": 8,
+      "clean_characters": 5411,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\glm-5.2\\p3\\05-glm-52-agent\\content.md",
+      "elements": 40,
+      "images": 1,
+      "source_id": "05-glm-52-agent",
+      "source_level": "P3",
+      "source_url": "https://huggingface.co/datasets/AletheiaResearch/GLM-5.2-Agent",
+      "tables": 0
+    }
+  ],
+  "generated_at": "2026-08-24T14:17:45.505921+00:00",
+  "model": {
+    "family": "glm",
+    "label": "GLM-5.2",
+    "model_id": "glm-5.2",
+    "source_review_status": "APPROVE",
+    "version": "5.2"
+  },
+  "pipeline": {
+    "chunker": "unstructured chunk_by_title",
+    "claim_policy": "extractive P0/P1 target-model evidence only",
+    "deduplicator": "llama-index-core DocstoreStrategy.DUPLICATES_ONLY",
+    "document_structure": "unstructured elements",
+    "embedding": "voyage",
+    "ocr_and_image_structure": "unstructured hi_res/ocr_only",
+    "partition_and_noise_filter": "unstructured",
+    "rerank": "voyage",
+    "table_parser": "unstructured Table + text_as_html"
+  },
+  "retrieval_policy": {
+    "rerank_model": "rerank-2.5",
+    "rerank_top_k": 5,
+    "vector_top_k": 12
+  },
+  "schema_version": 3,
+  "stats": {
+    "attributes": 8,
+    "chunks_after_dedup": 73,
+    "chunks_before_dedup": 73,
+    "claims": 8,
+    "documents": 5,
+    "duplicate_chunks_removed": 0,
+    "elements": 327,
+    "evidence_chunks": 8,
+    "ground_truth_claims": 8,
+    "image_unique_urls": 14,
+    "images_downloaded": 0,
+    "images_found": 24,
+    "ocr_success": 0,
+    "quarantined_claims": 0,
+    "records_for_embedding": 24,
+    "tables": 3
+  }
+}

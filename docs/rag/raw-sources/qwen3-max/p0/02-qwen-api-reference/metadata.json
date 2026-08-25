@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Qwen3-Max",
+  "modelReviewStatus": "CONDITIONAL",
+  "priority": "P0",
+  "sourceId": "02-qwen-api-reference",
+  "label": "Qwen API reference · Alibaba Cloud",
+  "requestedUrl": "https://www.alibabacloud.com/help/en/model-studio/qwen-api-reference",
+  "finalUrl": "https://www.alibabacloud.com/help/en/model-studio/qwen-api-reference",
+  "capturedAt": "2026-08-23T10:55:13.529Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 26581,
+  "markdownSha256": "bb65bcd04699c5a9199bee7589b72a0e4646df5e4c024e807cc55abbddcff73f",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Text Generation API Reference - Alibaba Cloud Model Studio - Alibaba Cloud Documentation Center",
+    "description": "Text Generation API Reference,Alibaba Cloud Model Studio:Model Studio offers multiple interfaces for text generation models: OpenAI-compatible Chat Completion: Drop-in compatibility with OpenAI client libraries. The lowest-friction path for migrating existi...",
+    "language": "en",
+    "sourceURL": "https://www.alibabacloud.com/help/en/model-studio/qwen-api-reference",
+    "url": "https://www.alibabacloud.com/help/en/model-studio/qwen-api-reference",
+    "statusCode": 200,
+    "contentType": "text/html;charset=UTF-8",
+    "ogTitle": "Text Generation API Reference - Alibaba Cloud",
+    "ogDescription": "Text Generation API Reference,Alibaba Cloud Model Studio:Model Studio offers multiple interfaces for text generation models: OpenAI-compatible Chat Completion: Drop-in compatibility with OpenAI client libraries. The lowest-friction path for migrating existi..."
+  }
+}

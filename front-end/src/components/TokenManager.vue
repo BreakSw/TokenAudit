@@ -140,6 +140,28 @@
               <template #default="{ row }"><code class="token-masked">{{ row.tokenMasked }}</code></template>
             </el-table-column>
             <el-table-column prop="platform" label="平台" min-width="120" />
+            <el-table-column label="API 地址" min-width="320">
+              <template #default="{ row }">
+                <div class="url-cell" :data-testid="`url-editor-${row.id}`">
+                  <el-input
+                    :id="`token-base-url-${row.id}`"
+                    v-model="urlDrafts[row.id]"
+                    :disabled="updatingUrlIds.has(row.id)"
+                    placeholder="https://api.example.com/v1"
+                    @keyup.enter="saveTokenBaseUrl(row)"
+                  >
+                    <template #append>
+                      <el-button
+                        :loading="updatingUrlIds.has(row.id)"
+                        :aria-label="`保存 ${row.name} 的 API 地址`"
+                        @click="saveTokenBaseUrl(row)"
+                      >保存</el-button>
+                    </template>
+                  </el-input>
+                  <span class="url-hint">支持基础地址或完整推理端点</span>
+                </div>
+              </template>
+            </el-table-column>
             <el-table-column label="宣称模型" min-width="280">
               <template #default="{ row }">
                 <div class="model-cell" :data-testid="`model-selector-${row.id}`">
@@ -187,7 +209,13 @@ import { onBeforeUnmount, onMounted, reactive, ref } from "vue"
 import { ElMessage, ElMessageBox } from "element-plus"
 import ModelCombobox from "./ModelCombobox.vue"
 import { MODEL_GROUPS } from "../constants/modelCatalog"
-import { createToken, deleteToken, listTokens, updateTokenClaimedModel } from "../request/api"
+import {
+  createToken,
+  deleteToken,
+  listTokens,
+  updateTokenBaseUrl,
+  updateTokenClaimedModel
+} from "../request/api"
 import { isBaseUrl, required } from "../utils/validate"
 
 const tokens = ref([])
@@ -198,7 +226,9 @@ const formError = ref("")
 const operationError = ref("")
 const deletingIds = ref(new Set())
 const modelDrafts = reactive({})
+const urlDrafts = reactive({})
 const updatingModelIds = ref(new Set())
+const updatingUrlIds = ref(new Set())
 let requestSequence = 0
 let componentAlive = true
 
@@ -240,7 +270,7 @@ async function reload() {
     const loadedTokens = await listTokens()
     if (!componentAlive || sequence !== requestSequence) return
     tokens.value = loadedTokens || []
-    syncModelDrafts(tokens.value)
+    syncDrafts(tokens.value)
   } catch (error) {
     if (!componentAlive || sequence !== requestSequence) return
     loadError.value = errorText(error, "加载失败")
@@ -295,13 +325,47 @@ function handleTargetAuditChange(enabled) {
   formError.value = ""
 }
 
-function syncModelDrafts(items) {
+function syncDrafts(items) {
   const activeIds = new Set(items.map((token) => String(token.id)))
   for (const id of Object.keys(modelDrafts)) {
     if (!activeIds.has(id)) delete modelDrafts[id]
   }
+  for (const id of Object.keys(urlDrafts)) {
+    if (!activeIds.has(id)) delete urlDrafts[id]
+  }
   for (const token of items) {
     if (!updatingModelIds.value.has(token.id)) modelDrafts[token.id] = token.claimedModel || ""
+    if (!updatingUrlIds.value.has(token.id)) urlDrafts[token.id] = token.tokenBaseUrl || ""
+  }
+}
+
+async function saveTokenBaseUrl(row) {
+  if (updatingUrlIds.value.has(row.id)) return
+  const tokenBaseUrl = String(urlDrafts[row.id] || "").trim()
+  if (!isBaseUrl(tokenBaseUrl)) {
+    operationError.value = "API 地址必须是安全的 http(s) 地址，不能包含查询参数、片段或用户信息。"
+    urlDrafts[row.id] = row.tokenBaseUrl || ""
+    return
+  }
+  if (tokenBaseUrl === row.tokenBaseUrl) return
+
+  updatingUrlIds.value.add(row.id)
+  operationError.value = ""
+  try {
+    const updated = await updateTokenBaseUrl(row.id, tokenBaseUrl)
+    if (!componentAlive) return
+    const index = tokens.value.findIndex((token) => token.id === row.id)
+    if (index >= 0) tokens.value[index] = updated
+    urlDrafts[row.id] = updated.tokenBaseUrl
+    modelDrafts[row.id] = updated.claimedModel || ""
+    ElMessage.success("API 地址已更新")
+  } catch (error) {
+    if (!componentAlive) return
+    urlDrafts[row.id] = row.tokenBaseUrl || ""
+    operationError.value = errorText(error, "API 地址更新失败")
+    ElMessage.error(operationError.value)
+  } finally {
+    if (componentAlive) updatingUrlIds.value.delete(row.id)
   }
 }
 
@@ -367,7 +431,9 @@ onBeforeUnmount(() => {
   requestSequence += 1
   deletingIds.value.clear()
   updatingModelIds.value.clear()
+  updatingUrlIds.value.clear()
   for (const id of Object.keys(modelDrafts)) delete modelDrafts[id]
+  for (const id of Object.keys(urlDrafts)) delete urlDrafts[id]
 })
 </script>
 
@@ -412,10 +478,14 @@ onBeforeUnmount(() => {
 .state-panel strong { color: var(--ta-text); font-size: 12px; font-weight: 550; }
 .state-panel p { margin: 5px 0 11px; color: var(--ta-faint); font-size: 10px; }
 .table-scroll { overflow-x: auto; }
-.compact-table { min-width: 1000px; }
+.compact-table { min-width: 1320px; }
 .compact-table :deep(.el-table__cell) { padding: 8px 0; }
 .compact-table :deep(.cell) { font-size: 11px; }
 .token-masked { color: var(--ta-green); font-size: 10px; white-space: nowrap; }
+.url-cell { display: grid; gap: 4px; min-width: 285px; padding: 4px 0; }
+.url-cell :deep(.el-input__inner) { font-family: var(--ta-mono); font-size: 10px; }
+.url-cell :deep(.el-input-group__append) { padding: 0 10px; background: rgba(78, 228, 174, .06); }
+.url-hint { color: var(--ta-faint); font-family: var(--ta-mono); font-size: 8px; }
 .model-cell { display: grid; gap: 4px; min-width: 240px; padding: 4px 0; }
 .model-cell :deep(.el-autocomplete) { width: 100%; }
 .model-save-state { color: var(--ta-green); font-family: var(--ta-mono); font-size: 9px; }

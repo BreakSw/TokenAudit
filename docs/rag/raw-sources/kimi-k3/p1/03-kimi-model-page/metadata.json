@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Kimi K3",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P1",
+  "sourceId": "03-kimi-model-page",
+  "label": "Kimi K3 model page",
+  "requestedUrl": "https://www.kimi.ai/ai-models/kimi-k3",
+  "finalUrl": "https://www.kimi.ai/ai-models/kimi-k3",
+  "capturedAt": "2026-08-23T10:52:54.717Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 8881,
+  "markdownSha256": "826785395574958f4931f4e2f3a7b4dbf29c1fa570ec98dbda89fabd57377504",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Kimi K3: 2.8T Open Model for Coding & Knowledge Work",
+    "description": "Meet Kimi K3, a 2.8T-parameter model with native vision and a 1M context window. Create playable games, polished slides, interactive reports, and more.",
+    "language": "en",
+    "sourceURL": "https://www.kimi.ai/ai-models/kimi-k3",
+    "url": "https://www.kimi.ai/ai-models/kimi-k3",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Kimi K3: 2.8T Open Model for Coding & Knowledge Work",
+    "ogDescription": "Meet Kimi K3, a 2.8T-parameter model with native vision and a 1M context window. Create playable games, polished slides, interactive reports, and more."
+  }
+}

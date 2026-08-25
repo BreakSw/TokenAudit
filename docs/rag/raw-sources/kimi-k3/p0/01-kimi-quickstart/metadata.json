@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Kimi K3",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P0",
+  "sourceId": "01-kimi-quickstart",
+  "label": "Kimi K3 Quickstart · Kimi API Platform",
+  "requestedUrl": "https://platform.kimi.ai/docs/guide/kimi-k3-quickstart",
+  "finalUrl": "https://platform.kimi.ai/docs/guide/kimi-k3-quickstart",
+  "capturedAt": "2026-08-23T10:52:36.507Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 18862,
+  "markdownSha256": "b9e7266cb13db5b7ea735a6b84a4b915afe3322e60aa090d9b394959fc6071aa",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Kimi K3 - Kimi API Platform",
+    "description": "Explore Kimi K3 for long-horizon coding, knowledge work, deep reasoning, visual understanding, and a 1M-token context window.",
+    "language": "en",
+    "sourceURL": "https://platform.kimi.ai/docs/guide/kimi-k3-quickstart",
+    "url": "https://platform.kimi.ai/docs/guide/kimi-k3-quickstart",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Kimi K3 - Kimi API Platform",
+    "ogDescription": "Explore Kimi K3 for long-horizon coding, knowledge work, deep reasoning, visual understanding, and a 1M-token context window."
+  }
+}

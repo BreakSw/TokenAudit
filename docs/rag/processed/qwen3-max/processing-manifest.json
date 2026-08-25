@@ -1,0 +1,147 @@
+{
+  "chunking_policy": {
+    "combine_text_under_n_characters": 300,
+    "isolate_table": true,
+    "max_characters": 1800,
+    "new_after_n_characters": 1200,
+    "overlap_all": false,
+    "overlap_characters": 120,
+    "strategy": "by_title"
+  },
+  "coverage": {
+    "admitted_categories": [],
+    "coverage_gaps": [
+      "No P0/P1 chunk explicitly names the target model.",
+      "Source manifest review status is CONDITIONAL."
+    ],
+    "explicit_model_chunks": 17,
+    "missing_categories": [
+      "reasoning_behavior",
+      "safety_behavior"
+    ],
+    "p0_p1_explicit_model_chunks": 0,
+    "rejected_categories": [
+      "model_identity",
+      "context_output",
+      "modalities",
+      "tools_agents",
+      "performance",
+      "architecture",
+      "pricing",
+      "api_behavior"
+    ],
+    "source_review_status": "CONDITIONAL"
+  },
+  "dedup": {
+    "duplicates_removed": 1,
+    "engine": "llama-index-core",
+    "input_chunks": 124,
+    "strategy": "DocstoreStrategy.DUPLICATES_ONLY",
+    "unique_chunks": 123
+  },
+  "documents": [
+    {
+      "captured_at": "2026-08-23T10:55:03.927Z",
+      "chunks_before_dedup": 49,
+      "clean_characters": 43441,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\qwen3-max\\p0\\01-alibaba-model-list\\content.md",
+      "elements": 1178,
+      "images": 45,
+      "source_id": "01-alibaba-model-list",
+      "source_level": "P0",
+      "source_url": "https://www.alibabacloud.com/help/en/model-studio/models",
+      "tables": 0
+    },
+    {
+      "captured_at": "2026-08-23T10:55:13.529Z",
+      "chunks_before_dedup": 11,
+      "clean_characters": 8837,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\qwen3-max\\p0\\02-qwen-api-reference\\content.md",
+      "elements": 344,
+      "images": 10,
+      "source_id": "02-qwen-api-reference",
+      "source_level": "P0",
+      "source_url": "https://www.alibabacloud.com/help/en/model-studio/qwen-api-reference",
+      "tables": 0
+    },
+    {
+      "captured_at": "2026-08-23T10:55:28.552Z",
+      "chunks_before_dedup": 17,
+      "clean_characters": 16486,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\qwen3-max\\p1\\03-qwen3-announcement\\content.md",
+      "elements": 316,
+      "images": 15,
+      "source_id": "03-qwen3-announcement",
+      "source_level": "P1",
+      "source_url": "https://qwen.ai/blog?id=qwen3",
+      "tables": 3
+    },
+    {
+      "captured_at": "2026-08-23T10:55:37.577Z",
+      "chunks_before_dedup": 32,
+      "clean_characters": 15194,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\qwen3-max\\p2\\04-artificial-analysis\\content.md",
+      "elements": 237,
+      "images": 1,
+      "source_id": "04-artificial-analysis",
+      "source_level": "P2",
+      "source_url": "https://artificialanalysis.ai/models/qwen3-max",
+      "tables": 0
+    },
+    {
+      "captured_at": "2026-08-23T10:55:46.800Z",
+      "chunks_before_dedup": 15,
+      "clean_characters": 7873,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\qwen3-max\\p3\\05-benchlm\\content.md",
+      "elements": 106,
+      "images": 0,
+      "source_id": "05-benchlm",
+      "source_level": "P3",
+      "source_url": "https://benchlm.ai/models/qwen3-max",
+      "tables": 3
+    }
+  ],
+  "generated_at": "2026-08-24T14:18:19.712471+00:00",
+  "model": {
+    "family": "qwen",
+    "label": "Qwen3-Max",
+    "model_id": "qwen3-max",
+    "source_review_status": "CONDITIONAL",
+    "version": "3-max"
+  },
+  "pipeline": {
+    "chunker": "unstructured chunk_by_title",
+    "claim_policy": "extractive P0/P1 target-model evidence only",
+    "deduplicator": "llama-index-core DocstoreStrategy.DUPLICATES_ONLY",
+    "document_structure": "unstructured elements",
+    "embedding": "voyage",
+    "ocr_and_image_structure": "unstructured hi_res/ocr_only",
+    "partition_and_noise_filter": "unstructured",
+    "rerank": "voyage",
+    "table_parser": "unstructured Table + text_as_html"
+  },
+  "retrieval_policy": {
+    "rerank_model": "rerank-2.5",
+    "rerank_top_k": 5,
+    "vector_top_k": 12
+  },
+  "schema_version": 3,
+  "stats": {
+    "attributes": 0,
+    "chunks_after_dedup": 123,
+    "chunks_before_dedup": 124,
+    "claims": 8,
+    "documents": 5,
+    "duplicate_chunks_removed": 1,
+    "elements": 2181,
+    "evidence_chunks": 0,
+    "ground_truth_claims": 0,
+    "image_unique_urls": 36,
+    "images_downloaded": 0,
+    "images_found": 71,
+    "ocr_success": 0,
+    "quarantined_claims": 8,
+    "records_for_embedding": 0,
+    "tables": 6
+  }
+}

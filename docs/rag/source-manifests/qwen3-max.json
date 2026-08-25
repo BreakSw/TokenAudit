@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "model": "Qwen3-Max",
+  "modelSlug": "qwen3-max",
+  "reviewStatus": "CONDITIONAL",
+  "sources": [
+    {
+      "id": "01-alibaba-model-list",
+      "priority": "P0",
+      "label": "Model Studio model list · Alibaba Cloud",
+      "url": "https://www.alibabacloud.com/help/en/model-studio/models"
+    },
+    {
+      "id": "02-qwen-api-reference",
+      "priority": "P0",
+      "label": "Qwen API reference · Alibaba Cloud",
+      "url": "https://www.alibabacloud.com/help/en/model-studio/qwen-api-reference"
+    },
+    {
+      "id": "03-qwen3-announcement",
+      "priority": "P1",
+      "label": "Qwen3 official announcement",
+      "url": "https://qwen.ai/blog?id=qwen3"
+    },
+    {
+      "id": "04-artificial-analysis",
+      "priority": "P2",
+      "label": "Qwen3-Max · Artificial Analysis",
+      "url": "https://artificialanalysis.ai/models/qwen3-max"
+    },
+    {
+      "id": "05-benchlm",
+      "priority": "P3",
+      "label": "Qwen3-Max · BenchLM",
+      "url": "https://benchlm.ai/models/qwen3-max"
+    }
+  ]
+}

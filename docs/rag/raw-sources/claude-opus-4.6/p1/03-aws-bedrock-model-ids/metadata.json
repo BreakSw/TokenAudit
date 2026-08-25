@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Opus 4.6",
+  "modelReviewStatus": "CONDITIONAL",
+  "priority": "P1",
+  "sourceId": "03-aws-bedrock-model-ids",
+  "label": "Amazon Bedrock model IDs",
+  "requestedUrl": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html",
+  "finalUrl": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html",
+  "capturedAt": "2026-08-23T10:50:37.908Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 8868,
+  "markdownSha256": "702a903d36d291920f75cc5c0dbffb3fd6998fe7135de7823ac769ff8e3a8a47",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Supported foundation models in Amazon Bedrock - Amazon Bedrock",
+    "description": "Information previously on this page, including model IDs, supported Regions, modalities, and inference parameters, has moved to models at a glance . Select a model on that page to view its details.",
+    "language": "en-US",
+    "sourceURL": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html",
+    "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-supported.html",
+    "statusCode": 200,
+    "contentType": "text/html"
+  }
+}

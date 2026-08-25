@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Sol",
+  "generatedAt": "2026-08-23T10:34:18.549Z",
+  "total": 5,
+  "accepted": 5,
+  "rejected": 0,
+  "results": [
+    {
+      "sourceId": "01-openai-model-page",
+      "priority": "P0",
+      "requestedUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 6309,
+      "directory": "p0/01-openai-model-page",
+      "error": null
+    },
+    {
+      "sourceId": "02-openai-release",
+      "priority": "P0",
+      "requestedUrl": "https://openai.com/index/previewing-gpt-5-6-sol/",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 33467,
+      "directory": "p0/02-openai-release",
+      "error": null
+    },
+    {
+      "sourceId": "03-openai-system-card",
+      "priority": "P1",
+      "requestedUrl": "https://deploymentsafety.openai.com/gpt-5-6",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 160251,
+      "directory": "p1/03-openai-system-card",
+      "error": null
+    },
+    {
+      "sourceId": "04-benchlm",
+      "priority": "P2",
+      "requestedUrl": "https://benchlm.ai/models/gpt-5-6-sol",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 24356,
+      "directory": "p2/04-benchlm",
+      "error": null
+    },
+    {
+      "sourceId": "05-wikipedia",
+      "priority": "P3",
+      "requestedUrl": "https://en.wikipedia.org/wiki/GPT-5.6",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 37925,
+      "directory": "p3/05-wikipedia",
+      "error": null
+    }
+  ]
+}

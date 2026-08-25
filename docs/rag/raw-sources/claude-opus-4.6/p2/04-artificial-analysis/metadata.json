@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Opus 4.6",
+  "modelReviewStatus": "CONDITIONAL",
+  "priority": "P2",
+  "sourceId": "04-artificial-analysis",
+  "label": "Claude Opus 4.6 · Artificial Analysis",
+  "requestedUrl": "https://artificialanalysis.ai/models/claude-opus-4-6",
+  "finalUrl": "https://artificialanalysis.ai/models/claude-opus-4-6",
+  "capturedAt": "2026-08-23T10:50:48.774Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 21787,
+  "markdownSha256": "d9c92f2129f4924f28c3cd4d6a2c230a1b0b6aa498e9aa3614be8615fcf693b7",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Claude Opus 4.6 (high) - Intelligence, Performance & Price Analysis | Artificial Analysis",
+    "description": "Analysis of Anthropic's Claude Opus 4.6 (Non-reasoning, High Effort) and comparison to other AI models across key metrics including quality, price, performance (tokens per second & time to first token), context window & more.",
+    "language": "en",
+    "sourceURL": "https://artificialanalysis.ai/models/claude-opus-4-6",
+    "url": "https://artificialanalysis.ai/models/claude-opus-4-6",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Claude Opus 4.6 (high) - Intelligence, Performance & Price Analysis | Artificial Analysis",
+    "ogDescription": "Analysis of Anthropic's Claude Opus 4.6 (Non-reasoning, High Effort) and comparison to other AI models across key metrics including quality, price, performance (tokens per second & time to first token), context window & more."
+  }
+}

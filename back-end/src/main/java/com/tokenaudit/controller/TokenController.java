@@ -3,6 +3,7 @@ package com.tokenaudit.controller;
 import com.tokenaudit.dto.TokenCreateRequest;
 import com.tokenaudit.dto.TokenModelUpdateRequest;
 import com.tokenaudit.dto.TokenResponse;
+import com.tokenaudit.dto.TokenUrlUpdateRequest;
 import com.tokenaudit.service.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,14 @@ public class TokenController {
             @Valid @RequestBody TokenModelUpdateRequest req
     ) {
         return tokenService.updateClaimedModel(id, req.getClaimedModel());
+    }
+
+    @PutMapping("/{id}/url")
+    public TokenResponse updateTokenBaseUrl(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody TokenUrlUpdateRequest req
+    ) {
+        return tokenService.updateTokenBaseUrl(id, req.getTokenBaseUrl());
     }
 
     @DeleteMapping("/{id}")

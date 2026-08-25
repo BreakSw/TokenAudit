@@ -34,8 +34,23 @@ back-end/target/
 
 ## Data / Reports
 data/database/*.db
+data/milvus/
 data/report/
 data/token-encryption.key
+
+# Downloaded public RAG datasets are reproducible but too large for Git.
+docs/rag/datasets/**/*.jsonl
+docs/rag/datasets/**/*.parquet
+docs/rag/datasets/**/*.part
+
+# RAG processing intermediates remain available locally. Keep source manifests,
+# curated evidence exports and review reports in Git so the index is reproducible.
+docs/rag/processed/**/assets/
+docs/rag/processed/**/elements.jsonl
+docs/rag/processed/**/sections.jsonl
+docs/rag/processed/**/chunks.jsonl
+docs/rag/processed/behavior-v1/records.jsonl
+docs/rag/processed/_smoke*/
 
 ## prompt
 prompt.txt

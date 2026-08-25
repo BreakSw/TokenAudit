@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "model": "GLM-5.3",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P0",
+  "sourceId": "01-bigmodel-docs",
+  "label": "GLM-5.3 · BigModel Docs",
+  "requestedUrl": "https://docs.bigmodel.cn/cn/guide/models/text/glm-5.3",
+  "finalUrl": "https://docs.bigmodel.cn/cn/guide/models/text/glm-5.3",
+  "capturedAt": "2026-08-23T10:54:11.829Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 17450,
+  "markdownSha256": "e0a307b3f1245a9814b2b71adda9beda1f51cb58a68e759c1cafa2f0c239fe0a",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GLM-5.3 - 智谱AI开放文档",
+    "language": "cn",
+    "sourceURL": "https://docs.bigmodel.cn/cn/guide/models/text/glm-5.3",
+    "url": "https://docs.bigmodel.cn/cn/guide/models/text/glm-5.3",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "GLM-5.3 - 智谱AI开放文档"
+  }
+}

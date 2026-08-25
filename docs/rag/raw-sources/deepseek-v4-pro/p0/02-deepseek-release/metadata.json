@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "DeepSeek-V4-Pro",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P0",
+  "sourceId": "02-deepseek-release",
+  "label": "DeepSeek-V4-Pro GA Release · DeepSeek API Docs",
+  "requestedUrl": "https://api-docs.deepseek.com/news/news260813/",
+  "finalUrl": "https://api-docs.deepseek.com/news/news260813/",
+  "capturedAt": "2026-08-23T10:52:02.160Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 1381,
+  "markdownSha256": "7592b93631b3b719425e44635e48b479de5eda4525ff376ce8a05bd4cfe15776",
+  "error": null,
+  "sourceMetadata": {
+    "title": "DeepSeek-V4-Pro GA Release | DeepSeek API Docs",
+    "description": "We’re launching DeepSeek-V4-Pro today! 🚀",
+    "language": "en",
+    "sourceURL": "https://api-docs.deepseek.com/news/news260813/",
+    "url": "https://api-docs.deepseek.com/news/news260813/",
+    "statusCode": 200,
+    "contentType": "text/html",
+    "ogTitle": "DeepSeek-V4-Pro GA Release | DeepSeek API Docs",
+    "ogDescription": "We’re launching DeepSeek-V4-Pro today! 🚀"
+  }
+}

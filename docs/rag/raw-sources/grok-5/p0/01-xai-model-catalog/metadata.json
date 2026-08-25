@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Grok 5",
+  "modelReviewStatus": "HOLD",
+  "priority": "P0",
+  "sourceId": "01-xai-model-catalog",
+  "label": "xAI model catalog",
+  "requestedUrl": "https://docs.x.ai/docs/models",
+  "finalUrl": "https://docs.x.ai/docs/models",
+  "capturedAt": "2026-08-23T10:53:25.464Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 4669,
+  "markdownSha256": "ce12727fe9c81660ab1a1b0b3ad76ae650f142bd687c6f08f7ba97a1f6eab0f4",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Grok Models & Pricing | SpaceXAI Docs",
+    "description": "Compare all current Grok models: capabilities, context windows, and per-token API pricing for text, image, video, and voice.",
+    "language": "en",
+    "sourceURL": "https://docs.x.ai/docs/models",
+    "url": "https://docs.x.ai/developers/models",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Grok Models & Pricing | SpaceXAI Docs",
+    "ogDescription": "Compare all current Grok models: capabilities, context windows, and per-token API pricing for text, image, video, and voice."
+  }
+}

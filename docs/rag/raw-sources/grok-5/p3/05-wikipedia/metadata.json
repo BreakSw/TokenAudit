@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "model": "Grok 5",
+  "modelReviewStatus": "HOLD",
+  "priority": "P3",
+  "sourceId": "05-wikipedia",
+  "label": "Grok · Wikipedia",
+  "requestedUrl": "https://en.wikipedia.org/wiki/Grok_(chatbot)",
+  "finalUrl": "https://en.wikipedia.org/wiki/Grok_(chatbot)",
+  "capturedAt": "2026-08-23T10:53:58.968Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 256596,
+  "markdownSha256": "311d83899e23e37ce5cc9338b0d10787dcba295ff76ab0afbc9cb163d8ee9a6a",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Grok (chatbot) - Wikipedia",
+    "description": "Grok is a series of generative large language models developed by SpaceXAI. It was launched in November 2023 by Elon Musk as an initiative based on the large language model (LLM) of the same name. Grok has apps for iOS and Android and is integrated with the X social network and Tesla's Optimus robot where it has chatbot functionality. Grok is named after the verb to grok, created by the American science fiction author Robert A. Heinlein to convey a form of deep, intuitive understanding. SpaceXAI has released several Grok models. Grok-1 was open-sourced in 2024, followed by Grok-2, Grok 3, and Grok 4 model families, with Grok 4.5 released in 2026. Different versions added capabilities including image generation, web search, \"Think\" mode to simulate reasoning,, agentic coding tool called Grok Build, and AI teammates called Grok Bot. Musk admitted in 2026 that Grok was partially distilled from OpenAI's GPT models. Starting with Grok 4.5, the models are co-developed with incoming SpaceXAI subsidiary Cursor. The bot has received criticism for promoting conspiracy theories, praising Adolf Hitler, using antisemitic tropes, and creating nonconsensual, sexualized images of undressed women and children. Grok generates articles for the encyclopedia website Grokipedia, launched in October 2025 by Musk as an alternative to Wikipedia, which he described as \"woke\" and politically biased.",
+    "language": [
+      "en",
+      "en"
+    ],
+    "sourceURL": "https://en.wikipedia.org/wiki/Grok_(chatbot)",
+    "url": "https://en.wikipedia.org/wiki/Grok_(chatbot)",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Grok (chatbot)",
+    "ogDescription": "Grok is a series of generative large language models developed by SpaceXAI. It was launched in November 2023 by Elon Musk as an initiative based on the large language model (LLM) of the same name. Grok has apps for iOS and Android and is integrated with the X social network and Tesla's Optimus robot where it has chatbot functionality. Grok is named after the verb to grok, created by the American science fiction author Robert A. Heinlein to convey a form of deep, intuitive understanding. SpaceXAI has released several Grok models. Grok-1 was open-sourced in 2024, followed by Grok-2, Grok 3, and Grok 4 model families, with Grok 4.5 released in 2026. Different versions added capabilities including image generation, web search, \"Think\" mode to simulate reasoning,, agentic coding tool called Grok Build, and AI teammates called Grok Bot. Musk admitted in 2026 that Grok was partially distilled from OpenAI's GPT models. Starting with Grok 4.5, the models are co-developed with incoming SpaceXAI subsidiary Cursor. The bot has received criticism for promoting conspiracy theories, praising Adolf Hitler, using antisemitic tropes, and creating nonconsensual, sexualized images of undressed women and children. Grok generates articles for the encyclopedia website Grokipedia, launched in October 2025 by Musk as an alternative to Wikipedia, which he described as \"woke\" and politically biased."
+  }
+}

@@ -1,0 +1,3 @@
+# TokenAudit complete Python environment
+-r audit-core/requirements.txt
+-r knowledge-service/requirements.txt

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "model": "Qwen3-Max",
+  "modelReviewStatus": "CONDITIONAL",
+  "priority": "P1",
+  "sourceId": "03-qwen3-announcement",
+  "label": "Qwen3 official announcement",
+  "requestedUrl": "https://qwen.ai/blog?id=qwen3",
+  "finalUrl": "https://qwen.ai/blog?id=qwen3",
+  "capturedAt": "2026-08-23T10:55:28.552Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 19036,
+  "markdownSha256": "eb9ccfab2ef0e4d3a22c5f3a12912d79712387bc8eb9c732533f9dae90fe51fa",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Qwen",
+    "description": "Qwen Studio offers comprehensive functionality spanning chatbot, image and video understanding, image generation, document processing, web search integration, tool utilization, and artifacts.",
+    "sourceURL": "https://qwen.ai/blog?id=qwen3",
+    "url": "https://qwen.ai/blog?id=qwen3",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Qwen Studio"
+  }
+}

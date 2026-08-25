@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Terra",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P1",
+  "sourceId": "03-openai-price-performance",
+  "label": "Advancing the price-performance frontier with GPT-5.6",
+  "requestedUrl": "https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6/",
+  "finalUrl": "https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6/",
+  "capturedAt": "2026-08-23T10:48:21.576Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 10054,
+  "markdownSha256": "363cde2f96147d2c69188c31f034e7730c2dcad57ccff18e6ab290d31ab1c611",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Advancing the price-performance frontier with GPT-5.6 | OpenAI",
+    "description": "Explore lower GPT‑5.6 pricing for Luna and Terra—and how OpenAI’s more efficient models help enterprises deploy AI workflows at scale.",
+    "language": "en-US",
+    "sourceURL": "https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6/",
+    "url": "https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6/",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Advancing the price-performance frontier with GPT-5.6",
+    "ogDescription": "Explore lower GPT‑5.6 pricing for Luna and Terra—and how OpenAI’s more efficient models help enterprises deploy AI workflows at scale."
+  }
+}

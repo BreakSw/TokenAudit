@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Terra",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P3",
+  "sourceId": "05-openai-community",
+  "label": "Sol vs Terra developer discussion · OpenAI Community",
+  "requestedUrl": "https://community.openai.com/t/gpt-5-6-sol-vs-terra-what-are-you-seeing-in-real-development-during-these-first-days/1386726/6",
+  "finalUrl": "https://community.openai.com/t/gpt-5-6-sol-vs-terra-what-are-you-seeing-in-real-development-during-these-first-days/1386726/6",
+  "capturedAt": "2026-08-23T10:48:23.060Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 16402,
+  "markdownSha256": "895d19ac8fcff08d93e18b7cd45b0c11a45b3213a79b1b871b91222446354149",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GPT-5.6 Sol vs Terra: what are you seeing in real development during these first days? - Codex / Codex CLI - OpenAI Developer Community",
+    "description": "Hi everyone, \nI have just completed my first serious real-world experiment with GPT-5.6 Sol and GPT-5.6 Terra, and I would be very interested to compare results with other developers. \nToday I spent around eight hours wo…",
+    "language": "en",
+    "sourceURL": "https://community.openai.com/t/gpt-5-6-sol-vs-terra-what-are-you-seeing-in-real-development-during-these-first-days/1386726/6",
+    "url": "https://community.openai.com/t/gpt-5-6-sol-vs-terra-what-are-you-seeing-in-real-development-during-these-first-days/1386726/6",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "publishedTime": "2026-07-13T20:26:31+00:00",
+    "ogTitle": "GPT-5.6 Sol vs Terra: what are you seeing in real development during these first days? - Codex / Codex CLI - OpenAI Developer Community",
+    "ogDescription": "Thanks, Tobias — your explanation makes a lot of sense, especially the distinction between the $20 tier being suitable for smaller or limited-complexity projects and Pro becoming necessary once the application grows into something much larger.  My situation is slightly different because I have been deliberately comparing several systems in parallel rather than using only one provider.  Over the last few weeks, before GPT-5.6 appeared, I was working almost exclusively with the highest GPT-5.5 con..."
+  }
+}

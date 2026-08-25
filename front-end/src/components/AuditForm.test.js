@@ -4,7 +4,7 @@ import { createMemoryHistory, createRouter } from "vue-router"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import AuditForm from "./AuditForm.vue"
-import { cancelAudit, getAudit, getAuditAiConfig, listAuditEvents, listAudits, listTokens, startAudit } from "../request/api"
+import { cancelAudit, getAudit, getAuditAiConfig, listAuditEvents, listAudits, listTokens, startAudit, startDeepAudit } from "../request/api"
 
 const wrappers = []
 
@@ -25,14 +25,16 @@ vi.mock("../request/api", () => ({
   listAuditEvents: vi.fn(),
   listAudits: vi.fn(),
   listTokens: vi.fn(),
-  startAudit: vi.fn()
+  startAudit: vi.fn(),
+  startDeepAudit: vi.fn()
 }))
 
-async function mountAuditForm(provide = {}) {
+async function mountAuditForm(provide = {}, props = {}) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
       { path: "/audit", component: AuditForm },
+      { path: "/audit/deep", component: AuditForm },
       { path: "/tokens", component: { template: "<div />" } },
       { path: "/history", component: { template: "<div />" } },
       { path: "/report/:id", component: { template: "<div />" } }
@@ -42,6 +44,7 @@ async function mountAuditForm(provide = {}) {
   await router.isReady()
   const wrapper = mount(AuditForm, {
     attachTo: document.body,
+    props,
     global: {
       plugins: [router, ElementPlus],
       provide,
@@ -384,7 +387,7 @@ describe("AuditForm terminal display clearing", () => {
     const wrapper = await mountAuditForm()
     await flushPromises()
     await buttonWithText(wrapper, "清空显示").trigger("click")
-    await buttonWithText(wrapper, "开始审计").trigger("click")
+    await buttonWithText(wrapper, "开始快速审计").trigger("click")
     await flushPromises()
 
     const visibleRows = wrapper.findAll('[data-testid="terminal-event"]')
@@ -437,7 +440,7 @@ describe("AuditForm token loading states", () => {
     await flushPromises()
     await buttonWithText(wrapper, "刷新 Token").trigger("click")
     await flushPromises()
-    await buttonWithText(wrapper, "开始审计").trigger("click")
+    await buttonWithText(wrapper, "开始快速审计").trigger("click")
     await flushPromises()
 
     expect(startAudit).toHaveBeenCalledWith(expect.objectContaining({ tokenId: 8 }))
@@ -452,7 +455,7 @@ describe("AuditForm token loading states", () => {
     await flushPromises()
     await buttonWithText(wrapper, "刷新 Token").trigger("click")
     await flushPromises()
-    await buttonWithText(wrapper, "开始审计").trigger("click")
+    await buttonWithText(wrapper, "开始快速审计").trigger("click")
     await flushPromises()
 
     expect(startAudit).not.toHaveBeenCalled()
@@ -467,9 +470,9 @@ describe("AuditForm submit lifecycle", () => {
 
     const wrapper = await mountAuditForm()
     await flushPromises()
-    await buttonWithText(wrapper, "开始审计").trigger("click")
+    await buttonWithText(wrapper, "开始快速审计").trigger("click")
     await flushPromises()
-    await buttonWithText(wrapper, "并行新建审计").trigger("click")
+    await buttonWithText(wrapper, "并行新建快速审计").trigger("click")
     await flushPromises()
 
     expect(startAudit).toHaveBeenCalledTimes(2)
@@ -489,7 +492,7 @@ describe("AuditForm submit lifecycle", () => {
 
     const wrapper = await mountAuditForm()
     await flushPromises()
-    await buttonWithText(wrapper, "开始审计").trigger("click")
+    await buttonWithText(wrapper, "开始快速审计").trigger("click")
     await flushPromises()
     await buttonWithText(wrapper, "终止审计").trigger("click")
     await flushPromises()
@@ -507,7 +510,7 @@ describe("AuditForm submit lifecycle", () => {
 
     const wrapper = await mountAuditForm()
     await flushPromises()
-    await buttonWithText(wrapper, "开始审计").trigger("click")
+    await buttonWithText(wrapper, "开始快速审计").trigger("click")
     wrapper.unmount()
     submitResponse.reject(new Error("late submit failure"))
     await flushPromises()
@@ -522,9 +525,9 @@ describe("AuditForm presentation", () => {
     await flushPromises()
 
     expect(wrapper.findAll('[data-testid="audit-major-section"]')).toHaveLength(4)
-    expect(wrapper.get('[data-testid="audit-heading"]').text()).toContain("实时审计工作流")
+    expect(wrapper.get('[data-testid="audit-heading"]').text()).toContain("快速审计工作流")
     expect(wrapper.get('[data-testid="audit-configuration"]').text()).toContain("Token 与导出配置")
-    expect(wrapper.get('[data-testid="audit-pipeline"]').text()).toContain("七阶段审计管线")
+    expect(wrapper.get('[data-testid="audit-pipeline"]').text()).toContain("七阶段快速审计管线")
     expect(wrapper.get('[data-testid="audit-terminal"]').text()).toContain("实时事件终端")
 
     const stages = wrapper.findAll('[data-testid="audit-stage"]')
@@ -542,6 +545,27 @@ describe("AuditForm presentation", () => {
     )
     expect(wrapper.text()).toContain("六个审计维度 + 综合判定")
     expect(wrapper.text()).not.toContain("新手教程")
+  })
+
+  it("renders the deep workspace and starts through the deep compatibility API", async () => {
+    vi.mocked(startDeepAudit).mockResolvedValue({ auditId: 88, auditMode: "deep" })
+    const wrapper = await mountAuditForm({}, { mode: "deep" })
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid="audit-heading"]').text()).toContain("深度审计工作流")
+    expect(wrapper.get('[data-testid="deep-engine-notice"]').text()).toContain("动态出题")
+    expect(wrapper.get('[data-testid="audit-pipeline"]').text()).toContain("深度审计兼容管线")
+
+    await buttonWithText(wrapper, "开始深度审计").trigger("click")
+    await flushPromises()
+
+    expect(startDeepAudit).toHaveBeenCalledWith(expect.objectContaining({ tokenId: 7 }))
+    expect(startDeepAudit).toHaveBeenCalledWith(expect.objectContaining({
+      auditRounds: 2,
+      adaptiveEarlyStop: false
+    }))
+    expect(startAudit).not.toHaveBeenCalled()
+    expect(localStorage.getItem("lastDeepAuditId")).toBe("88")
   })
 
   it("renders schema-accurate event details, list semantics, parseable time, and falsy payload values", async () => {
@@ -591,6 +615,118 @@ describe("AuditForm presentation", () => {
     expect(startRow.text()).toContain("prompt-injection")
     expect(rows[0].text()).toContain("安全性")
   })
+
+  it("renders deep facts with questions, answers, budgets, retries, and judge scores", async () => {
+    localStorage.setItem("lastDeepAuditId", "91")
+    vi.mocked(listAuditEvents).mockResolvedValue([
+      {
+        id: 1,
+        ts: "2026-08-25T10:00:00.000Z",
+        event: "deep_target_call_start",
+        payload: {
+          round: 1,
+          probe_group_id: "r1-p1",
+          variant_id: "r1-p1-v1",
+          max_tokens: 32000,
+          prompt_preview: "这是测试问题"
+        }
+      },
+      {
+        id: 2,
+        ts: "2026-08-25T10:00:01.000Z",
+        event: "deep_target_call_end",
+        payload: {
+          round: 1,
+          probe_group_id: "r1-p1",
+          variant_id: "r1-p1-v1",
+          ok: true,
+          status_code: 200,
+          elapsed_ms: 875,
+          response_chars: 321,
+          response_preview: "这是目标模型答案",
+          retry_count: 0
+        }
+      },
+      {
+        id: 3,
+        ts: "2026-08-25T10:00:02.000Z",
+        event: "deep_judges_completed",
+        payload: {
+          round: 1,
+          objective_score: 91,
+          semantic_score: 88,
+          ground_truth_alignment_score: 86,
+          behavior_score: 80,
+          consistency_score: 94
+        }
+      },
+      {
+        id: 4,
+        ts: "2026-08-25T10:00:03.000Z",
+        event: "deep_final_decision",
+        payload: { total_score: 87.5, band: "consistent", confidence: 0.82, valid_response_ratio: 1 }
+      }
+    ])
+
+    const wrapper = await mountAuditForm({}, { mode: "deep" })
+    await flushPromises()
+
+    expect(getAudit).toHaveBeenCalledWith(91)
+    expect(wrapper.text()).toContain("第 1 轮调用目标模型")
+    expect(wrapper.text()).toContain("这是测试问题")
+    expect(wrapper.text()).toContain("32000 tokens")
+    expect(wrapper.text()).toContain("这是目标模型答案")
+    expect(wrapper.text()).toContain("321 chars")
+    expect(wrapper.text()).toContain("并行裁判完成")
+    expect(wrapper.text()).toContain("SEMANTIC SCORE")
+    expect(wrapper.text()).toContain("最终判定：87.5 分")
+    expect(wrapper.text()).toContain("VALID RESPONSE RATIO")
+    expect(wrapper.findAll('[data-testid="audit-stage"]')[3].classes()).toContain("audit-stage--completed")
+  })
+
+  it("labels HTTP 402 as a budget failure and shows the automatic reduction", async () => {
+    localStorage.setItem("lastDeepAuditId", "92")
+    vi.mocked(listAuditEvents).mockResolvedValue([
+      {
+        id: 1,
+        ts: "2026-08-25T10:00:00.000Z",
+        event: "deep_target_call_retry",
+        payload: {
+          round: 1,
+          probe_group_id: "r1-p1",
+          variant_id: "r1-p1-v1",
+          reason: "insufficient_credits_reduce_budget",
+          previous_max_tokens: 32000,
+          max_tokens: 12480,
+          affordable_max_tokens: 13867
+        }
+      },
+      {
+        id: 2,
+        ts: "2026-08-25T10:00:01.000Z",
+        event: "deep_target_call_end",
+        payload: {
+          round: 1,
+          probe_group_id: "r1-p1",
+          variant_id: "r1-p1-v1",
+          ok: false,
+          status_code: 402,
+          elapsed_ms: 76,
+          response_chars: 0,
+          requested_max_tokens: 32000,
+          used_max_tokens: 12480
+        }
+      }
+    ])
+
+    const wrapper = await mountAuditForm({}, { mode: "deep" })
+    await flushPromises()
+
+    expect(wrapper.text()).toContain("HTTP 402")
+    expect(wrapper.text()).toContain("12480 tokens")
+    expect(wrapper.text()).toContain("13867 tokens")
+    expect(wrapper.text()).not.toContain("\u7b54\u6848\u65e0\u6548")
+  })
 })
 
 describe("AuditForm storage resilience", () => {
@@ -612,7 +748,7 @@ describe("AuditForm storage resilience", () => {
     const wrapper = await mountAuditForm()
     await flushPromises()
 
-    await buttonWithText(wrapper, "开始审计").trigger("click")
+    await buttonWithText(wrapper, "开始快速审计").trigger("click")
     await flushPromises()
     expect(wrapper.text()).toContain("审计 ID")
     expect(wrapper.text()).toContain("42")

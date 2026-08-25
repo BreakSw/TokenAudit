@@ -1,0 +1,17 @@
+# Vector database
+milvus-lite==3.2.0
+pymilvus==3.0.1
+
+# Configuration and HTTP APIs (Voyage embedding/rerank)
+python-dotenv==1.2.3
+requests==2.34.2
+
+# Document parsing, OCR and structured chunking
+unstructured[image,md]==0.25.2
+unstructured-inference==1.6.13
+
+# Exact deduplication pipeline
+llama-index-core==0.14.24
+
+# Test runner
+pytest==9.0.2

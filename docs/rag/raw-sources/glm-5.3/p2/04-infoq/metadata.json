@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "model": "GLM-5.3",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P2",
+  "sourceId": "04-infoq",
+  "label": "GLM-5.3 report · InfoQ",
+  "requestedUrl": "https://www.infoq.cn/article/xWyWwu4ZNptlhpb15tia",
+  "finalUrl": "https://www.infoq.cn/article/xWyWwu4ZNptlhpb15tia",
+  "capturedAt": "2026-08-23T10:54:37.022Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 5915,
+  "markdownSha256": "609bbe39610598a9572c224fc3c90df6191eb8627e22ac9d60f40d3d4cedb884",
+  "error": null,
+  "sourceMetadata": {
+    "title": "编程能力提高50%！GLM-5.3 满分通过了GPT-5.6给的Coding 测试 - InfoQ",
+    "description": "本次所有性能提升均来自后训练。",
+    "sourceURL": "https://www.infoq.cn/article/xWyWwu4ZNptlhpb15tia",
+    "url": "https://www.infoq.cn/article/xWyWwu4ZNptlhpb15tia",
+    "statusCode": 200,
+    "contentType": "text/html;charset=utf-8",
+    "ogTitle": "编程能力提高50%！GLM-5.3 满分通过了GPT-5.6给的Coding 测试",
+    "ogDescription": "本次所有性能提升均来自后训练。"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Terra",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P2",
+  "sourceId": "04-artificial-analysis",
+  "label": "GPT-5.6 Terra · Artificial Analysis",
+  "requestedUrl": "https://artificialanalysis.ai/models/gpt-5-6-terra",
+  "finalUrl": "https://artificialanalysis.ai/models/gpt-5-6-terra",
+  "capturedAt": "2026-08-23T10:48:22.182Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 21158,
+  "markdownSha256": "a2b199f604f7d2b2e490d732774fc152df4e3e752eca7a768ce0d3c60982b5b7",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GPT-5.6 Terra (max) - Intelligence, Performance & Price Analysis | Artificial Analysis",
+    "description": "Analysis of OpenAI's GPT-5.6 Terra (max) and comparison to other AI models across key metrics including quality, price, performance (tokens per second & time to first token), context window & more.",
+    "language": "en",
+    "sourceURL": "https://artificialanalysis.ai/models/gpt-5-6-terra",
+    "url": "https://artificialanalysis.ai/models/gpt-5-6-terra",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "GPT-5.6 Terra (max) - Intelligence, Performance & Price Analysis | Artificial Analysis",
+    "ogDescription": "Analysis of OpenAI's GPT-5.6 Terra (max) and comparison to other AI models across key metrics including quality, price, performance (tokens per second & time to first token), context window & more."
+  }
+}

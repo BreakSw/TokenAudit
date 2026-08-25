@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "model": "Grok 5",
+  "modelSlug": "grok-5",
+  "reviewStatus": "HOLD",
+  "sources": [
+    {
+      "id": "01-xai-model-catalog",
+      "priority": "P0",
+      "label": "xAI model catalog",
+      "url": "https://docs.x.ai/docs/models"
+    },
+    {
+      "id": "02-xai-grok",
+      "priority": "P0",
+      "label": "Grok · xAI",
+      "url": "https://x.ai/grok"
+    },
+    {
+      "id": "03-xai-grok-4-announcement",
+      "priority": "P1",
+      "label": "Grok 4 announcement · xAI",
+      "url": "https://x.ai/news/grok-4"
+    },
+    {
+      "id": "04-artificial-analysis-index",
+      "priority": "P2",
+      "label": "Artificial Analysis model index",
+      "url": "https://artificialanalysis.ai/models"
+    },
+    {
+      "id": "05-wikipedia",
+      "priority": "P3",
+      "label": "Grok · Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Grok_(chatbot)"
+    }
+  ]
+}

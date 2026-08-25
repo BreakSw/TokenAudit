@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Luna",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P0",
+  "sourceId": "02-openai-family-release",
+  "label": "GPT-5.6: Frontier intelligence",
+  "requestedUrl": "https://openai.com/index/gpt-5-6/",
+  "finalUrl": "https://openai.com/index/gpt-5-6/",
+  "capturedAt": "2026-08-23T10:48:29.727Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 38110,
+  "markdownSha256": "7dedee3be212cfc5e56f42994dfe4a3d896062ac80d854dd6bffbb6db87e1b13",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GPT-5.6: Frontier intelligence that scales with your ambition | OpenAI",
+    "description": "More intelligence from every token, stronger performance per dollar, and more capability on demand for your hardest work.",
+    "language": "en-US",
+    "sourceURL": "https://openai.com/index/gpt-5-6/",
+    "url": "https://openai.com/index/gpt-5-6/",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "GPT-5.6: Frontier intelligence that scales with your ambition",
+    "ogDescription": "More intelligence from every token, stronger performance per dollar, and more capability on demand for your hardest work."
+  }
+}

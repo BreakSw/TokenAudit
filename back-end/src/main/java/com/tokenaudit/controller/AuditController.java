@@ -5,6 +5,7 @@ import com.tokenaudit.dto.AuditStartRequest;
 import com.tokenaudit.service.AuditService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,17 @@ public class AuditController {
     @PostMapping
     public AuditResponse start(@Valid @RequestBody AuditStartRequest req) {
         return auditService.startAudit(req.getTokenId(), req.getExportFormats(), req.getAuditDimensions());
+    }
+
+    @PostMapping("/deep")
+    public AuditResponse startDeep(@Valid @RequestBody AuditStartRequest req) {
+        return auditService.startDeepAudit(
+                req.getTokenId(),
+                req.getExportFormats(),
+                req.getAuditDimensions(),
+                req.getAuditRounds(),
+                req.getAdaptiveEarlyStop()
+        );
     }
 
     @GetMapping("/{id}")
@@ -41,5 +53,11 @@ public class AuditController {
     @PostMapping("/{id}/cancel")
     public Map<String, Object> cancel(@PathVariable("id") Long id) {
         return auditService.cancelAudit(id);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("id") Long id) {
+        auditService.deleteAudit(id);
     }
 }

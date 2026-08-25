@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Fable 5",
+  "modelReviewStatus": "APPROVE",
+  "generatedAt": "2026-08-23T10:51:54.182Z",
+  "total": 5,
+  "accepted": 5,
+  "rejected": 0,
+  "results": [
+    {
+      "sourceId": "01-anthropic-fable",
+      "priority": "P0",
+      "requestedUrl": "https://www.anthropic.com/claude/fable",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 14860,
+      "directory": "p0/01-anthropic-fable",
+      "error": null
+    },
+    {
+      "sourceId": "02-claude-docs-introduction",
+      "priority": "P0",
+      "requestedUrl": "https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 9058,
+      "directory": "p0/02-claude-docs-introduction",
+      "error": null
+    },
+    {
+      "sourceId": "03-anthropic-research",
+      "priority": "P1",
+      "requestedUrl": "https://www.anthropic.com/research/claude-fable-5-mythos-5",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 33134,
+      "directory": "p1/03-anthropic-research",
+      "error": null
+    },
+    {
+      "sourceId": "04-artificial-analysis",
+      "priority": "P2",
+      "requestedUrl": "https://artificialanalysis.ai/models/claude-fable-5",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 24136,
+      "directory": "p2/04-artificial-analysis",
+      "error": null
+    },
+    {
+      "sourceId": "05-japan-ai",
+      "priority": "P3",
+      "requestedUrl": "https://japan-ai.co.jp/media/7250/",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 18307,
+      "directory": "p3/05-japan-ai",
+      "error": null
+    }
+  ]
+}

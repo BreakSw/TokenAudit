@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "model": "Kimi K3",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P3",
+  "sourceId": "05-openlm",
+  "label": "Kimi K3 · OpenLM.ai",
+  "requestedUrl": "https://openlm.ai/kimi-k3/",
+  "finalUrl": "https://openlm.ai/kimi-k3/",
+  "capturedAt": "2026-08-23T10:53:16.582Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 15491,
+  "markdownSha256": "94e39706df6e9146ff5b081262eae66f314854ae47f22fa7983a527cc6fc12f3",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Kimi K3 | OpenLM.ai",
+    "description": "Open Large Language Model",
+    "language": "en",
+    "sourceURL": "https://openlm.ai/kimi-k3/",
+    "url": "https://openlm.ai/kimi-k3/",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "publishedTime": "2026-07-16T00:00:00+00:00",
+    "modifiedTime": "2026-07-16T00:00:00+00:00",
+    "ogTitle": "Kimi K3",
+    "ogDescription": "We introduce Kimi K3 — our most capable model. Kimi K3 is a 2.8T-parameter model built on our Kimi Delta Attention and Attention Residuals, with native vision capabilities and a 1-million-token context window. It is the world’s first open 3T-class model, designed for frontier intelligence across long-horizon coding, knowledge work, and reasoning."
+  }
+}

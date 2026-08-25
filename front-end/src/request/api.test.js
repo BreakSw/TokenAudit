@@ -78,6 +78,25 @@ describe("API client defaults", () => {
     expect(result.claimedModel).toBe("vendor/new-model")
   })
 
+  it("updates a token API URL through the dedicated endpoint", async () => {
+    axiosMock.http.put.mockResolvedValueOnce({ data: { id: 9, tokenBaseUrl: "https://relay.example/v1" } })
+
+    const result = await api.updateTokenBaseUrl(9, "https://relay.example/v1")
+
+    expect(axiosMock.http.put).toHaveBeenCalledWith("/api/tokens/9/url", {
+      tokenBaseUrl: "https://relay.example/v1"
+    })
+    expect(result.tokenBaseUrl).toBe("https://relay.example/v1")
+  })
+
+  it("deletes an audit through its history endpoint", async () => {
+    axiosMock.http.delete.mockResolvedValueOnce({ status: 204 })
+
+    await api.deleteAudit(52)
+
+    expect(axiosMock.http.delete).toHaveBeenCalledWith("/api/audits/52")
+  })
+
   it("cancels a running audit through its task endpoint", async () => {
     axiosMock.http.post.mockResolvedValueOnce({ data: { id: 17, status: "cancelled" } })
 
@@ -85,5 +104,17 @@ describe("API client defaults", () => {
 
     expect(axiosMock.http.post).toHaveBeenCalledWith("/api/audits/17/cancel")
     expect(result.status).toBe("cancelled")
+  })
+
+  it("starts deep audit through its stable compatibility endpoint", async () => {
+    axiosMock.http.post.mockResolvedValueOnce({ data: { auditId: 23, auditMode: "deep" } })
+
+    const result = await api.startDeepAudit({ tokenId: 9, exportFormats: ["json"] })
+
+    expect(axiosMock.http.post).toHaveBeenCalledWith("/api/audits/deep", {
+      tokenId: 9,
+      exportFormats: ["json"]
+    })
+    expect(result.auditMode).toBe("deep")
   })
 })

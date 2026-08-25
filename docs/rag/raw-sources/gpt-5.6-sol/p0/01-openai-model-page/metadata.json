@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Sol",
+  "priority": "P0",
+  "sourceId": "01-openai-model-page",
+  "label": "GPT-5.6 Sol Model · OpenAI API",
+  "requestedUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
+  "finalUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
+  "capturedAt": "2026-08-23T10:34:01.316Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 6309,
+  "markdownSha256": "893f87cef02d6f81c559e3b8fee13b44d58f7c38590d0d8a57c4fdb258720a69",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GPT-5.6 Sol Model | OpenAI API",
+    "language": "en",
+    "sourceURL": "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
+    "url": "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
+    "statusCode": 200,
+    "contentType": "text/html",
+    "ogTitle": "GPT-5.6 Sol Model | OpenAI API"
+  }
+}

@@ -1,0 +1,356 @@
+{
+  "attribute_recall_at_5": 6,
+  "checks": {
+    "all_query_dimensions_match": true,
+    "attribute_recall_at_5": 1.0,
+    "no_duplicate_hashes": true,
+    "no_quarantined_rows": true,
+    "row_count_matches": true,
+    "semantic_top1_accuracy": 1.0,
+    "top1_accuracy": 0.16666666666666666
+  },
+  "collection": "tokenaudit_knowledge_v2",
+  "duplicate_content_hashes": [],
+  "expected_row_count": 22,
+  "invalid_rows": [],
+  "milvus_uri": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\data\\milvus\\tokenaudit.db",
+  "query_count": 6,
+  "remaining_risks": [
+    "Official benchmark tables remain image-derived and are quarantined until OCR/manual verification.",
+    "voyage-code-3 is code-oriented; multilingual audit queries need a wider retrieval evaluation before production.",
+    "Milvus currently contains only Fable 5, so cross-model contrast distributions are not yet available.",
+    "Fallback behavior must always be filtered by surface and configuration during scoring."
+  ],
+  "reviewed_at": "2026-08-24T08:12:59.141599+00:00",
+  "row_count": 22,
+  "schema_version": 1,
+  "search_results": [
+    {
+      "acceptable_semantic_top_ids": [
+        "attr-fable5-refusal-protocol",
+        "fable5-refusal-protocol"
+      ],
+      "expected_attribute_rank": 2,
+      "expected_top_id": "attr-fable5-refusal-protocol",
+      "hits": [
+        {
+          "claim_type": "api_behavior",
+          "distance": 0.788287,
+          "id": "fable5-refusal-protocol",
+          "rank": 1,
+          "record_type": "claim",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "api_behavior",
+          "distance": 0.731148,
+          "id": "attr-fable5-refusal-protocol",
+          "rank": 2,
+          "record_type": "attribute",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "evidence",
+          "distance": 0.652903,
+          "id": "chunk-cdbb2a66abf8dad99c9b",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "fallback_behavior",
+          "distance": 0.642869,
+          "id": "fable5-opus-fallback",
+          "rank": 4,
+          "record_type": "claim",
+          "source_id": "03-anthropic-research"
+        },
+        {
+          "claim_type": "fallback_behavior",
+          "distance": 0.599547,
+          "id": "fable5-fallback-modes",
+          "rank": 5,
+          "record_type": "claim",
+          "source_id": "02-claude-docs-introduction"
+        }
+      ],
+      "query": "安全分类器触发时 Claude Fable 5 API 返回什么状态码和 stop_reason？",
+      "query_vector_dimension": 1024,
+      "query_vector_norm": 1.0,
+      "semantic_top1_match": true
+    },
+    {
+      "acceptable_semantic_top_ids": [
+        "attr-fable5-adaptive-thinking",
+        "fable5-adaptive-thinking"
+      ],
+      "expected_attribute_rank": 3,
+      "expected_top_id": "attr-fable5-adaptive-thinking",
+      "hits": [
+        {
+          "claim_type": "reasoning_behavior",
+          "distance": 0.788299,
+          "id": "fable5-adaptive-thinking",
+          "rank": 1,
+          "record_type": "claim",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "evidence",
+          "distance": 0.743502,
+          "id": "chunk-bc4a6aec7cb05ecb21f6",
+          "rank": 2,
+          "record_type": "evidence_chunk",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "reasoning_behavior",
+          "distance": 0.71991,
+          "id": "attr-fable5-adaptive-thinking",
+          "rank": 3,
+          "record_type": "attribute",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "reasoning_behavior",
+          "distance": 0.704153,
+          "id": "fable5-thinking-visibility",
+          "rank": 4,
+          "record_type": "claim",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "reasoning_behavior",
+          "distance": 0.672604,
+          "id": "attr-fable5-thinking-visibility",
+          "rank": 5,
+          "record_type": "attribute",
+          "source_id": "02-claude-docs-introduction"
+        }
+      ],
+      "query": "Claude Fable 5 能否关闭思考，应该怎样控制推理深度？",
+      "query_vector_dimension": 1024,
+      "query_vector_norm": 1.0,
+      "semantic_top1_match": true
+    },
+    {
+      "acceptable_semantic_top_ids": [
+        "attr-fable5-thinking-visibility",
+        "fable5-thinking-visibility"
+      ],
+      "expected_attribute_rank": 3,
+      "expected_top_id": "attr-fable5-thinking-visibility",
+      "hits": [
+        {
+          "claim_type": "reasoning_behavior",
+          "distance": 0.763097,
+          "id": "fable5-thinking-visibility",
+          "rank": 1,
+          "record_type": "claim",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "evidence",
+          "distance": 0.689103,
+          "id": "chunk-bc4a6aec7cb05ecb21f6",
+          "rank": 2,
+          "record_type": "evidence_chunk",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "reasoning_behavior",
+          "distance": 0.665915,
+          "id": "attr-fable5-thinking-visibility",
+          "rank": 3,
+          "record_type": "attribute",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "reasoning_behavior",
+          "distance": 0.644091,
+          "id": "fable5-adaptive-thinking",
+          "rank": 4,
+          "record_type": "claim",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "supported_feature",
+          "distance": 0.604827,
+          "id": "fable5-supported-features",
+          "rank": 5,
+          "record_type": "claim",
+          "source_id": "02-claude-docs-introduction"
+        }
+      ],
+      "query": "Claude Fable 5 会不会返回原始思维链？",
+      "query_vector_dimension": 1024,
+      "query_vector_norm": 1.0,
+      "semantic_top1_match": true
+    },
+    {
+      "acceptable_semantic_top_ids": [
+        "attr-fable5-fallback-disambiguation",
+        "fable5-fallback-modes",
+        "fable5-opus-fallback"
+      ],
+      "expected_attribute_rank": 1,
+      "expected_top_id": "attr-fable5-fallback-disambiguation",
+      "hits": [
+        {
+          "claim_type": "fallback_behavior",
+          "distance": 0.581902,
+          "id": "attr-fable5-fallback-disambiguation",
+          "rank": 1,
+          "record_type": "attribute",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "fallback_behavior",
+          "distance": 0.559475,
+          "id": "fable5-opus-fallback",
+          "rank": 2,
+          "record_type": "claim",
+          "source_id": "03-anthropic-research"
+        },
+        {
+          "claim_type": "evidence",
+          "distance": 0.51683,
+          "id": "chunk-d806e35ecd3cbd6b94d0",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "source_id": "03-anthropic-research"
+        },
+        {
+          "claim_type": "fallback_behavior",
+          "distance": 0.503631,
+          "id": "fable5-fallback-modes",
+          "rank": 4,
+          "record_type": "claim",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "model_identity",
+          "distance": 0.485609,
+          "id": "fable5-model-id",
+          "rank": 5,
+          "record_type": "claim",
+          "source_id": "02-claude-docs-introduction"
+        }
+      ],
+      "query": "如何区分 Fable 5 官方回退到 Opus 4.8 与中转站偷偷换模型？",
+      "query_vector_dimension": 1024,
+      "query_vector_norm": 1.0,
+      "semantic_top1_match": true
+    },
+    {
+      "acceptable_semantic_top_ids": [
+        "attr-fable5-tools",
+        "fable5-supported-features"
+      ],
+      "expected_attribute_rank": 3,
+      "expected_top_id": "attr-fable5-tools",
+      "hits": [
+        {
+          "claim_type": "supported_feature",
+          "distance": 0.58259,
+          "id": "fable5-supported-features",
+          "rank": 1,
+          "record_type": "claim",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "evidence",
+          "distance": 0.580179,
+          "id": "chunk-53aa4b985031696e4194",
+          "rank": 2,
+          "record_type": "evidence_chunk",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "supported_feature",
+          "distance": 0.555461,
+          "id": "attr-fable5-tools",
+          "rank": 3,
+          "record_type": "attribute",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "evidence",
+          "distance": 0.500861,
+          "id": "chunk-d806e35ecd3cbd6b94d0",
+          "rank": 4,
+          "record_type": "evidence_chunk",
+          "source_id": "03-anthropic-research"
+        },
+        {
+          "claim_type": "evidence",
+          "distance": 0.482339,
+          "id": "chunk-603358d613d2ddb9d97c",
+          "rank": 5,
+          "record_type": "evidence_chunk",
+          "source_id": "02-claude-docs-introduction"
+        }
+      ],
+      "query": "Fable 5 支持哪些复杂工具和 Agent 能力？",
+      "query_vector_dimension": 1024,
+      "query_vector_norm": 1.0,
+      "semantic_top1_match": true
+    },
+    {
+      "acceptable_semantic_top_ids": [
+        "attr-fable5-context-output",
+        "fable5-context-output"
+      ],
+      "expected_attribute_rank": 4,
+      "expected_top_id": "attr-fable5-context-output",
+      "hits": [
+        {
+          "claim_type": "hard_limit",
+          "distance": 0.644705,
+          "id": "fable5-context-output",
+          "rank": 1,
+          "record_type": "claim",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "evidence",
+          "distance": 0.637576,
+          "id": "chunk-bf3c509cd3a87ec85df4",
+          "rank": 2,
+          "record_type": "evidence_chunk",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "supported_feature",
+          "distance": 0.556761,
+          "id": "fable5-supported-features",
+          "rank": 3,
+          "record_type": "claim",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "hard_limit",
+          "distance": 0.556567,
+          "id": "attr-fable5-context-output",
+          "rank": 4,
+          "record_type": "attribute",
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "claim_type": "evidence",
+          "distance": 0.549627,
+          "id": "chunk-53aa4b985031696e4194",
+          "rank": 5,
+          "record_type": "evidence_chunk",
+          "source_id": "02-claude-docs-introduction"
+        }
+      ],
+      "query": "Fable 5 的上下文窗口和最大输出 Token 是多少？",
+      "query_vector_dimension": 1024,
+      "query_vector_norm": 1.0,
+      "semantic_top1_match": true
+    }
+  ],
+  "semantic_top1_matches": 6,
+  "top1_matches": 1
+}

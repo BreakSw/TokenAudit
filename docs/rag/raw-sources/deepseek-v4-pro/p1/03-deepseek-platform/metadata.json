@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "DeepSeek-V4-Pro",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P1",
+  "sourceId": "03-deepseek-platform",
+  "label": "DeepSeek Platform",
+  "requestedUrl": "https://platform.deepseek.com/",
+  "finalUrl": "https://platform.deepseek.com/",
+  "capturedAt": "2026-08-23T10:52:09.743Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 1189,
+  "markdownSha256": "e01f57f3016bd6f89311ec1cad9e3af084eb1862c34403ba529089433ad31b8d",
+  "error": null,
+  "sourceMetadata": {
+    "title": "DeepSeek Platform",
+    "description": "Join DeepSeek API platform to access our AI models, developer resources and API documentation.",
+    "language": "en-US",
+    "sourceURL": "https://platform.deepseek.com/",
+    "url": "https://platform.deepseek.com/sign_in",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "DeepSeek Platform",
+    "ogDescription": "Join DeepSeek API platform to access our AI models, developer resources and API documentation."
+  }
+}

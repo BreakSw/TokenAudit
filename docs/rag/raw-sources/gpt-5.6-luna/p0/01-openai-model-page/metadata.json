@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Luna",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P0",
+  "sourceId": "01-openai-model-page",
+  "label": "GPT-5.6 Luna Model · OpenAI API",
+  "requestedUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
+  "finalUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
+  "capturedAt": "2026-08-23T10:48:28.152Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 6065,
+  "markdownSha256": "999c2fd07730876194917bb7b8720d4a174161e603de5118f919d7e112eb8d98",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GPT-5.6 Luna Model | OpenAI API",
+    "language": "en",
+    "sourceURL": "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
+    "url": "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
+    "statusCode": 200,
+    "contentType": "text/html",
+    "ogTitle": "GPT-5.6 Luna Model | OpenAI API"
+  }
+}

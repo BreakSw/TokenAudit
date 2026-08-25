@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "model": "DeepSeek-V4-Pro",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P3",
+  "sourceId": "05-ai-release-tracker",
+  "label": "DeepSeek-V4-Pro · AI Release Tracker",
+  "requestedUrl": "https://aireleasetracker.com/model/deepseek/deepseek-v4-pro",
+  "finalUrl": "https://aireleasetracker.com/model/deepseek/deepseek-v4-pro",
+  "capturedAt": "2026-08-23T10:52:26.449Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 10221,
+  "markdownSha256": "1900bf25b983f6474fcddbec1afcc03be88ecb31de9053ca6452e3368d762b30",
+  "error": null,
+  "sourceMetadata": {
+    "title": "DeepSeek-V4-Pro — Benchmarks, Specs & Release Date",
+    "description": "DeepSeek-V4-Pro released by DeepSeek on Apr 24 2026. GPQA Diamond: 90.1%. Complete specifications, benchmark scores, and release timeline on AI Release Tracker.",
+    "language": "en",
+    "sourceURL": "https://aireleasetracker.com/model/deepseek/deepseek-v4-pro",
+    "url": "https://aireleasetracker.com/model/deepseek/deepseek-v4-pro",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "publishedTime": "2026-04-24T00:00:00.000Z",
+    "author": "AI Release Tracker",
+    "ogTitle": "DeepSeek-V4-Pro — Benchmarks, Specs & Release Date",
+    "ogDescription": "DeepSeek-V4-Pro released by DeepSeek on Apr 24 2026. GPQA Diamond: 90.1%. Complete specifications, benchmark scores, and release timeline on AI Release Tracker."
+  }
+}

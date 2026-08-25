@@ -1,0 +1,3277 @@
+{
+  "cases": [
+    {
+      "acceptable_ids": [
+        "attr-fable5-fallback-disambiguation",
+        "fable5-fallback-modes",
+        "fable5-opus-fallback"
+      ],
+      "expected_attribute_id": "attr-fable5-fallback-disambiguation",
+      "expected_attribute_rank": 1,
+      "model_id": "claude-fable-5",
+      "name": "claude-fable-5-fallback",
+      "query": "How can an audit distinguish Claude Fable 5's official Opus fallback from an unauthorized relay model substitution?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 0.9674679834891693,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-fable5-fallback-disambiguation",
+          "model_id": "claude-fable-5",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.738281,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 1,
+          "vector_score": 0.599056
+        },
+        {
+          "id": "fable5-opus-fallback",
+          "model_id": "claude-fable-5",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.648438,
+          "source_id": "03-anthropic-research",
+          "vector_rank": 2,
+          "vector_score": 0.59219
+        },
+        {
+          "id": "chunk-d806e35ecd3cbd6b94d0",
+          "model_id": "claude-fable-5",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.546875,
+          "source_id": "03-anthropic-research",
+          "vector_rank": 8,
+          "vector_score": 0.541053
+        },
+        {
+          "id": "fable5-fallback-modes",
+          "model_id": "claude-fable-5",
+          "rank": 4,
+          "record_type": "claim",
+          "rerank_score": 0.519531,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 3,
+          "vector_score": 0.568106
+        },
+        {
+          "id": "attr-fable5-refusal-protocol",
+          "model_id": "claude-fable-5",
+          "rank": 5,
+          "record_type": "attribute",
+          "rerank_score": 0.478516,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 5,
+          "vector_score": 0.548835
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-fable5-fallback-disambiguation",
+          "model_id": "claude-fable-5",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.599056,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "fable5-opus-fallback",
+          "model_id": "claude-fable-5",
+          "rank": 2,
+          "record_type": "claim",
+          "score": 0.59219,
+          "source_id": "03-anthropic-research"
+        },
+        {
+          "id": "fable5-fallback-modes",
+          "model_id": "claude-fable-5",
+          "rank": 3,
+          "record_type": "claim",
+          "score": 0.568106,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "claude-opus-4.6-safety_behavior",
+          "model_id": "claude-opus-4.6",
+          "rank": 4,
+          "record_type": "claim",
+          "score": 0.56365,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "attr-fable5-refusal-protocol",
+          "model_id": "claude-fable-5",
+          "rank": 5,
+          "record_type": "attribute",
+          "score": 0.548835,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "claude-opus-4.6-modalities",
+          "model_id": "claude-opus-4.6",
+          "rank": 6,
+          "record_type": "claim",
+          "score": 0.546412,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "attr-claude-opus-4.6-safety_behavior",
+          "model_id": "claude-opus-4.6",
+          "rank": 7,
+          "record_type": "attribute",
+          "score": 0.545655,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "chunk-d806e35ecd3cbd6b94d0",
+          "model_id": "claude-fable-5",
+          "rank": 8,
+          "record_type": "evidence_chunk",
+          "score": 0.541053,
+          "source_id": "03-anthropic-research"
+        },
+        {
+          "id": "fable5-model-id",
+          "model_id": "claude-fable-5",
+          "rank": 9,
+          "record_type": "claim",
+          "score": 0.529068,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "fable5-refusal-protocol",
+          "model_id": "claude-fable-5",
+          "rank": 10,
+          "record_type": "claim",
+          "score": 0.528097,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "attr-claude-opus-4.6-modalities",
+          "model_id": "claude-opus-4.6",
+          "rank": 11,
+          "record_type": "attribute",
+          "score": 0.524681,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "chunk-150aa880156745e11be7",
+          "model_id": "claude-opus-4.6",
+          "rank": 12,
+          "record_type": "evidence_chunk",
+          "score": 0.518056,
+          "source_id": "01-anthropic-opus"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 1.0,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-fable5-adaptive-thinking",
+        "fable5-adaptive-thinking"
+      ],
+      "expected_attribute_id": "attr-fable5-adaptive-thinking",
+      "expected_attribute_rank": 2,
+      "model_id": "claude-fable-5",
+      "name": "claude-fable-5-reasoning",
+      "query": "Can Claude Fable 5 disable thinking, and which effort parameter controls its reasoning depth?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 1.0,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "fable5-adaptive-thinking",
+          "model_id": "claude-fable-5",
+          "rank": 1,
+          "record_type": "claim",
+          "rerank_score": 0.925781,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 1,
+          "vector_score": 0.693769
+        },
+        {
+          "id": "attr-fable5-adaptive-thinking",
+          "model_id": "claude-fable-5",
+          "rank": 2,
+          "record_type": "attribute",
+          "rerank_score": 0.910156,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 2,
+          "vector_score": 0.689179
+        },
+        {
+          "id": "chunk-bc4a6aec7cb05ecb21f6",
+          "model_id": "claude-fable-5",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.878906,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 3,
+          "vector_score": 0.673684
+        },
+        {
+          "id": "attr-fable5-thinking-visibility",
+          "model_id": "claude-fable-5",
+          "rank": 4,
+          "record_type": "attribute",
+          "rerank_score": 0.546875,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 4,
+          "vector_score": 0.599454
+        },
+        {
+          "id": "fable5-thinking-visibility",
+          "model_id": "claude-fable-5",
+          "rank": 5,
+          "record_type": "claim",
+          "rerank_score": 0.535156,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 5,
+          "vector_score": 0.593314
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "fable5-adaptive-thinking",
+          "model_id": "claude-fable-5",
+          "rank": 1,
+          "record_type": "claim",
+          "score": 0.693769,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "attr-fable5-adaptive-thinking",
+          "model_id": "claude-fable-5",
+          "rank": 2,
+          "record_type": "attribute",
+          "score": 0.689179,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "chunk-bc4a6aec7cb05ecb21f6",
+          "model_id": "claude-fable-5",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "score": 0.673684,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "attr-fable5-thinking-visibility",
+          "model_id": "claude-fable-5",
+          "rank": 4,
+          "record_type": "attribute",
+          "score": 0.599454,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "fable5-thinking-visibility",
+          "model_id": "claude-fable-5",
+          "rank": 5,
+          "record_type": "claim",
+          "score": 0.593314,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "attr-fable5-tools",
+          "model_id": "claude-fable-5",
+          "rank": 6,
+          "record_type": "attribute",
+          "score": 0.540576,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "chunk-53aa4b985031696e4194",
+          "model_id": "claude-fable-5",
+          "rank": 7,
+          "record_type": "evidence_chunk",
+          "score": 0.537198,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "attr-fable5-refusal-protocol",
+          "model_id": "claude-fable-5",
+          "rank": 8,
+          "record_type": "attribute",
+          "score": 0.526519,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "fable5-supported-features",
+          "model_id": "claude-fable-5",
+          "rank": 9,
+          "record_type": "claim",
+          "score": 0.52536,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "fable5-refusal-protocol",
+          "model_id": "claude-fable-5",
+          "rank": 10,
+          "record_type": "claim",
+          "score": 0.513718,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "attr-fable5-fallback-disambiguation",
+          "model_id": "claude-fable-5",
+          "rank": 11,
+          "record_type": "attribute",
+          "score": 0.507606,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "chunk-cdbb2a66abf8dad99c9b",
+          "model_id": "claude-fable-5",
+          "rank": 12,
+          "record_type": "evidence_chunk",
+          "score": 0.506647,
+          "source_id": "02-claude-docs-introduction"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 1.0,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-fable5-tools",
+        "fable5-supported-features"
+      ],
+      "expected_attribute_id": "attr-fable5-tools",
+      "expected_attribute_rank": 1,
+      "model_id": "claude-fable-5",
+      "name": "claude-fable-5-tools",
+      "query": "Which complex tool and agent capabilities distinguish Claude Fable 5?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 1.0,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-fable5-tools",
+          "model_id": "claude-fable-5",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.730469,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 1,
+          "vector_score": 0.670311
+        },
+        {
+          "id": "fable5-supported-features",
+          "model_id": "claude-fable-5",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.6875,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 3,
+          "vector_score": 0.640475
+        },
+        {
+          "id": "chunk-53aa4b985031696e4194",
+          "model_id": "claude-fable-5",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.660156,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 2,
+          "vector_score": 0.652086
+        },
+        {
+          "id": "chunk-603358d613d2ddb9d97c",
+          "model_id": "claude-fable-5",
+          "rank": 4,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.636719,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 4,
+          "vector_score": 0.589553
+        },
+        {
+          "id": "fable5-model-id",
+          "model_id": "claude-fable-5",
+          "rank": 5,
+          "record_type": "claim",
+          "rerank_score": 0.609375,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 5,
+          "vector_score": 0.587599
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-fable5-tools",
+          "model_id": "claude-fable-5",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.670311,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "chunk-53aa4b985031696e4194",
+          "model_id": "claude-fable-5",
+          "rank": 2,
+          "record_type": "evidence_chunk",
+          "score": 0.652086,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "fable5-supported-features",
+          "model_id": "claude-fable-5",
+          "rank": 3,
+          "record_type": "claim",
+          "score": 0.640475,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "chunk-603358d613d2ddb9d97c",
+          "model_id": "claude-fable-5",
+          "rank": 4,
+          "record_type": "evidence_chunk",
+          "score": 0.589553,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "fable5-model-id",
+          "model_id": "claude-fable-5",
+          "rank": 5,
+          "record_type": "claim",
+          "score": 0.587599,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "attr-claude-opus-4.6-tools_agents",
+          "model_id": "claude-opus-4.6",
+          "rank": 6,
+          "record_type": "attribute",
+          "score": 0.584231,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "claude-opus-4.6-tools_agents",
+          "model_id": "claude-opus-4.6",
+          "rank": 7,
+          "record_type": "claim",
+          "score": 0.580739,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "chunk-d806e35ecd3cbd6b94d0",
+          "model_id": "claude-fable-5",
+          "rank": 8,
+          "record_type": "evidence_chunk",
+          "score": 0.576473,
+          "source_id": "03-anthropic-research"
+        },
+        {
+          "id": "attr-fable5-adaptive-thinking",
+          "model_id": "claude-fable-5",
+          "rank": 9,
+          "record_type": "attribute",
+          "score": 0.56188,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "fable5-adaptive-thinking",
+          "model_id": "claude-fable-5",
+          "rank": 10,
+          "record_type": "claim",
+          "score": 0.561751,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "chunk-80b7dceee75455c528e3",
+          "model_id": "claude-opus-4.6",
+          "rank": 11,
+          "record_type": "evidence_chunk",
+          "score": 0.549822,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "attr-fable5-context-output",
+          "model_id": "claude-fable-5",
+          "rank": 12,
+          "record_type": "attribute",
+          "score": 0.541023,
+          "source_id": "02-claude-docs-introduction"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 0.9197207891481876,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-claude-opus-4.6-context_output",
+        "chunk-553c6ff9b110756fdd69",
+        "claude-opus-4.6-context_output"
+      ],
+      "expected_attribute_id": "attr-claude-opus-4.6-context_output",
+      "expected_attribute_rank": 1,
+      "model_id": "claude-opus-4.6",
+      "name": "claude-opus-4.6-context_output",
+      "query": "What context-window and maximum-output behavior should Claude Opus 4.6 exhibit?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 0.8529278650606567,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-claude-opus-4.6-context_output",
+          "model_id": "claude-opus-4.6",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.761719,
+          "source_id": "01-anthropic-opus",
+          "vector_rank": 1,
+          "vector_score": 0.69741
+        },
+        {
+          "id": "fable5-context-output",
+          "model_id": "claude-fable-5",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.722656,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 7,
+          "vector_score": 0.556646
+        },
+        {
+          "id": "attr-fable5-context-output",
+          "model_id": "claude-fable-5",
+          "rank": 3,
+          "record_type": "attribute",
+          "rerank_score": 0.683594,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 4,
+          "vector_score": 0.574463
+        },
+        {
+          "id": "claude-opus-4.6-context_output",
+          "model_id": "claude-opus-4.6",
+          "rank": 4,
+          "record_type": "claim",
+          "rerank_score": 0.632812,
+          "source_id": "01-anthropic-opus",
+          "vector_rank": 2,
+          "vector_score": 0.655206
+        },
+        {
+          "id": "chunk-553c6ff9b110756fdd69",
+          "model_id": "claude-opus-4.6",
+          "rank": 5,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.628906,
+          "source_id": "01-anthropic-opus",
+          "vector_rank": 3,
+          "vector_score": 0.633454
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-claude-opus-4.6-context_output",
+          "model_id": "claude-opus-4.6",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.69741,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "claude-opus-4.6-context_output",
+          "model_id": "claude-opus-4.6",
+          "rank": 2,
+          "record_type": "claim",
+          "score": 0.655206,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "chunk-553c6ff9b110756fdd69",
+          "model_id": "claude-opus-4.6",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "score": 0.633454,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "attr-fable5-context-output",
+          "model_id": "claude-fable-5",
+          "rank": 4,
+          "record_type": "attribute",
+          "score": 0.574463,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "chunk-e6e2c3da7c67a8fb37da",
+          "model_id": "claude-opus-4.6",
+          "rank": 5,
+          "record_type": "evidence_chunk",
+          "score": 0.564483,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "attr-claude-opus-4.6-performance",
+          "model_id": "claude-opus-4.6",
+          "rank": 6,
+          "record_type": "attribute",
+          "score": 0.558788,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "fable5-context-output",
+          "model_id": "claude-fable-5",
+          "rank": 7,
+          "record_type": "claim",
+          "score": 0.556646,
+          "source_id": "02-claude-docs-introduction"
+        },
+        {
+          "id": "attr-claude-opus-4.6-safety_behavior",
+          "model_id": "claude-opus-4.6",
+          "rank": 8,
+          "record_type": "attribute",
+          "score": 0.556363,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "attr-claude-opus-4.6-model_identity",
+          "model_id": "claude-opus-4.6",
+          "rank": 9,
+          "record_type": "attribute",
+          "score": 0.547812,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "attr-claude-opus-4.6-pricing",
+          "model_id": "claude-opus-4.6",
+          "rank": 10,
+          "record_type": "attribute",
+          "score": 0.545495,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "attr-claude-opus-4.6-modalities",
+          "model_id": "claude-opus-4.6",
+          "rank": 11,
+          "record_type": "attribute",
+          "score": 0.544137,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "claude-opus-4.6-model_identity",
+          "model_id": "claude-opus-4.6",
+          "rank": 12,
+          "record_type": "claim",
+          "score": 0.541348,
+          "source_id": "01-anthropic-opus"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 1.0,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-claude-opus-4.6-modalities",
+        "chunk-8fa24c56acc77292a858",
+        "claude-opus-4.6-modalities"
+      ],
+      "expected_attribute_id": "attr-claude-opus-4.6-modalities",
+      "expected_attribute_rank": 1,
+      "model_id": "claude-opus-4.6",
+      "name": "claude-opus-4.6-modalities",
+      "query": "Which input and output modalities are officially supported by Claude Opus 4.6?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 0.46927872602275644,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-claude-opus-4.6-modalities",
+          "model_id": "claude-opus-4.6",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.667969,
+          "source_id": "01-anthropic-opus",
+          "vector_rank": 1,
+          "vector_score": 0.67144
+        },
+        {
+          "id": "attr-claude-opus-4.6-pricing",
+          "model_id": "claude-opus-4.6",
+          "rank": 2,
+          "record_type": "attribute",
+          "rerank_score": 0.542969,
+          "source_id": "01-anthropic-opus",
+          "vector_rank": 9,
+          "vector_score": 0.552812
+        },
+        {
+          "id": "claude-opus-4.6-pricing",
+          "model_id": "claude-opus-4.6",
+          "rank": 3,
+          "record_type": "claim",
+          "rerank_score": 0.527344,
+          "source_id": "01-anthropic-opus",
+          "vector_rank": 10,
+          "vector_score": 0.550174
+        },
+        {
+          "id": "chunk-553c6ff9b110756fdd69",
+          "model_id": "claude-opus-4.6",
+          "rank": 4,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.527344,
+          "source_id": "01-anthropic-opus",
+          "vector_rank": 6,
+          "vector_score": 0.565326
+        },
+        {
+          "id": "claude-opus-4.6-model_identity",
+          "model_id": "claude-opus-4.6",
+          "rank": 5,
+          "record_type": "claim",
+          "rerank_score": 0.523438,
+          "source_id": "01-anthropic-opus",
+          "vector_rank": 5,
+          "vector_score": 0.566312
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-claude-opus-4.6-modalities",
+          "model_id": "claude-opus-4.6",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.67144,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "claude-opus-4.6-context_output",
+          "model_id": "claude-opus-4.6",
+          "rank": 2,
+          "record_type": "claim",
+          "score": 0.581169,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "attr-claude-opus-4.6-context_output",
+          "model_id": "claude-opus-4.6",
+          "rank": 3,
+          "record_type": "attribute",
+          "score": 0.572407,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "claude-opus-4.6-modalities",
+          "model_id": "claude-opus-4.6",
+          "rank": 4,
+          "record_type": "claim",
+          "score": 0.569001,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "claude-opus-4.6-model_identity",
+          "model_id": "claude-opus-4.6",
+          "rank": 5,
+          "record_type": "claim",
+          "score": 0.566312,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "chunk-553c6ff9b110756fdd69",
+          "model_id": "claude-opus-4.6",
+          "rank": 6,
+          "record_type": "evidence_chunk",
+          "score": 0.565326,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "chunk-e6e2c3da7c67a8fb37da",
+          "model_id": "claude-opus-4.6",
+          "rank": 7,
+          "record_type": "evidence_chunk",
+          "score": 0.55759,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "attr-gpt-5.6-luna-modalities",
+          "model_id": "gpt-5.6-luna",
+          "rank": 8,
+          "record_type": "attribute",
+          "score": 0.555045,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-claude-opus-4.6-pricing",
+          "model_id": "claude-opus-4.6",
+          "rank": 9,
+          "record_type": "attribute",
+          "score": 0.552812,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "claude-opus-4.6-pricing",
+          "model_id": "claude-opus-4.6",
+          "rank": 10,
+          "record_type": "claim",
+          "score": 0.550174,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "claude-opus-4.6-performance",
+          "model_id": "claude-opus-4.6",
+          "rank": 11,
+          "record_type": "claim",
+          "score": 0.547133,
+          "source_id": "01-anthropic-opus"
+        },
+        {
+          "id": "chunk-9e07d9793baf4fef128c",
+          "model_id": "claude-opus-4.6",
+          "rank": 12,
+          "record_type": "evidence_chunk",
+          "score": 0.546864,
+          "source_id": "01-anthropic-opus"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 0.6713860725233041,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-deepseek-v4-pro-reasoning_behavior",
+        "chunk-615ffa89f87da1dac972",
+        "deepseek-v4-pro-reasoning_behavior"
+      ],
+      "expected_attribute_id": "attr-deepseek-v4-pro-reasoning_behavior",
+      "expected_attribute_rank": 1,
+      "model_id": "deepseek-v4-pro",
+      "name": "deepseek-v4-pro-reasoning_behavior",
+      "query": "Which reasoning modes and control parameters are characteristic of DeepSeek-V4-Pro?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 0.9674679834891693,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-deepseek-v4-pro-reasoning_behavior",
+          "model_id": "deepseek-v4-pro",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.894531,
+          "source_id": "01-huggingface-model-card",
+          "vector_rank": 1,
+          "vector_score": 0.671505
+        },
+        {
+          "id": "deepseek-v4-pro-reasoning_behavior",
+          "model_id": "deepseek-v4-pro",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.792969,
+          "source_id": "01-huggingface-model-card",
+          "vector_rank": 3,
+          "vector_score": 0.607098
+        },
+        {
+          "id": "attr-deepseek-v4-pro-performance",
+          "model_id": "deepseek-v4-pro",
+          "rank": 3,
+          "record_type": "attribute",
+          "rerank_score": 0.78125,
+          "source_id": "01-huggingface-model-card",
+          "vector_rank": 6,
+          "vector_score": 0.578069
+        },
+        {
+          "id": "chunk-615ffa89f87da1dac972",
+          "model_id": "deepseek-v4-pro",
+          "rank": 4,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.777344,
+          "source_id": "01-huggingface-model-card",
+          "vector_rank": 5,
+          "vector_score": 0.579082
+        },
+        {
+          "id": "deepseek-v4-pro-performance",
+          "model_id": "deepseek-v4-pro",
+          "rank": 5,
+          "record_type": "claim",
+          "rerank_score": 0.761719,
+          "source_id": "01-huggingface-model-card",
+          "vector_rank": 8,
+          "vector_score": 0.568584
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-deepseek-v4-pro-reasoning_behavior",
+          "model_id": "deepseek-v4-pro",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.671505,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "chunk-f0301267f0139f42344d",
+          "model_id": "deepseek-v4-pro",
+          "rank": 2,
+          "record_type": "evidence_chunk",
+          "score": 0.607376,
+          "source_id": "02-deepseek-release"
+        },
+        {
+          "id": "deepseek-v4-pro-reasoning_behavior",
+          "model_id": "deepseek-v4-pro",
+          "rank": 3,
+          "record_type": "claim",
+          "score": 0.607098,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "attr-deepseek-v4-pro-tools_agents",
+          "model_id": "deepseek-v4-pro",
+          "rank": 4,
+          "record_type": "attribute",
+          "score": 0.580705,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "chunk-615ffa89f87da1dac972",
+          "model_id": "deepseek-v4-pro",
+          "rank": 5,
+          "record_type": "evidence_chunk",
+          "score": 0.579082,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "attr-deepseek-v4-pro-performance",
+          "model_id": "deepseek-v4-pro",
+          "rank": 6,
+          "record_type": "attribute",
+          "score": 0.578069,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "deepseek-v4-pro-context_output",
+          "model_id": "deepseek-v4-pro",
+          "rank": 7,
+          "record_type": "claim",
+          "score": 0.573028,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "deepseek-v4-pro-performance",
+          "model_id": "deepseek-v4-pro",
+          "rank": 8,
+          "record_type": "claim",
+          "score": 0.568584,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "attr-deepseek-v4-pro-context_output",
+          "model_id": "deepseek-v4-pro",
+          "rank": 9,
+          "record_type": "attribute",
+          "score": 0.568389,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "deepseek-v4-pro-tools_agents",
+          "model_id": "deepseek-v4-pro",
+          "rank": 10,
+          "record_type": "claim",
+          "score": 0.567131,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "deepseek-v4-pro-architecture",
+          "model_id": "deepseek-v4-pro",
+          "rank": 11,
+          "record_type": "claim",
+          "score": 0.563574,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "chunk-bf93af9a8a70b706ca7e",
+          "model_id": "deepseek-v4-pro",
+          "rank": 12,
+          "record_type": "evidence_chunk",
+          "score": 0.559111,
+          "source_id": "01-huggingface-model-card"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 0.8854598815714874,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-deepseek-v4-pro-context_output",
+        "chunk-bf93af9a8a70b706ca7e",
+        "deepseek-v4-pro-context_output"
+      ],
+      "expected_attribute_id": "attr-deepseek-v4-pro-context_output",
+      "expected_attribute_rank": 1,
+      "model_id": "deepseek-v4-pro",
+      "name": "deepseek-v4-pro-context_output",
+      "query": "What context-window and maximum-output behavior should DeepSeek-V4-Pro exhibit?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 0.7653606369886217,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-deepseek-v4-pro-context_output",
+          "model_id": "deepseek-v4-pro",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.855469,
+          "source_id": "01-huggingface-model-card",
+          "vector_rank": 1,
+          "vector_score": 0.676632
+        },
+        {
+          "id": "deepseek-v4-pro-context_output",
+          "model_id": "deepseek-v4-pro",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.621094,
+          "source_id": "01-huggingface-model-card",
+          "vector_rank": 2,
+          "vector_score": 0.621838
+        },
+        {
+          "id": "attr-deepseek-v4-pro-performance",
+          "model_id": "deepseek-v4-pro",
+          "rank": 3,
+          "record_type": "attribute",
+          "rerank_score": 0.609375,
+          "source_id": "01-huggingface-model-card",
+          "vector_rank": 11,
+          "vector_score": 0.533551
+        },
+        {
+          "id": "attr-deepseek-v4-pro-reasoning_behavior",
+          "model_id": "deepseek-v4-pro",
+          "rank": 4,
+          "record_type": "attribute",
+          "rerank_score": 0.582031,
+          "source_id": "01-huggingface-model-card",
+          "vector_rank": 5,
+          "vector_score": 0.54929
+        },
+        {
+          "id": "deepseek-v4-pro-architecture",
+          "model_id": "deepseek-v4-pro",
+          "rank": 5,
+          "record_type": "claim",
+          "rerank_score": 0.570312,
+          "source_id": "01-huggingface-model-card",
+          "vector_rank": 4,
+          "vector_score": 0.57127
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-deepseek-v4-pro-context_output",
+          "model_id": "deepseek-v4-pro",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.676632,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "deepseek-v4-pro-context_output",
+          "model_id": "deepseek-v4-pro",
+          "rank": 2,
+          "record_type": "claim",
+          "score": 0.621838,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "chunk-bf93af9a8a70b706ca7e",
+          "model_id": "deepseek-v4-pro",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "score": 0.591483,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "deepseek-v4-pro-architecture",
+          "model_id": "deepseek-v4-pro",
+          "rank": 4,
+          "record_type": "claim",
+          "score": 0.57127,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "attr-deepseek-v4-pro-reasoning_behavior",
+          "model_id": "deepseek-v4-pro",
+          "rank": 5,
+          "record_type": "attribute",
+          "score": 0.54929,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "chunk-615ffa89f87da1dac972",
+          "model_id": "deepseek-v4-pro",
+          "rank": 6,
+          "record_type": "evidence_chunk",
+          "score": 0.548796,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "chunk-f0301267f0139f42344d",
+          "model_id": "deepseek-v4-pro",
+          "rank": 7,
+          "record_type": "evidence_chunk",
+          "score": 0.548618,
+          "source_id": "02-deepseek-release"
+        },
+        {
+          "id": "deepseek-v4-pro-reasoning_behavior",
+          "model_id": "deepseek-v4-pro",
+          "rank": 8,
+          "record_type": "claim",
+          "score": 0.545666,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "attr-deepseek-v4-pro-architecture",
+          "model_id": "deepseek-v4-pro",
+          "rank": 9,
+          "record_type": "attribute",
+          "score": 0.545026,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "deepseek-v4-pro-performance",
+          "model_id": "deepseek-v4-pro",
+          "rank": 10,
+          "record_type": "claim",
+          "score": 0.538253,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "attr-deepseek-v4-pro-performance",
+          "model_id": "deepseek-v4-pro",
+          "rank": 11,
+          "record_type": "attribute",
+          "score": 0.533551,
+          "source_id": "01-huggingface-model-card"
+        },
+        {
+          "id": "attr-deepseek-v4-pro-api_behavior",
+          "model_id": "deepseek-v4-pro",
+          "rank": 12,
+          "record_type": "attribute",
+          "score": 0.526142,
+          "source_id": "01-huggingface-model-card"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 1.0,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-glm-5.3-reasoning_behavior",
+        "chunk-0a38da29d2274bba6f48",
+        "glm-5.3-reasoning_behavior"
+      ],
+      "expected_attribute_id": "attr-glm-5.3-reasoning_behavior",
+      "expected_attribute_rank": 1,
+      "model_id": "glm-5.3",
+      "name": "glm-5.3-reasoning_behavior",
+      "query": "Which reasoning modes and control parameters are characteristic of GLM-5.3?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 0.9469024295259745,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-glm-5.3-reasoning_behavior",
+          "model_id": "glm-5.3",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.917969,
+          "source_id": "02-zai-docs",
+          "vector_rank": 1,
+          "vector_score": 0.736512
+        },
+        {
+          "id": "glm-5.3-reasoning_behavior",
+          "model_id": "glm-5.3",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.855469,
+          "source_id": "02-zai-docs",
+          "vector_rank": 2,
+          "vector_score": 0.68999
+        },
+        {
+          "id": "glm-5.3-architecture",
+          "model_id": "glm-5.3",
+          "rank": 3,
+          "record_type": "claim",
+          "rerank_score": 0.84375,
+          "source_id": "02-zai-docs",
+          "vector_rank": 4,
+          "vector_score": 0.677277
+        },
+        {
+          "id": "glm-5.3-context_output",
+          "model_id": "glm-5.3",
+          "rank": 4,
+          "record_type": "claim",
+          "rerank_score": 0.84375,
+          "source_id": "02-zai-docs",
+          "vector_rank": 6,
+          "vector_score": 0.673327
+        },
+        {
+          "id": "chunk-0a38da29d2274bba6f48",
+          "model_id": "glm-5.3",
+          "rank": 5,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.839844,
+          "source_id": "02-zai-docs",
+          "vector_rank": 5,
+          "vector_score": 0.674505
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-glm-5.3-reasoning_behavior",
+          "model_id": "glm-5.3",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.736512,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "glm-5.3-reasoning_behavior",
+          "model_id": "glm-5.3",
+          "rank": 2,
+          "record_type": "claim",
+          "score": 0.68999,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "glm-5.3-modalities",
+          "model_id": "glm-5.3",
+          "rank": 3,
+          "record_type": "claim",
+          "score": 0.684838,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "glm-5.3-architecture",
+          "model_id": "glm-5.3",
+          "rank": 4,
+          "record_type": "claim",
+          "score": 0.677277,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "chunk-0a38da29d2274bba6f48",
+          "model_id": "glm-5.3",
+          "rank": 5,
+          "record_type": "evidence_chunk",
+          "score": 0.674505,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "glm-5.3-context_output",
+          "model_id": "glm-5.3",
+          "rank": 6,
+          "record_type": "claim",
+          "score": 0.673327,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "attr-glm-5.3-architecture",
+          "model_id": "glm-5.3",
+          "rank": 7,
+          "record_type": "attribute",
+          "score": 0.669676,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "attr-glm-5.3-modalities",
+          "model_id": "glm-5.3",
+          "rank": 8,
+          "record_type": "attribute",
+          "score": 0.667518,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "attr-glm-5.3-context_output",
+          "model_id": "glm-5.3",
+          "rank": 9,
+          "record_type": "attribute",
+          "score": 0.661256,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "attr-glm-5.3-api_behavior",
+          "model_id": "glm-5.3",
+          "rank": 10,
+          "record_type": "attribute",
+          "score": 0.604174,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "attr-gpt-5.6-sol-reasoning_behavior",
+          "model_id": "gpt-5.6-sol",
+          "rank": 11,
+          "record_type": "attribute",
+          "score": 0.595369,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "glm-5.3-api_behavior",
+          "model_id": "glm-5.3",
+          "rank": 12,
+          "record_type": "claim",
+          "score": 0.592429,
+          "source_id": "02-zai-docs"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 0.9469024295259745,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-glm-5.3-context_output",
+        "chunk-0a38da29d2274bba6f48",
+        "glm-5.3-context_output"
+      ],
+      "expected_attribute_id": "attr-glm-5.3-context_output",
+      "expected_attribute_rank": 1,
+      "model_id": "glm-5.3",
+      "name": "glm-5.3-context_output",
+      "query": "What context-window and maximum-output behavior should GLM-5.3 exhibit?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 0.7653606369886217,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-glm-5.3-context_output",
+          "model_id": "glm-5.3",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.949219,
+          "source_id": "02-zai-docs",
+          "vector_rank": 1,
+          "vector_score": 0.666627
+        },
+        {
+          "id": "glm-5.3-context_output",
+          "model_id": "glm-5.3",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.910156,
+          "source_id": "02-zai-docs",
+          "vector_rank": 2,
+          "vector_score": 0.641638
+        },
+        {
+          "id": "glm-5.3-architecture",
+          "model_id": "glm-5.3",
+          "rank": 3,
+          "record_type": "claim",
+          "rerank_score": 0.90625,
+          "source_id": "02-zai-docs",
+          "vector_rank": 6,
+          "vector_score": 0.59261
+        },
+        {
+          "id": "glm-5.3-reasoning_behavior",
+          "model_id": "glm-5.3",
+          "rank": 4,
+          "record_type": "claim",
+          "rerank_score": 0.90625,
+          "source_id": "02-zai-docs",
+          "vector_rank": 4,
+          "vector_score": 0.603423
+        },
+        {
+          "id": "glm-5.3-modalities",
+          "model_id": "glm-5.3",
+          "rank": 5,
+          "record_type": "claim",
+          "rerank_score": 0.90625,
+          "source_id": "02-zai-docs",
+          "vector_rank": 7,
+          "vector_score": 0.5901
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-glm-5.3-context_output",
+          "model_id": "glm-5.3",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.666627,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "glm-5.3-context_output",
+          "model_id": "glm-5.3",
+          "rank": 2,
+          "record_type": "claim",
+          "score": 0.641638,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "chunk-0a38da29d2274bba6f48",
+          "model_id": "glm-5.3",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "score": 0.630486,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "glm-5.3-reasoning_behavior",
+          "model_id": "glm-5.3",
+          "rank": 4,
+          "record_type": "claim",
+          "score": 0.603423,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "attr-glm-5.3-reasoning_behavior",
+          "model_id": "glm-5.3",
+          "rank": 5,
+          "record_type": "attribute",
+          "score": 0.600581,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "glm-5.3-architecture",
+          "model_id": "glm-5.3",
+          "rank": 6,
+          "record_type": "claim",
+          "score": 0.59261,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "glm-5.3-modalities",
+          "model_id": "glm-5.3",
+          "rank": 7,
+          "record_type": "claim",
+          "score": 0.5901,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "attr-glm-5.3-architecture",
+          "model_id": "glm-5.3",
+          "rank": 8,
+          "record_type": "attribute",
+          "score": 0.588559,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "attr-glm-5.3-modalities",
+          "model_id": "glm-5.3",
+          "rank": 9,
+          "record_type": "attribute",
+          "score": 0.584544,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "attr-glm-5.3-api_behavior",
+          "model_id": "glm-5.3",
+          "rank": 10,
+          "record_type": "attribute",
+          "score": 0.542857,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "attr-gpt-5.6-luna-context_output",
+          "model_id": "gpt-5.6-luna",
+          "rank": 11,
+          "record_type": "attribute",
+          "score": 0.522716,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-fable5-context-output",
+          "model_id": "claude-fable-5",
+          "rank": 12,
+          "record_type": "attribute",
+          "score": 0.518696,
+          "source_id": "02-claude-docs-introduction"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 1.0,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-gpt-5.6-luna-reasoning_behavior",
+        "chunk-4d8c01427a900c70e6f2",
+        "gpt-5.6-luna-reasoning_behavior"
+      ],
+      "expected_attribute_id": "attr-gpt-5.6-luna-reasoning_behavior",
+      "expected_attribute_rank": 1,
+      "model_id": "gpt-5.6-luna",
+      "name": "gpt-5.6-luna-reasoning_behavior",
+      "query": "Which reasoning modes and control parameters are characteristic of GPT-5.6 Luna?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 1.0,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-gpt-5.6-luna-reasoning_behavior",
+          "model_id": "gpt-5.6-luna",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.890625,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 1,
+          "vector_score": 0.731279
+        },
+        {
+          "id": "gpt-5.6-luna-reasoning_behavior",
+          "model_id": "gpt-5.6-luna",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.804688,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 3,
+          "vector_score": 0.649561
+        },
+        {
+          "id": "chunk-4d8c01427a900c70e6f2",
+          "model_id": "gpt-5.6-luna",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.777344,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 9,
+          "vector_score": 0.597839
+        },
+        {
+          "id": "gpt-5.6-luna-context_output",
+          "model_id": "gpt-5.6-luna",
+          "rank": 4,
+          "record_type": "claim",
+          "rerank_score": 0.773438,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 6,
+          "vector_score": 0.612718
+        },
+        {
+          "id": "gpt-5.6-luna-pricing",
+          "model_id": "gpt-5.6-luna",
+          "rank": 5,
+          "record_type": "claim",
+          "rerank_score": 0.761719,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 8,
+          "vector_score": 0.598889
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-gpt-5.6-luna-reasoning_behavior",
+          "model_id": "gpt-5.6-luna",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.731279,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-sol-reasoning_behavior",
+          "model_id": "gpt-5.6-sol",
+          "rank": 2,
+          "record_type": "attribute",
+          "score": 0.649811,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-luna-reasoning_behavior",
+          "model_id": "gpt-5.6-luna",
+          "rank": 3,
+          "record_type": "claim",
+          "score": 0.649561,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-terra-reasoning_behavior",
+          "model_id": "gpt-5.6-terra",
+          "rank": 4,
+          "record_type": "attribute",
+          "score": 0.638922,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-luna-context_output",
+          "model_id": "gpt-5.6-luna",
+          "rank": 5,
+          "record_type": "attribute",
+          "score": 0.613674,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-luna-context_output",
+          "model_id": "gpt-5.6-luna",
+          "rank": 6,
+          "record_type": "claim",
+          "score": 0.612718,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-luna-pricing",
+          "model_id": "gpt-5.6-luna",
+          "rank": 7,
+          "record_type": "attribute",
+          "score": 0.605959,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-luna-pricing",
+          "model_id": "gpt-5.6-luna",
+          "rank": 8,
+          "record_type": "claim",
+          "score": 0.598889,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "chunk-4d8c01427a900c70e6f2",
+          "model_id": "gpt-5.6-luna",
+          "rank": 9,
+          "record_type": "evidence_chunk",
+          "score": 0.597839,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-luna-api_behavior",
+          "model_id": "gpt-5.6-luna",
+          "rank": 10,
+          "record_type": "attribute",
+          "score": 0.586187,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-luna-model_identity",
+          "model_id": "gpt-5.6-luna",
+          "rank": 11,
+          "record_type": "attribute",
+          "score": 0.584566,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-glm-5.3-reasoning_behavior",
+          "model_id": "glm-5.3",
+          "rank": 12,
+          "record_type": "attribute",
+          "score": 0.582865,
+          "source_id": "02-zai-docs"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 0.8451850618939637,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-gpt-5.6-luna-context_output",
+        "chunk-4d8c01427a900c70e6f2",
+        "gpt-5.6-luna-context_output"
+      ],
+      "expected_attribute_id": "attr-gpt-5.6-luna-context_output",
+      "expected_attribute_rank": 1,
+      "model_id": "gpt-5.6-luna",
+      "name": "gpt-5.6-luna-context_output",
+      "query": "What context-window and maximum-output behavior should GPT-5.6 Luna exhibit?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 0.9060254355346823,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-gpt-5.6-luna-context_output",
+          "model_id": "gpt-5.6-luna",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.921875,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 1,
+          "vector_score": 0.70083
+        },
+        {
+          "id": "gpt-5.6-luna-reasoning_behavior",
+          "model_id": "gpt-5.6-luna",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.871094,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 3,
+          "vector_score": 0.639324
+        },
+        {
+          "id": "chunk-4d8c01427a900c70e6f2",
+          "model_id": "gpt-5.6-luna",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.871094,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 4,
+          "vector_score": 0.63749
+        },
+        {
+          "id": "gpt-5.6-luna-context_output",
+          "model_id": "gpt-5.6-luna",
+          "rank": 4,
+          "record_type": "claim",
+          "rerank_score": 0.859375,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 2,
+          "vector_score": 0.658118
+        },
+        {
+          "id": "attr-gpt-5.6-luna-reasoning_behavior",
+          "model_id": "gpt-5.6-luna",
+          "rank": 5,
+          "record_type": "attribute",
+          "rerank_score": 0.855469,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 5,
+          "vector_score": 0.628118
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-gpt-5.6-luna-context_output",
+          "model_id": "gpt-5.6-luna",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.70083,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-luna-context_output",
+          "model_id": "gpt-5.6-luna",
+          "rank": 2,
+          "record_type": "claim",
+          "score": 0.658118,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-luna-reasoning_behavior",
+          "model_id": "gpt-5.6-luna",
+          "rank": 3,
+          "record_type": "claim",
+          "score": 0.639324,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "chunk-4d8c01427a900c70e6f2",
+          "model_id": "gpt-5.6-luna",
+          "rank": 4,
+          "record_type": "evidence_chunk",
+          "score": 0.63749,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-luna-reasoning_behavior",
+          "model_id": "gpt-5.6-luna",
+          "rank": 5,
+          "record_type": "attribute",
+          "score": 0.628118,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-luna-pricing",
+          "model_id": "gpt-5.6-luna",
+          "rank": 6,
+          "record_type": "claim",
+          "score": 0.616919,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-luna-pricing",
+          "model_id": "gpt-5.6-luna",
+          "rank": 7,
+          "record_type": "attribute",
+          "score": 0.607361,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-sol-context_output",
+          "model_id": "gpt-5.6-sol",
+          "rank": 8,
+          "record_type": "attribute",
+          "score": 0.598864,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-terra-context_output",
+          "model_id": "gpt-5.6-terra",
+          "rank": 9,
+          "record_type": "attribute",
+          "score": 0.589512,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-sol-context_output",
+          "model_id": "gpt-5.6-sol",
+          "rank": 10,
+          "record_type": "claim",
+          "score": 0.548144,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-luna-api_behavior",
+          "model_id": "gpt-5.6-luna",
+          "rank": 11,
+          "record_type": "attribute",
+          "score": 0.546113,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-terra-context_output",
+          "model_id": "gpt-5.6-terra",
+          "rank": 12,
+          "record_type": "claim",
+          "score": 0.543807,
+          "source_id": "01-openai-model-page"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 0.9674679834891693,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-gpt-5.6-sol-reasoning_behavior",
+        "chunk-79bf04884e9e20203841",
+        "gpt-5.6-sol-reasoning_behavior"
+      ],
+      "expected_attribute_id": "attr-gpt-5.6-sol-reasoning_behavior",
+      "expected_attribute_rank": 1,
+      "model_id": "gpt-5.6-sol",
+      "name": "gpt-5.6-sol-reasoning_behavior",
+      "query": "Which reasoning modes and control parameters are characteristic of GPT-5.6 Sol?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 0.9469024295259745,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-gpt-5.6-sol-reasoning_behavior",
+          "model_id": "gpt-5.6-sol",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.890625,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 1,
+          "vector_score": 0.727759
+        },
+        {
+          "id": "gpt-5.6-sol-reasoning_behavior",
+          "model_id": "gpt-5.6-sol",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.8125,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 4,
+          "vector_score": 0.645131
+        },
+        {
+          "id": "gpt-5.6-sol-context_output",
+          "model_id": "gpt-5.6-sol",
+          "rank": 3,
+          "record_type": "claim",
+          "rerank_score": 0.796875,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 6,
+          "vector_score": 0.610693
+        },
+        {
+          "id": "gpt-5.6-sol-pricing",
+          "model_id": "gpt-5.6-sol",
+          "rank": 4,
+          "record_type": "claim",
+          "rerank_score": 0.777344,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 9,
+          "vector_score": 0.588275
+        },
+        {
+          "id": "chunk-79bf04884e9e20203841",
+          "model_id": "gpt-5.6-sol",
+          "rank": 5,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.777344,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 10,
+          "vector_score": 0.581816
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-gpt-5.6-sol-reasoning_behavior",
+          "model_id": "gpt-5.6-sol",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.727759,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-luna-reasoning_behavior",
+          "model_id": "gpt-5.6-luna",
+          "rank": 2,
+          "record_type": "attribute",
+          "score": 0.654826,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-terra-reasoning_behavior",
+          "model_id": "gpt-5.6-terra",
+          "rank": 3,
+          "record_type": "attribute",
+          "score": 0.649466,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-sol-reasoning_behavior",
+          "model_id": "gpt-5.6-sol",
+          "rank": 4,
+          "record_type": "claim",
+          "score": 0.645131,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-sol-context_output",
+          "model_id": "gpt-5.6-sol",
+          "rank": 5,
+          "record_type": "attribute",
+          "score": 0.616071,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-sol-context_output",
+          "model_id": "gpt-5.6-sol",
+          "rank": 6,
+          "record_type": "claim",
+          "score": 0.610693,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-glm-5.3-reasoning_behavior",
+          "model_id": "glm-5.3",
+          "rank": 7,
+          "record_type": "attribute",
+          "score": 0.59571,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "attr-gpt-5.6-sol-pricing",
+          "model_id": "gpt-5.6-sol",
+          "rank": 8,
+          "record_type": "attribute",
+          "score": 0.588786,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-sol-pricing",
+          "model_id": "gpt-5.6-sol",
+          "rank": 9,
+          "record_type": "claim",
+          "score": 0.588275,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "chunk-79bf04884e9e20203841",
+          "model_id": "gpt-5.6-sol",
+          "rank": 10,
+          "record_type": "evidence_chunk",
+          "score": 0.581816,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-sol-model_identity",
+          "model_id": "gpt-5.6-sol",
+          "rank": 11,
+          "record_type": "attribute",
+          "score": 0.574883,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-sol-model_identity",
+          "model_id": "gpt-5.6-sol",
+          "rank": 12,
+          "record_type": "claim",
+          "score": 0.570669,
+          "source_id": "01-openai-model-page"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 0.8070380459557518,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-gpt-5.6-sol-context_output",
+        "chunk-79bf04884e9e20203841",
+        "gpt-5.6-sol-context_output"
+      ],
+      "expected_attribute_id": "attr-gpt-5.6-sol-context_output",
+      "expected_attribute_rank": 1,
+      "model_id": "gpt-5.6-sol",
+      "name": "gpt-5.6-sol-context_output",
+      "query": "What context-window and maximum-output behavior should GPT-5.6 Sol exhibit?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 0.9674679834891693,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-gpt-5.6-sol-context_output",
+          "model_id": "gpt-5.6-sol",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.929688,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 1,
+          "vector_score": 0.698574
+        },
+        {
+          "id": "gpt-5.6-sol-context_output",
+          "model_id": "gpt-5.6-sol",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.871094,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 2,
+          "vector_score": 0.647978
+        },
+        {
+          "id": "gpt-5.6-sol-reasoning_behavior",
+          "model_id": "gpt-5.6-sol",
+          "rank": 3,
+          "record_type": "claim",
+          "rerank_score": 0.867188,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 5,
+          "vector_score": 0.622701
+        },
+        {
+          "id": "chunk-79bf04884e9e20203841",
+          "model_id": "gpt-5.6-sol",
+          "rank": 4,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.863281,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 7,
+          "vector_score": 0.613979
+        },
+        {
+          "id": "attr-gpt-5.6-sol-reasoning_behavior",
+          "model_id": "gpt-5.6-sol",
+          "rank": 5,
+          "record_type": "attribute",
+          "rerank_score": 0.855469,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 6,
+          "vector_score": 0.621208
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-gpt-5.6-sol-context_output",
+          "model_id": "gpt-5.6-sol",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.698574,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-sol-context_output",
+          "model_id": "gpt-5.6-sol",
+          "rank": 2,
+          "record_type": "claim",
+          "score": 0.647978,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-luna-context_output",
+          "model_id": "gpt-5.6-luna",
+          "rank": 3,
+          "record_type": "attribute",
+          "score": 0.629093,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-terra-context_output",
+          "model_id": "gpt-5.6-terra",
+          "rank": 4,
+          "record_type": "attribute",
+          "score": 0.628785,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-sol-reasoning_behavior",
+          "model_id": "gpt-5.6-sol",
+          "rank": 5,
+          "record_type": "claim",
+          "score": 0.622701,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-sol-reasoning_behavior",
+          "model_id": "gpt-5.6-sol",
+          "rank": 6,
+          "record_type": "attribute",
+          "score": 0.621208,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "chunk-79bf04884e9e20203841",
+          "model_id": "gpt-5.6-sol",
+          "rank": 7,
+          "record_type": "evidence_chunk",
+          "score": 0.613979,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-sol-pricing",
+          "model_id": "gpt-5.6-sol",
+          "rank": 8,
+          "record_type": "claim",
+          "score": 0.594986,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-terra-context_output",
+          "model_id": "gpt-5.6-terra",
+          "rank": 9,
+          "record_type": "claim",
+          "score": 0.590833,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-sol-pricing",
+          "model_id": "gpt-5.6-sol",
+          "rank": 10,
+          "record_type": "attribute",
+          "score": 0.582108,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-luna-context_output",
+          "model_id": "gpt-5.6-luna",
+          "rank": 11,
+          "record_type": "claim",
+          "score": 0.580914,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-luna-reasoning_behavior",
+          "model_id": "gpt-5.6-luna",
+          "rank": 12,
+          "record_type": "claim",
+          "score": 0.56175,
+          "source_id": "01-openai-model-page"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 0.9217868789962071,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-gpt-5.6-terra-reasoning_behavior",
+        "chunk-ba4764011bb262bff018",
+        "gpt-5.6-terra-reasoning_behavior"
+      ],
+      "expected_attribute_id": "attr-gpt-5.6-terra-reasoning_behavior",
+      "expected_attribute_rank": 1,
+      "model_id": "gpt-5.6-terra",
+      "name": "gpt-5.6-terra-reasoning_behavior",
+      "query": "Which reasoning modes and control parameters are characteristic of GPT-5.6 Terra?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 1.0,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-gpt-5.6-terra-reasoning_behavior",
+          "model_id": "gpt-5.6-terra",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.894531,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 1,
+          "vector_score": 0.732304
+        },
+        {
+          "id": "gpt-5.6-terra-reasoning_behavior",
+          "model_id": "gpt-5.6-terra",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.800781,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 4,
+          "vector_score": 0.650952
+        },
+        {
+          "id": "chunk-ba4764011bb262bff018",
+          "model_id": "gpt-5.6-terra",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.769531,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 9,
+          "vector_score": 0.600899
+        },
+        {
+          "id": "gpt-5.6-terra-context_output",
+          "model_id": "gpt-5.6-terra",
+          "rank": 4,
+          "record_type": "claim",
+          "rerank_score": 0.761719,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 6,
+          "vector_score": 0.613229
+        },
+        {
+          "id": "gpt-5.6-terra-pricing",
+          "model_id": "gpt-5.6-terra",
+          "rank": 5,
+          "record_type": "claim",
+          "rerank_score": 0.753906,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 11,
+          "vector_score": 0.594434
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-gpt-5.6-terra-reasoning_behavior",
+          "model_id": "gpt-5.6-terra",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.732304,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-sol-reasoning_behavior",
+          "model_id": "gpt-5.6-sol",
+          "rank": 2,
+          "record_type": "attribute",
+          "score": 0.685986,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-luna-reasoning_behavior",
+          "model_id": "gpt-5.6-luna",
+          "rank": 3,
+          "record_type": "attribute",
+          "score": 0.675693,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-terra-reasoning_behavior",
+          "model_id": "gpt-5.6-terra",
+          "rank": 4,
+          "record_type": "claim",
+          "score": 0.650952,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-terra-context_output",
+          "model_id": "gpt-5.6-terra",
+          "rank": 5,
+          "record_type": "attribute",
+          "score": 0.6167,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-terra-context_output",
+          "model_id": "gpt-5.6-terra",
+          "rank": 6,
+          "record_type": "claim",
+          "score": 0.613229,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-terra-pricing",
+          "model_id": "gpt-5.6-terra",
+          "rank": 7,
+          "record_type": "attribute",
+          "score": 0.608864,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-glm-5.3-reasoning_behavior",
+          "model_id": "glm-5.3",
+          "rank": 8,
+          "record_type": "attribute",
+          "score": 0.605575,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "chunk-ba4764011bb262bff018",
+          "model_id": "gpt-5.6-terra",
+          "rank": 9,
+          "record_type": "evidence_chunk",
+          "score": 0.600899,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-sol-reasoning_behavior",
+          "model_id": "gpt-5.6-sol",
+          "rank": 10,
+          "record_type": "claim",
+          "score": 0.600278,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-terra-pricing",
+          "model_id": "gpt-5.6-terra",
+          "rank": 11,
+          "record_type": "claim",
+          "score": 0.594434,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-terra-api_behavior",
+          "model_id": "gpt-5.6-terra",
+          "rank": 12,
+          "record_type": "attribute",
+          "score": 0.592511,
+          "source_id": "01-openai-model-page"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 0.812653045383133,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-gpt-5.6-terra-context_output",
+        "chunk-ba4764011bb262bff018",
+        "gpt-5.6-terra-context_output"
+      ],
+      "expected_attribute_id": "attr-gpt-5.6-terra-context_output",
+      "expected_attribute_rank": 1,
+      "model_id": "gpt-5.6-terra",
+      "name": "gpt-5.6-terra-context_output",
+      "query": "What context-window and maximum-output behavior should GPT-5.6 Terra exhibit?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 0.7039180890341347,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-gpt-5.6-terra-context_output",
+          "model_id": "gpt-5.6-terra",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.917969,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 1,
+          "vector_score": 0.695329
+        },
+        {
+          "id": "gpt-5.6-terra-reasoning_behavior",
+          "model_id": "gpt-5.6-terra",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.867188,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 5,
+          "vector_score": 0.628466
+        },
+        {
+          "id": "chunk-ba4764011bb262bff018",
+          "model_id": "gpt-5.6-terra",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.867188,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 7,
+          "vector_score": 0.618442
+        },
+        {
+          "id": "attr-gpt-5.6-terra-reasoning_behavior",
+          "model_id": "gpt-5.6-terra",
+          "rank": 4,
+          "record_type": "attribute",
+          "rerank_score": 0.851562,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 6,
+          "vector_score": 0.621068
+        },
+        {
+          "id": "gpt-5.6-terra-pricing",
+          "model_id": "gpt-5.6-terra",
+          "rank": 5,
+          "record_type": "claim",
+          "rerank_score": 0.84375,
+          "source_id": "01-openai-model-page",
+          "vector_rank": 9,
+          "vector_score": 0.597863
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-gpt-5.6-terra-context_output",
+          "model_id": "gpt-5.6-terra",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.695329,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-terra-context_output",
+          "model_id": "gpt-5.6-terra",
+          "rank": 2,
+          "record_type": "claim",
+          "score": 0.651797,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-luna-context_output",
+          "model_id": "gpt-5.6-luna",
+          "rank": 3,
+          "record_type": "attribute",
+          "score": 0.638872,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-sol-context_output",
+          "model_id": "gpt-5.6-sol",
+          "rank": 4,
+          "record_type": "attribute",
+          "score": 0.62893,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-terra-reasoning_behavior",
+          "model_id": "gpt-5.6-terra",
+          "rank": 5,
+          "record_type": "claim",
+          "score": 0.628466,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-terra-reasoning_behavior",
+          "model_id": "gpt-5.6-terra",
+          "rank": 6,
+          "record_type": "attribute",
+          "score": 0.621068,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "chunk-ba4764011bb262bff018",
+          "model_id": "gpt-5.6-terra",
+          "rank": 7,
+          "record_type": "evidence_chunk",
+          "score": 0.618442,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "attr-gpt-5.6-terra-pricing",
+          "model_id": "gpt-5.6-terra",
+          "rank": 8,
+          "record_type": "attribute",
+          "score": 0.606394,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-terra-pricing",
+          "model_id": "gpt-5.6-terra",
+          "rank": 9,
+          "record_type": "claim",
+          "score": 0.597863,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-luna-context_output",
+          "model_id": "gpt-5.6-luna",
+          "rank": 10,
+          "record_type": "claim",
+          "score": 0.593748,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "gpt-5.6-sol-context_output",
+          "model_id": "gpt-5.6-sol",
+          "rank": 11,
+          "record_type": "claim",
+          "score": 0.577237,
+          "source_id": "01-openai-model-page"
+        },
+        {
+          "id": "chunk-4d8c01427a900c70e6f2",
+          "model_id": "gpt-5.6-luna",
+          "rank": 12,
+          "record_type": "evidence_chunk",
+          "score": 0.568877,
+          "source_id": "01-openai-model-page"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 0.9217868789962071,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-kimi-k3-reasoning_behavior",
+        "chunk-329e518a8bada84c681d",
+        "kimi-k3-reasoning_behavior"
+      ],
+      "expected_attribute_id": "attr-kimi-k3-reasoning_behavior",
+      "expected_attribute_rank": 1,
+      "model_id": "kimi-k3",
+      "name": "kimi-k3-reasoning_behavior",
+      "query": "Which reasoning modes and control parameters are characteristic of Kimi K3?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 0.7653606369886217,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-kimi-k3-reasoning_behavior",
+          "model_id": "kimi-k3",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.847656,
+          "source_id": "01-kimi-quickstart",
+          "vector_rank": 1,
+          "vector_score": 0.663814
+        },
+        {
+          "id": "kimi-k3-reasoning_behavior",
+          "model_id": "kimi-k3",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.664062,
+          "source_id": "01-kimi-quickstart",
+          "vector_rank": 2,
+          "vector_score": 0.620711
+        },
+        {
+          "id": "chunk-58f7638e5860c86d2bf2",
+          "model_id": "kimi-k3",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.613281,
+          "source_id": "03-kimi-model-page",
+          "vector_rank": 6,
+          "vector_score": 0.543104
+        },
+        {
+          "id": "attr-kimi-k3-architecture",
+          "model_id": "kimi-k3",
+          "rank": 4,
+          "record_type": "attribute",
+          "rerank_score": 0.613281,
+          "source_id": "01-kimi-quickstart",
+          "vector_rank": 12,
+          "vector_score": 0.52739
+        },
+        {
+          "id": "kimi-k3-context_output",
+          "model_id": "kimi-k3",
+          "rank": 5,
+          "record_type": "claim",
+          "rerank_score": 0.574219,
+          "source_id": "01-kimi-quickstart",
+          "vector_rank": 11,
+          "vector_score": 0.527553
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-kimi-k3-reasoning_behavior",
+          "model_id": "kimi-k3",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.663814,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "kimi-k3-reasoning_behavior",
+          "model_id": "kimi-k3",
+          "rank": 2,
+          "record_type": "claim",
+          "score": 0.620711,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "chunk-329e518a8bada84c681d",
+          "model_id": "kimi-k3",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "score": 0.585699,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "kimi-k3-pricing",
+          "model_id": "kimi-k3",
+          "rank": 4,
+          "record_type": "claim",
+          "score": 0.567742,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "attr-kimi-k3-pricing",
+          "model_id": "kimi-k3",
+          "rank": 5,
+          "record_type": "attribute",
+          "score": 0.561364,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "chunk-58f7638e5860c86d2bf2",
+          "model_id": "kimi-k3",
+          "rank": 6,
+          "record_type": "evidence_chunk",
+          "score": 0.543104,
+          "source_id": "03-kimi-model-page"
+        },
+        {
+          "id": "attr-glm-5.3-reasoning_behavior",
+          "model_id": "glm-5.3",
+          "rank": 7,
+          "record_type": "attribute",
+          "score": 0.537135,
+          "source_id": "02-zai-docs"
+        },
+        {
+          "id": "attr-kimi-k3-api_behavior",
+          "model_id": "kimi-k3",
+          "rank": 8,
+          "record_type": "attribute",
+          "score": 0.533826,
+          "source_id": "02-github"
+        },
+        {
+          "id": "attr-kimi-k3-context_output",
+          "model_id": "kimi-k3",
+          "rank": 9,
+          "record_type": "attribute",
+          "score": 0.531209,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "kimi-k3-api_behavior",
+          "model_id": "kimi-k3",
+          "rank": 10,
+          "record_type": "claim",
+          "score": 0.527732,
+          "source_id": "02-github"
+        },
+        {
+          "id": "kimi-k3-context_output",
+          "model_id": "kimi-k3",
+          "rank": 11,
+          "record_type": "claim",
+          "score": 0.527553,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "attr-kimi-k3-architecture",
+          "model_id": "kimi-k3",
+          "rank": 12,
+          "record_type": "attribute",
+          "score": 0.52739,
+          "source_id": "01-kimi-quickstart"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 1.0,
+      "vector_semantic_rank": 1
+    },
+    {
+      "acceptable_ids": [
+        "attr-kimi-k3-context_output",
+        "chunk-39b77f3e1955147cae0c",
+        "kimi-k3-context_output"
+      ],
+      "expected_attribute_id": "attr-kimi-k3-context_output",
+      "expected_attribute_rank": 1,
+      "model_id": "kimi-k3",
+      "name": "kimi-k3-context_output",
+      "query": "What context-window and maximum-output behavior should Kimi K3 exhibit?",
+      "query_vector_dimension": 1024,
+      "rerank_model_rank": 1,
+      "rerank_ndcg": 0.46927872602275644,
+      "rerank_semantic_rank": 1,
+      "reranked_hits": [
+        {
+          "id": "attr-kimi-k3-context_output",
+          "model_id": "kimi-k3",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.835938,
+          "source_id": "01-kimi-quickstart",
+          "vector_rank": 1,
+          "vector_score": 0.668162
+        },
+        {
+          "id": "kimi-k3-modalities",
+          "model_id": "kimi-k3",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.789062,
+          "source_id": "03-kimi-model-page",
+          "vector_rank": 4,
+          "vector_score": 0.605772
+        },
+        {
+          "id": "attr-kimi-k3-modalities",
+          "model_id": "kimi-k3",
+          "rank": 3,
+          "record_type": "attribute",
+          "rerank_score": 0.757812,
+          "source_id": "03-kimi-model-page",
+          "vector_rank": 6,
+          "vector_score": 0.591003
+        },
+        {
+          "id": "chunk-c6f950bc56827125ebb0",
+          "model_id": "kimi-k3",
+          "rank": 4,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.746094,
+          "source_id": "03-kimi-model-page",
+          "vector_rank": 2,
+          "vector_score": 0.620335
+        },
+        {
+          "id": "kimi-k3-reasoning_behavior",
+          "model_id": "kimi-k3",
+          "rank": 5,
+          "record_type": "claim",
+          "rerank_score": 0.695312,
+          "source_id": "01-kimi-quickstart",
+          "vector_rank": 7,
+          "vector_score": 0.580986
+        }
+      ],
+      "vector_hits": [
+        {
+          "id": "attr-kimi-k3-context_output",
+          "model_id": "kimi-k3",
+          "rank": 1,
+          "record_type": "attribute",
+          "score": 0.668162,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "chunk-c6f950bc56827125ebb0",
+          "model_id": "kimi-k3",
+          "rank": 2,
+          "record_type": "evidence_chunk",
+          "score": 0.620335,
+          "source_id": "03-kimi-model-page"
+        },
+        {
+          "id": "kimi-k3-context_output",
+          "model_id": "kimi-k3",
+          "rank": 3,
+          "record_type": "claim",
+          "score": 0.613274,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "kimi-k3-modalities",
+          "model_id": "kimi-k3",
+          "rank": 4,
+          "record_type": "claim",
+          "score": 0.605772,
+          "source_id": "03-kimi-model-page"
+        },
+        {
+          "id": "chunk-329e518a8bada84c681d",
+          "model_id": "kimi-k3",
+          "rank": 5,
+          "record_type": "evidence_chunk",
+          "score": 0.594051,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "attr-kimi-k3-modalities",
+          "model_id": "kimi-k3",
+          "rank": 6,
+          "record_type": "attribute",
+          "score": 0.591003,
+          "source_id": "03-kimi-model-page"
+        },
+        {
+          "id": "kimi-k3-reasoning_behavior",
+          "model_id": "kimi-k3",
+          "rank": 7,
+          "record_type": "claim",
+          "score": 0.580986,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "chunk-58f7638e5860c86d2bf2",
+          "model_id": "kimi-k3",
+          "rank": 8,
+          "record_type": "evidence_chunk",
+          "score": 0.576526,
+          "source_id": "03-kimi-model-page"
+        },
+        {
+          "id": "chunk-39b77f3e1955147cae0c",
+          "model_id": "kimi-k3",
+          "rank": 9,
+          "record_type": "evidence_chunk",
+          "score": 0.568066,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "kimi-k3-pricing",
+          "model_id": "kimi-k3",
+          "rank": 10,
+          "record_type": "claim",
+          "score": 0.561631,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "kimi-k3-architecture",
+          "model_id": "kimi-k3",
+          "rank": 11,
+          "record_type": "claim",
+          "score": 0.560207,
+          "source_id": "01-kimi-quickstart"
+        },
+        {
+          "id": "kimi-k3-model_identity",
+          "model_id": "kimi-k3",
+          "rank": 12,
+          "record_type": "claim",
+          "score": 0.55756,
+          "source_id": "01-kimi-quickstart"
+        }
+      ],
+      "vector_model_rank": 1,
+      "vector_ndcg": 0.8451850618939637,
+      "vector_semantic_rank": 1
+    }
+  ],
+  "collection": "tokenaudit_knowledge_v3",
+  "coverage": [
+    {
+      "attributes": 6,
+      "claims": 9,
+      "coverage_gaps": [],
+      "model_id": "claude-fable-5",
+      "records": 22,
+      "source_review_status": "APPROVE"
+    },
+    {
+      "attributes": 7,
+      "claims": 7,
+      "coverage_gaps": [
+        "Source manifest review status is CONDITIONAL."
+      ],
+      "model_id": "claude-opus-4.6",
+      "records": 20,
+      "source_review_status": "CONDITIONAL",
+      "stats": {
+        "attributes": 7,
+        "chunks_after_dedup": 114,
+        "chunks_before_dedup": 114,
+        "claims": 8,
+        "documents": 5,
+        "duplicate_chunks_removed": 0,
+        "elements": 755,
+        "evidence_chunks": 6,
+        "ground_truth_claims": 7,
+        "image_unique_urls": 41,
+        "images_downloaded": 4,
+        "images_found": 44,
+        "ocr_success": 1,
+        "quarantined_claims": 1,
+        "records_for_embedding": 20,
+        "tables": 7
+      }
+    },
+    {
+      "attributes": 7,
+      "claims": 7,
+      "coverage_gaps": [],
+      "model_id": "deepseek-v4-pro",
+      "records": 19,
+      "source_review_status": "APPROVE",
+      "stats": {
+        "attributes": 7,
+        "chunks_after_dedup": 45,
+        "chunks_before_dedup": 45,
+        "claims": 7,
+        "documents": 5,
+        "duplicate_chunks_removed": 0,
+        "elements": 303,
+        "evidence_chunks": 5,
+        "ground_truth_claims": 7,
+        "image_unique_urls": 12,
+        "images_downloaded": 9,
+        "images_found": 12,
+        "ocr_success": 1,
+        "quarantined_claims": 0,
+        "records_for_embedding": 19,
+        "tables": 6
+      }
+    },
+    {
+      "attributes": 10,
+      "claims": 10,
+      "coverage_gaps": [],
+      "model_id": "glm-5.3",
+      "records": 27,
+      "source_review_status": "APPROVE",
+      "stats": {
+        "attributes": 10,
+        "chunks_after_dedup": 77,
+        "chunks_before_dedup": 77,
+        "claims": 10,
+        "documents": 5,
+        "duplicate_chunks_removed": 0,
+        "elements": 535,
+        "evidence_chunks": 7,
+        "ground_truth_claims": 10,
+        "image_unique_urls": 18,
+        "images_downloaded": 8,
+        "images_found": 29,
+        "ocr_success": 8,
+        "quarantined_claims": 0,
+        "records_for_embedding": 27,
+        "tables": 6
+      }
+    },
+    {
+      "attributes": 7,
+      "claims": 7,
+      "coverage_gaps": [],
+      "model_id": "gpt-5.6-luna",
+      "records": 16,
+      "source_review_status": "APPROVE",
+      "stats": {
+        "attributes": 7,
+        "chunks_after_dedup": 187,
+        "chunks_before_dedup": 188,
+        "claims": 9,
+        "documents": 5,
+        "duplicate_chunks_removed": 1,
+        "elements": 2576,
+        "evidence_chunks": 2,
+        "ground_truth_claims": 7,
+        "image_unique_urls": 75,
+        "images_downloaded": 63,
+        "images_found": 93,
+        "ocr_success": 50,
+        "quarantined_claims": 2,
+        "records_for_embedding": 16,
+        "tables": 20
+      }
+    },
+    {
+      "attributes": 10,
+      "claims": 10,
+      "coverage_gaps": [],
+      "model_id": "gpt-5.6-sol",
+      "records": 26,
+      "source_review_status": "APPROVE",
+      "stats": {
+        "attributes": 10,
+        "chunks_after_dedup": 207,
+        "chunks_before_dedup": 207,
+        "claims": 10,
+        "documents": 5,
+        "duplicate_chunks_removed": 0,
+        "elements": 1044,
+        "evidence_chunks": 6,
+        "ground_truth_claims": 10,
+        "image_unique_urls": 54,
+        "images_downloaded": 52,
+        "images_found": 56,
+        "ocr_success": 48,
+        "quarantined_claims": 0,
+        "records_for_embedding": 26,
+        "tables": 29
+      }
+    },
+    {
+      "attributes": 7,
+      "claims": 7,
+      "coverage_gaps": [],
+      "model_id": "gpt-5.6-terra",
+      "records": 16,
+      "source_review_status": "APPROVE",
+      "stats": {
+        "attributes": 7,
+        "chunks_after_dedup": 108,
+        "chunks_before_dedup": 108,
+        "claims": 9,
+        "documents": 5,
+        "duplicate_chunks_removed": 0,
+        "elements": 763,
+        "evidence_chunks": 2,
+        "ground_truth_claims": 7,
+        "image_unique_urls": 13,
+        "images_downloaded": 8,
+        "images_found": 18,
+        "ocr_success": 4,
+        "quarantined_claims": 2,
+        "records_for_embedding": 16,
+        "tables": 12
+      }
+    },
+    {
+      "attributes": 0,
+      "claims": 0,
+      "coverage_gaps": [
+        "No captured page body explicitly names the target model; front matter was ignored.",
+        "No P0/P1 chunk explicitly names the target model.",
+        "Source manifest review status is HOLD."
+      ],
+      "model_id": "grok-5",
+      "records": 0,
+      "source_review_status": "HOLD",
+      "stats": {
+        "attributes": 0,
+        "chunks_after_dedup": 209,
+        "chunks_before_dedup": 210,
+        "claims": 0,
+        "documents": 5,
+        "duplicate_chunks_removed": 1,
+        "elements": 2405,
+        "evidence_chunks": 0,
+        "ground_truth_claims": 0,
+        "image_unique_urls": 23,
+        "images_downloaded": 1,
+        "images_found": 38,
+        "ocr_success": 1,
+        "quarantined_claims": 0,
+        "records_for_embedding": 0,
+        "tables": 17
+      }
+    },
+    {
+      "attributes": 10,
+      "claims": 10,
+      "coverage_gaps": [],
+      "model_id": "kimi-k3",
+      "records": 29,
+      "source_review_status": "APPROVE",
+      "stats": {
+        "attributes": 10,
+        "chunks_after_dedup": 155,
+        "chunks_before_dedup": 156,
+        "claims": 10,
+        "documents": 5,
+        "duplicate_chunks_removed": 1,
+        "elements": 2240,
+        "evidence_chunks": 9,
+        "ground_truth_claims": 10,
+        "image_unique_urls": 34,
+        "images_downloaded": 24,
+        "images_found": 34,
+        "ocr_success": 12,
+        "quarantined_claims": 0,
+        "records_for_embedding": 29,
+        "tables": 5
+      }
+    },
+    {
+      "attributes": 0,
+      "claims": 0,
+      "coverage_gaps": [
+        "No P0/P1 chunk explicitly names the target model.",
+        "Source manifest review status is CONDITIONAL."
+      ],
+      "model_id": "qwen3-max",
+      "records": 0,
+      "source_review_status": "CONDITIONAL",
+      "stats": {
+        "attributes": 0,
+        "chunks_after_dedup": 123,
+        "chunks_before_dedup": 124,
+        "claims": 8,
+        "documents": 5,
+        "duplicate_chunks_removed": 1,
+        "elements": 2181,
+        "evidence_chunks": 0,
+        "ground_truth_claims": 0,
+        "image_unique_urls": 36,
+        "images_downloaded": 12,
+        "images_found": 71,
+        "ocr_success": 0,
+        "quarantined_claims": 8,
+        "records_for_embedding": 0,
+        "tables": 6
+      }
+    }
+  ],
+  "database_records": 175,
+  "limitations": [
+    "The evaluation set is deterministic and derived from admitted source-backed attributes; it is a smoke test, not an independent benchmark.",
+    "Models with HOLD or mismatched source bodies are excluded from scored queries rather than assigned fabricated Ground Truth.",
+    "A successful retrieval result validates this corpus and query set, not the authenticity of any relay model by itself."
+  ],
+  "metrics": {
+    "attribute_exact_recall_at_5": 1.0,
+    "cases": 17,
+    "rerank_model_top1_accuracy": 1.0,
+    "rerank_mrr_at_5": 1.0,
+    "rerank_ndcg_at_5": 0.8525717389506061,
+    "rerank_recall_at_5": 1.0,
+    "rerank_top1_accuracy": 1.0,
+    "vector_model_recall_at_12": 1.0,
+    "vector_model_top1_accuracy": 1.0,
+    "vector_mrr_at_12": 1.0,
+    "vector_ndcg_at_12": 0.9143865958457263,
+    "vector_recall_at_12": 1.0,
+    "vector_top1_accuracy": 1.0
+  },
+  "per_model_metrics": {
+    "claude-fable-5": {
+      "attribute_exact_recall_at_5": 1.0,
+      "cases": 3,
+      "rerank_model_top1_accuracy": 1.0,
+      "rerank_mrr_at_5": 1.0,
+      "rerank_ndcg_at_5": 0.9891559944963898,
+      "rerank_recall_at_5": 1.0,
+      "rerank_top1_accuracy": 1.0,
+      "vector_model_recall_at_12": 1.0,
+      "vector_model_top1_accuracy": 1.0,
+      "vector_mrr_at_12": 1.0,
+      "vector_ndcg_at_12": 0.9732402630493958,
+      "vector_recall_at_12": 1.0,
+      "vector_top1_accuracy": 1.0
+    },
+    "claude-opus-4.6": {
+      "attribute_exact_recall_at_5": 1.0,
+      "cases": 2,
+      "rerank_model_top1_accuracy": 1.0,
+      "rerank_mrr_at_5": 1.0,
+      "rerank_ndcg_at_5": 0.6611032955417065,
+      "rerank_recall_at_5": 1.0,
+      "rerank_top1_accuracy": 1.0,
+      "vector_model_recall_at_12": 1.0,
+      "vector_model_top1_accuracy": 1.0,
+      "vector_mrr_at_12": 1.0,
+      "vector_ndcg_at_12": 0.835693036261652,
+      "vector_recall_at_12": 1.0,
+      "vector_top1_accuracy": 1.0
+    },
+    "deepseek-v4-pro": {
+      "attribute_exact_recall_at_5": 1.0,
+      "cases": 2,
+      "rerank_model_top1_accuracy": 1.0,
+      "rerank_mrr_at_5": 1.0,
+      "rerank_ndcg_at_5": 0.8664143102388955,
+      "rerank_recall_at_5": 1.0,
+      "rerank_top1_accuracy": 1.0,
+      "vector_model_recall_at_12": 1.0,
+      "vector_model_top1_accuracy": 1.0,
+      "vector_mrr_at_12": 1.0,
+      "vector_ndcg_at_12": 0.9427299407857437,
+      "vector_recall_at_12": 1.0,
+      "vector_top1_accuracy": 1.0
+    },
+    "glm-5.3": {
+      "attribute_exact_recall_at_5": 1.0,
+      "cases": 2,
+      "rerank_model_top1_accuracy": 1.0,
+      "rerank_mrr_at_5": 1.0,
+      "rerank_ndcg_at_5": 0.8561315332572981,
+      "rerank_recall_at_5": 1.0,
+      "rerank_top1_accuracy": 1.0,
+      "vector_model_recall_at_12": 1.0,
+      "vector_model_top1_accuracy": 1.0,
+      "vector_mrr_at_12": 1.0,
+      "vector_ndcg_at_12": 0.9734512147629872,
+      "vector_recall_at_12": 1.0,
+      "vector_top1_accuracy": 1.0
+    },
+    "gpt-5.6-luna": {
+      "attribute_exact_recall_at_5": 1.0,
+      "cases": 2,
+      "rerank_model_top1_accuracy": 1.0,
+      "rerank_mrr_at_5": 1.0,
+      "rerank_ndcg_at_5": 0.9530127177673411,
+      "rerank_recall_at_5": 1.0,
+      "rerank_top1_accuracy": 1.0,
+      "vector_model_recall_at_12": 1.0,
+      "vector_model_top1_accuracy": 1.0,
+      "vector_mrr_at_12": 1.0,
+      "vector_ndcg_at_12": 0.9063265226915664,
+      "vector_recall_at_12": 1.0,
+      "vector_top1_accuracy": 1.0
+    },
+    "gpt-5.6-sol": {
+      "attribute_exact_recall_at_5": 1.0,
+      "cases": 2,
+      "rerank_model_top1_accuracy": 1.0,
+      "rerank_mrr_at_5": 1.0,
+      "rerank_ndcg_at_5": 0.9571852065075719,
+      "rerank_recall_at_5": 1.0,
+      "rerank_top1_accuracy": 1.0,
+      "vector_model_recall_at_12": 1.0,
+      "vector_model_top1_accuracy": 1.0,
+      "vector_mrr_at_12": 1.0,
+      "vector_ndcg_at_12": 0.8644124624759795,
+      "vector_recall_at_12": 1.0,
+      "vector_top1_accuracy": 1.0
+    },
+    "gpt-5.6-terra": {
+      "attribute_exact_recall_at_5": 1.0,
+      "cases": 2,
+      "rerank_model_top1_accuracy": 1.0,
+      "rerank_mrr_at_5": 1.0,
+      "rerank_ndcg_at_5": 0.8519590445170673,
+      "rerank_recall_at_5": 1.0,
+      "rerank_top1_accuracy": 1.0,
+      "vector_model_recall_at_12": 1.0,
+      "vector_model_top1_accuracy": 1.0,
+      "vector_mrr_at_12": 1.0,
+      "vector_ndcg_at_12": 0.8672199621896701,
+      "vector_recall_at_12": 1.0,
+      "vector_top1_accuracy": 1.0
+    },
+    "kimi-k3": {
+      "attribute_exact_recall_at_5": 1.0,
+      "cases": 2,
+      "rerank_model_top1_accuracy": 1.0,
+      "rerank_mrr_at_5": 1.0,
+      "rerank_ndcg_at_5": 0.617319681505689,
+      "rerank_recall_at_5": 1.0,
+      "rerank_top1_accuracy": 1.0,
+      "vector_model_recall_at_12": 1.0,
+      "vector_model_top1_accuracy": 1.0,
+      "vector_mrr_at_12": 1.0,
+      "vector_ndcg_at_12": 0.9225925309469818,
+      "vector_recall_at_12": 1.0,
+      "vector_top1_accuracy": 1.0
+    }
+  },
+  "rerank_top_k": 5,
+  "retrieval_top_k": 12,
+  "schema_version": 1,
+  "test_cases": 17,
+  "tested_at": "2026-08-24T09:16:37.892051+00:00"
+}

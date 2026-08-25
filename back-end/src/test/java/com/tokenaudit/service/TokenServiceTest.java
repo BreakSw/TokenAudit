@@ -16,13 +16,15 @@ import static org.mockito.Mockito.*;
 class TokenServiceTest {
     private TokenInfoMapper mapper;
     private TokenCipher cipher;
+    private OutboundUrlValidator validator;
     private TokenService service;
 
     @BeforeEach
     void setUp() {
         mapper = mock(TokenInfoMapper.class);
         cipher = mock(TokenCipher.class);
-        service = new TokenService(mapper, cipher, mock(OutboundUrlValidator.class));
+        validator = mock(OutboundUrlValidator.class);
+        service = new TokenService(mapper, cipher, validator);
     }
 
     @Test
@@ -61,5 +63,31 @@ class TokenServiceTest {
 
         assertEquals("token_not_found", error.getMessage());
         verify(mapper, never()).findById(anyLong());
+    }
+
+    @Test
+    void validatesAndUpdatesOnlyTheTokenBaseUrl() {
+        TokenInfo stored = new TokenInfo();
+        stored.setId(4L);
+        stored.setName("Relay");
+        stored.setToken("encrypted-token");
+        stored.setPlatform("Any relay");
+        stored.setTokenBaseUrl("https://new-relay.example/v1");
+        stored.setClaimedModel("vendor/model");
+        stored.setNonClaimedModel("");
+        stored.setCreatedAt("2026-08-22 14:00:00");
+
+        when(validator.validate("  https://new-relay.example/v1/  ")).thenReturn("https://new-relay.example/v1");
+        when(mapper.updateTokenBaseUrl(4L, "https://new-relay.example/v1")).thenReturn(1);
+        when(mapper.findById(4L)).thenReturn(stored);
+        when(cipher.isEncrypted("encrypted-token")).thenReturn(true);
+        when(cipher.decrypt("encrypted-token")).thenReturn("secret-token-value");
+
+        TokenResponse response = service.updateTokenBaseUrl(4L, "  https://new-relay.example/v1/  ");
+
+        assertEquals("https://new-relay.example/v1", response.getTokenBaseUrl());
+        assertEquals("secr***alue", response.getTokenMasked());
+        verify(mapper).updateTokenBaseUrl(4L, "https://new-relay.example/v1");
+        verify(mapper, never()).updateClaimedModel(anyLong(), anyString());
     }
 }

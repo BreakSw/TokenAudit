@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "model": "DeepSeek-V4-Pro",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P2",
+  "sourceId": "04-forbes",
+  "label": "DeepSeek Releases V4 Pro · Forbes",
+  "requestedUrl": "https://www.forbes.com/sites/jonmarkman/2026/08/18/deepseek-releases-v4-pro-at-14x-the-price-of-its-cheapest-model/",
+  "finalUrl": "https://www.forbes.com/sites/jonmarkman/2026/08/18/deepseek-releases-v4-pro-at-14x-the-price-of-its-cheapest-model/",
+  "capturedAt": "2026-08-23T10:52:17.410Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 14241,
+  "markdownSha256": "c037742a9d2f94120c9399c9d0b423c24e77ada492154139e4f320c8cf457fd8",
+  "error": null,
+  "sourceMetadata": {
+    "title": "DeepSeek Releases V4 Pro At 14 Times The Price Of Its Cheapest Model",
+    "description": "DeepSeek's V4 Pro costs 14x its budget model. The lab that made AI cheap now prices, raises, and builds like the compute shortage is real., Wager coins (never real money) on what happens next. Double down when you're confident. Flip your call when the story changes.",
+    "language": "en",
+    "sourceURL": "https://www.forbes.com/sites/jonmarkman/2026/08/18/deepseek-releases-v4-pro-at-14x-the-price-of-its-cheapest-model/",
+    "url": "https://www.forbes.com/sites/jonmarkman/2026/08/18/deepseek-releases-v4-pro-at-14x-the-price-of-its-cheapest-model/",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "author": "Jon Markman",
+    "ogTitle": "DeepSeek Releases V4 Pro At 14 Times The Price Of Its Cheapest Model",
+    "ogDescription": "DeepSeek's V4 Pro costs 14x its budget model. The lab that made AI cheap now prices, raises, and builds like the compute shortage is real."
+  }
+}

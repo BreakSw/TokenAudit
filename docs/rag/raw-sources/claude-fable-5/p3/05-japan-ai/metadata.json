@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Fable 5",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P3",
+  "sourceId": "05-japan-ai",
+  "label": "Claude Fable 5 analysis · JAPAN AI",
+  "requestedUrl": "https://japan-ai.co.jp/media/7250/",
+  "finalUrl": "https://japan-ai.co.jp/media/7250/",
+  "capturedAt": "2026-08-23T10:51:43.324Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 18307,
+  "markdownSha256": "259e51f7064258c486e9659ebf16756e4188365a45b54285a652140137e30881",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Claude Fable 5とは？使い方や性能・料金・Mythos 5との違い | JAPAN AI ラボ",
+    "description": " Claude Fable 5の性能・料金・Mythos 5との違い・フォールバック安全機構・データ保持ポリシーを徹底解説。SWE-bench Pro 80.3%のベンチマーク結果から競合モデル比較、導入前チェックリストまで、JAPAN AIが網羅的に解説します。",
+    "language": "ja",
+    "sourceURL": "https://japan-ai.co.jp/media/7250/",
+    "url": "https://japan-ai.co.jp/media/7250/",
+    "statusCode": 200,
+    "contentType": "text/html; charset=UTF-8",
+    "ogTitle": "Claude Fable 5とは？使い方や性能・料金・Mythos 5との違い",
+    "ogDescription": " Claude Fable 5の性能・料金・Mythos 5との違い・フォールバック安全機構・データ保持ポリシーを徹底解説。SWE-bench Pro 80.3%のベンチマーク結果から競合モデル比較、導入前チェックリストまで、JAPAN AIが網羅的に解説します。"
+  }
+}

@@ -25,9 +25,16 @@
           class="nav-item"
           :class="{ 'is-active': activePath === item.path }"
           :aria-current="activePath === item.path ? 'page' : undefined"
+          @click="item.path === '/history' && acknowledgeHistoryNotifications()"
         >
           <span class="nav-index">{{ item.index }}</span>
           <span>{{ item.label }}</span>
+          <span
+            v-if="item.path === '/history' && hasUnreadAuditReports"
+            class="nav-unread-dot"
+            data-testid="history-unread-dot"
+            :aria-label="`${unreadAuditCount} 份新审计报告未查看`"
+          />
         </RouterLink>
       </nav>
 
@@ -64,9 +71,11 @@
           class="mobile-nav-item"
           :class="{ 'is-active': activePath === item.path }"
           :aria-current="activePath === item.path ? 'page' : undefined"
+          @click="item.path === '/history' && acknowledgeHistoryNotifications()"
         >
           <span>{{ item.index }}</span>
           <span>{{ item.shortLabel }}</span>
+          <span v-if="item.path === '/history' && hasUnreadAuditReports" class="mobile-unread-dot" aria-hidden="true" />
         </RouterLink>
       </nav>
 
@@ -178,18 +187,26 @@
 </template>
 
 <script setup>
-import { computed, provide, reactive, ref } from "vue"
+import { computed, onBeforeUnmount, onMounted, provide, reactive, ref, watch } from "vue"
 import { RouterLink, useRoute } from "vue-router"
 import { ElMessage } from "element-plus"
-import { deleteAuditAiConfig, getAuditAiConfig, saveAuditAiConfig } from "./request/api"
+import { deleteAuditAiConfig, getAuditAiConfig, listAudits, saveAuditAiConfig } from "./request/api"
 import { readStorage, removeStorage, writeStorage } from "./utils/storage"
+import {
+  AUDIT_READ_STATE_EVENT,
+  markAllAuditReportsRead,
+  markAuditReportRead,
+  observeAuditCompletions,
+  unreadAuditReportIds
+} from "./utils/auditReadState"
 
 const navigation = [
   { path: "/", label: "审计控制台", shortLabel: "控制台", index: "00" },
-  { path: "/audit", label: "发起审计", shortLabel: "审计", index: "01" },
-  { path: "/tokens", label: "Token 管理", shortLabel: "Token", index: "02" },
-  { path: "/history", label: "历史记录", shortLabel: "历史", index: "03" },
-  { path: "/guide", label: "使用文档", shortLabel: "文档", index: "04" }
+  { path: "/audit", label: "快速审计", shortLabel: "快速", index: "01" },
+  { path: "/audit/deep", label: "深度审计", shortLabel: "深度", index: "02" },
+  { path: "/tokens", label: "Token 管理", shortLabel: "Token", index: "03" },
+  { path: "/history", label: "历史记录", shortLabel: "历史", index: "04" },
+  { path: "/guide", label: "使用文档", shortLabel: "文档", index: "05" }
 ]
 
 const route = useRoute()
@@ -203,6 +220,10 @@ const auditAiMasked = ref("")
 const auditAiExpiresInSeconds = ref(0)
 const auditAiSaving = ref(false)
 const auditAiError = ref("")
+const unreadAuditCount = ref(0)
+const hasUnreadAuditReports = computed(() => unreadAuditCount.value > 0)
+let auditCompletionTimer = null
+let auditCompletionRequest = null
 const auditAi = reactive({
   provider: "DeepSeek",
   apiUrl: "https://api.deepseek.com/v1/chat/completions",
@@ -250,6 +271,32 @@ const auditAiProviderGroups = [
   }
 ]
 const auditAiProviders = computed(() => auditAiProviderGroups.flatMap((group) => group.providers))
+
+function syncUnreadAuditCount() {
+  unreadAuditCount.value = unreadAuditReportIds().size
+}
+
+function acknowledgeHistoryNotifications() {
+  markAllAuditReportsRead()
+  syncUnreadAuditCount()
+}
+
+async function pollAuditCompletions() {
+  if (auditCompletionRequest) return auditCompletionRequest
+  auditCompletionRequest = listAudits()
+    .then((records) => {
+      observeAuditCompletions(records)
+      const viewedReport = /^\/report\/(\d+)/.exec(route.fullPath)
+      if (viewedReport) markAuditReportRead(Number(viewedReport[1]))
+      if (route.path === "/history") markAllAuditReportsRead()
+      syncUnreadAuditCount()
+    })
+    .catch(() => {})
+    .finally(() => {
+      auditCompletionRequest = null
+    })
+  return auditCompletionRequest
+}
 
 const isReportRoute = computed(() => route.path.startsWith("/report/"))
 const activePath = computed(() => (isReportRoute.value ? "/history" : route.path))
@@ -418,6 +465,28 @@ function openAuditAiSettings(message = "") {
 }
 
 provide("openAuditAiSettings", openAuditAiSettings)
+
+watch(
+  () => route.fullPath,
+  (path) => {
+    const match = /^\/report\/(\d+)/.exec(path)
+    if (match) markAuditReportRead(Number(match[1]))
+    if (path === "/history") markAllAuditReportsRead()
+    syncUnreadAuditCount()
+  },
+  { immediate: true }
+)
+
+onMounted(() => {
+  window.addEventListener(AUDIT_READ_STATE_EVENT, syncUnreadAuditCount)
+  pollAuditCompletions()
+  auditCompletionTimer = window.setInterval(pollAuditCompletions, 5000)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener(AUDIT_READ_STATE_EVENT, syncUnreadAuditCount)
+  if (auditCompletionTimer !== null) window.clearInterval(auditCompletionTimer)
+})
 </script>
 
 <style scoped>
@@ -516,6 +585,29 @@ provide("openAuditAiSettings", openAuditAiSettings)
 .brand-block:focus-visible .brand-arrow {
   color: var(--ta-green);
   transform: translate(0, 0);
+}
+
+.nav-unread-dot {
+  width: 7px;
+  height: 7px;
+  margin-left: auto;
+  flex: 0 0 auto;
+  background: var(--ta-danger);
+  border-radius: 50%;
+  box-shadow: 0 0 9px rgba(255, 102, 112, 0.62);
+  animation: unread-pulse 1.8s ease-in-out infinite;
+}
+
+.mobile-unread-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--ta-danger);
+  border-radius: 50%;
+}
+
+@keyframes unread-pulse {
+  0%, 100% { opacity: .7; transform: scale(.9); }
+  50% { opacity: 1; transform: scale(1.15); }
 }
 
 .system-state,

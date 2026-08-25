@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "model": "DeepSeek-V4-Pro",
+  "modelSlug": "deepseek-v4-pro",
+  "reviewStatus": "APPROVE",
+  "sources": [
+    {
+      "id": "01-huggingface-model-card",
+      "priority": "P0",
+      "label": "DeepSeek-V4-Pro model card · DeepSeek AI",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro"
+    },
+    {
+      "id": "02-deepseek-release",
+      "priority": "P0",
+      "label": "DeepSeek-V4-Pro GA Release · DeepSeek API Docs",
+      "url": "https://api-docs.deepseek.com/news/news260813/"
+    },
+    {
+      "id": "03-deepseek-platform",
+      "priority": "P1",
+      "label": "DeepSeek Platform",
+      "url": "https://platform.deepseek.com/"
+    },
+    {
+      "id": "04-forbes",
+      "priority": "P2",
+      "label": "DeepSeek Releases V4 Pro · Forbes",
+      "url": "https://www.forbes.com/sites/jonmarkman/2026/08/18/deepseek-releases-v4-pro-at-14x-the-price-of-its-cheapest-model/"
+    },
+    {
+      "id": "05-ai-release-tracker",
+      "priority": "P3",
+      "label": "DeepSeek-V4-Pro · AI Release Tracker",
+      "url": "https://aireleasetracker.com/model/deepseek/deepseek-v4-pro"
+    }
+  ]
+}

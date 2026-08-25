@@ -4,12 +4,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import TokenManager from "./TokenManager.vue"
 import ModelCombobox from "./ModelCombobox.vue"
-import { createToken, deleteToken, listTokens, updateTokenClaimedModel } from "../request/api"
+import { createToken, deleteToken, listTokens, updateTokenBaseUrl, updateTokenClaimedModel } from "../request/api"
 
 vi.mock("../request/api", () => ({
   createToken: vi.fn(),
   deleteToken: vi.fn(),
   listTokens: vi.fn(),
+  updateTokenBaseUrl: vi.fn(),
   updateTokenClaimedModel: vi.fn()
 }))
 
@@ -64,6 +65,7 @@ beforeEach(() => {
   vi.mocked(createToken).mockReset()
   vi.mocked(deleteToken).mockReset()
   vi.mocked(updateTokenClaimedModel).mockReset()
+  vi.mocked(updateTokenBaseUrl).mockReset()
 })
 
 afterEach(() => {
@@ -151,6 +153,57 @@ describe("TokenManager", () => {
 
     expect(wrapper.get('[data-testid="model-selector-13"]').findComponent(ModelCombobox).props("modelValue")).toBe("old-model")
     expect(wrapper.get('[data-testid="operation-error"]').text()).toContain("模型更新失败")
+  })
+
+  it("updates a workspace API URL and keeps the returned normalized value", async () => {
+    const token = {
+      id: 17,
+      name: "78code",
+      tokenMasked: "sk-***",
+      platform: "中转",
+      tokenBaseUrl: "https://old.example/v1",
+      claimedModel: "claude-opus-4-6",
+      nonClaimedModel: ""
+    }
+    vi.mocked(listTokens).mockResolvedValue([token])
+    vi.mocked(updateTokenBaseUrl).mockResolvedValue({
+      ...token,
+      tokenBaseUrl: "https://new.example/v1"
+    })
+    const wrapper = mountTokenManager()
+    await flushPromises()
+
+    const editor = wrapper.get('[data-testid="url-editor-17"]')
+    await editor.get("input").setValue("https://new.example/v1/")
+    await editor.get("button").trigger("click")
+    await flushPromises()
+
+    expect(updateTokenBaseUrl).toHaveBeenCalledWith(17, "https://new.example/v1/")
+    expect(editor.get("input").element.value).toBe("https://new.example/v1")
+  })
+
+  it("restores the previous API URL when an update fails", async () => {
+    const token = {
+      id: 18,
+      name: "失败回归",
+      tokenMasked: "sk-***",
+      platform: "中转",
+      tokenBaseUrl: "https://old.example/v1",
+      claimedModel: "gpt-5.4",
+      nonClaimedModel: ""
+    }
+    vi.mocked(listTokens).mockResolvedValue([token])
+    vi.mocked(updateTokenBaseUrl).mockRejectedValue(new Error("地址更新失败"))
+    const wrapper = mountTokenManager()
+    await flushPromises()
+
+    const editor = wrapper.get('[data-testid="url-editor-18"]')
+    await editor.get("input").setValue("https://new.example/v1")
+    await editor.get("button").trigger("click")
+    await flushPromises()
+
+    expect(editor.get("input").element.value).toBe("https://old.example/v1")
+    expect(wrapper.get('[data-testid="operation-error"]').text()).toContain("地址更新失败")
   })
 
   it("keeps load errors visible and retries", async () => {

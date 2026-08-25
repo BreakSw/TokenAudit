@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Fable 5",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P2",
+  "sourceId": "04-artificial-analysis",
+  "label": "Claude Fable 5 · Artificial Analysis",
+  "requestedUrl": "https://artificialanalysis.ai/models/claude-fable-5",
+  "finalUrl": "https://artificialanalysis.ai/models/claude-fable-5",
+  "capturedAt": "2026-08-23T10:51:35.106Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 24136,
+  "markdownSha256": "fb8244016d98fa7078e44ae48338ff251593142c3e0daa3d627d1fa1435bf843",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Claude Fable 5 (with fallback) - Intelligence, Performance & Price Analysis | Artificial Analysis",
+    "description": "Analysis of Anthropic's Claude Fable 5 (Adaptive Reasoning, Max Effort, Opus 4.8 Fallback) and comparison to other AI models across key metrics including quality, price, performance (tokens per second & time to first token), context window & more.",
+    "language": "en",
+    "sourceURL": "https://artificialanalysis.ai/models/claude-fable-5",
+    "url": "https://artificialanalysis.ai/models/claude-fable-5",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Claude Fable 5 (with fallback) - Intelligence, Performance & Price Analysis | Artificial Analysis",
+    "ogDescription": "Analysis of Anthropic's Claude Fable 5 (Adaptive Reasoning, Max Effort, Opus 4.8 Fallback) and comparison to other AI models across key metrics including quality, price, performance (tokens per second & time to first token), context window & more."
+  }
+}

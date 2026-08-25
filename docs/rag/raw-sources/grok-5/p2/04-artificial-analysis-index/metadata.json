@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Grok 5",
+  "modelReviewStatus": "HOLD",
+  "priority": "P2",
+  "sourceId": "04-artificial-analysis-index",
+  "label": "Artificial Analysis model index",
+  "requestedUrl": "https://artificialanalysis.ai/models",
+  "finalUrl": "https://artificialanalysis.ai/models",
+  "capturedAt": "2026-08-23T10:53:48.753Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 122846,
+  "markdownSha256": "7047a4e6b930c27e8e209bd26a7fff2c4e88ee1686fcccb932f8cccef606e30f",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Comparison of AI Models across Intelligence, Performance, and Price | Artificial Analysis",
+    "description": "Comparison and analysis of AI models across key performance metrics including quality, price, output speed, latency, context window & others.",
+    "language": "en",
+    "sourceURL": "https://artificialanalysis.ai/models",
+    "url": "https://artificialanalysis.ai/models",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Comparison of AI Models across Intelligence, Performance, and Price | Artificial Analysis",
+    "ogDescription": "Comparison and analysis of AI models across key performance metrics including quality, price, output speed, latency, context window & others."
+  }
+}

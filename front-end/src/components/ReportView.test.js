@@ -114,6 +114,112 @@ describe("ReportView content", () => {
     expect(wrapper.get("[data-testid='markdown-output']").text()).toContain("<script>alert('xss')</script>")
     expect(wrapper.find("[data-testid='markdown-output'] script").exists()).toBe(false)
   })
+
+  it("renders deep audit score cards instead of empty quick-audit dimensions", async () => {
+    vi.mocked(getAudit).mockResolvedValue(completedReport({
+      base_info: {
+        audit_mode: "deep",
+        token_masked: "sk-***-safe",
+        platform: "relay",
+        claimed_model: "model-x",
+        audit_time: "2026-08-25 10:20:30"
+      },
+      deep_audit: { questions_per_round: 3, variants_per_question: 3 },
+      ground_truth: { evidence_counts: { spec: 5, claimed_behavior: 8, contrast_behavior: 8 } },
+      rounds: [{ responses: [{ ok: true }, { ok: false }, { ok: true }] }],
+      score: {
+        total_score: 82.4,
+        band: "consistent",
+        confidence: 0.76,
+        valid_response_ratio: 0.6667,
+        components: {
+          objective: 81,
+          semantic: 79,
+          official_ground_truth: 77,
+          behavior_differential: 72,
+          fuzz_consistency: 90
+        }
+      }
+    }))
+
+    const wrapper = await mountReport()
+    await flushPromises()
+
+    expect(wrapper.text()).toContain("五项深度评分")
+    expect(wrapper.text()).toContain("RAG 证据、动态探针、模糊变体与多 Agent 裁判")
+    const dimensions = wrapper.findAll("[data-testid='report-dimension']")
+    expect(dimensions.map((item) => item.attributes("data-dimension"))).toEqual([
+      "objective",
+      "semantic",
+      "official_ground_truth",
+      "behavior_differential",
+      "fuzz_consistency"
+    ])
+    expect(dimensions.map((item) => item.find("h3").text())).toEqual([
+      "客观约束",
+      "语义质量",
+      "基线符合度",
+      "行为差分",
+      "Fuzz 一致性"
+    ])
+    expect(wrapper.text()).toContain("81.00 / 100")
+    expect(wrapper.text()).toContain("3 次目标响应，2 次返回可评分答案")
+    expect(wrapper.text()).not.toContain("未返回分项结论")
+    const overallScore = wrapper.get("[data-testid='report-overall-score']")
+    expect(overallScore.text()).toContain("综合得分")
+    expect(overallScore.text()).toContain("82.40")
+    expect(overallScore.text()).toContain("一致")
+    expect(overallScore.text()).toContain("76.0%")
+    expect(overallScore.text()).toContain("66.7%")
+  })
+
+  it("defaults an English deep-audit verdict to a Chinese summary", async () => {
+    const englishReport = completedReport({
+      base_info: { audit_mode: "deep", claimed_model: "model-x" },
+      ground_truth: { coverage: 0.15, evidence_counts: {} },
+      deep_audit: { questions_per_round: 3, variants_per_question: 3 },
+      score: {
+        total_score: 72.96,
+        band: "partially_consistent",
+        confidence: 0.0933,
+        valid_response_ratio: 0.8889,
+        components: {}
+      },
+      overall: {
+        overall_conclusion: "The result is partially consistent with the declared baseline.",
+        risk_warnings: ["Weak knowledge coverage."],
+        usage_suggestions: ["Run more tests."]
+      }
+    })
+    englishReport.overallConclusion = "The result is partially consistent with the declared baseline."
+    vi.mocked(getAudit).mockResolvedValue(englishReport)
+
+    const wrapper = await mountReport()
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid="overall-conclusion"]').text()).toContain("部分一致")
+    expect(wrapper.get('[data-testid="overall-conclusion"]').text()).toContain("72.96")
+    expect(wrapper.get('[data-testid="risk-list"]').text()).toContain("知识基线覆盖率")
+    expect(wrapper.get('[data-testid="risk-list"]').text()).toContain("仅按成功答案评分")
+    expect(wrapper.get('[data-testid="suggestion-list"]').text()).toContain("官方模型文档")
+  })
+  it("does not describe an HTTP 402 target rejection as an invalid answer", async () => {
+    vi.mocked(listAuditEvents).mockResolvedValue([
+      {
+        id: 1,
+        ts: "2026-08-25T10:20:30.000Z",
+        event: "deep_target_call_end",
+        payload: { ok: false, status_code: 402, elapsed_ms: 18, response_chars: 0 }
+      }
+    ])
+
+    const wrapper = await mountReport()
+    await flushPromises()
+    await wrapper.findAll('[role="tab"]')[2].trigger("click")
+
+    expect(wrapper.text()).toContain("HTTP 402")
+    expect(wrapper.text()).not.toContain("\u7b54\u6848\u65e0\u6548")
+  })
 })
 
 describe("ReportView polling lifecycle", () => {

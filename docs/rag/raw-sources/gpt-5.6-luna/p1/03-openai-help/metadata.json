@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Luna",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P1",
+  "sourceId": "03-openai-help",
+  "label": "GPT-5.6 in ChatGPT · OpenAI Help",
+  "requestedUrl": "https://help.openai.com/en/articles/20001325-a-preview-of-gpt-56-sol-terra-and-luna",
+  "finalUrl": "https://help.openai.com/en/articles/20001325-a-preview-of-gpt-56-sol-terra-and-luna",
+  "capturedAt": "2026-08-23T10:48:31.499Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 9604,
+  "markdownSha256": "159ecee80acd4547a5558e92248d6f1226a5aac63e25bc1e697ea1fd1df845ce",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GPT-5.6 in ChatGPT | OpenAI Help Center",
+    "description": "Learn how GPT-5.6 Sol works in ChatGPT, which options are available by plan, and how usage limits and availability work.",
+    "language": "en-US",
+    "sourceURL": "https://help.openai.com/en/articles/20001325-a-preview-of-gpt-56-sol-terra-and-luna",
+    "url": "https://help.openai.com/en/articles/20001354-gpt-56-in-chatgpt",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogDescription": "Learn how GPT-5.6 Sol works in ChatGPT, which options are available by plan, and how usage limits and availability work."
+  }
+}

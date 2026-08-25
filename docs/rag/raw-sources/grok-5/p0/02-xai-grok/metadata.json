@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Grok 5",
+  "modelReviewStatus": "HOLD",
+  "priority": "P0",
+  "sourceId": "02-xai-grok",
+  "label": "Grok · xAI",
+  "requestedUrl": "https://x.ai/grok",
+  "finalUrl": "https://x.ai/grok",
+  "capturedAt": "2026-08-23T10:53:33.188Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 3868,
+  "markdownSha256": "0b69e4073c386fe533a58eafabdd6bb55c9c911e0ee20d13eaf089c9a94f8d18",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Grok — Truth-seeking AI Chatbot with Voice & Image Generation | SpaceXAI",
+    "description": "Learn about Grok, SpaceXAI's truth-seeking AI chatbot. Voice chat, image and video generation, real-time search, coding help, and advanced reasoning — on web, iOS, Android.",
+    "language": "en",
+    "sourceURL": "https://x.ai/grok",
+    "url": "https://x.ai/grok",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Grok — Truth-seeking AI Chatbot with Voice & Image Generation | SpaceXAI",
+    "ogDescription": "Learn about Grok, SpaceXAI's truth-seeking AI chatbot. Voice chat, image and video generation, real-time search, coding help, and advanced reasoning — on web, iOS, Android."
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Sol",
+  "modelSlug": "gpt-5.6-sol",
+  "reviewStatus": "APPROVE",
+  "sources": [
+    {
+      "id": "01-openai-model-page",
+      "priority": "P0",
+      "label": "GPT-5.6 Sol Model · OpenAI API",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.6-sol"
+    },
+    {
+      "id": "02-openai-release",
+      "priority": "P0",
+      "label": "Previewing GPT-5.6 Sol",
+      "url": "https://openai.com/index/previewing-gpt-5-6-sol/"
+    },
+    {
+      "id": "03-openai-system-card",
+      "priority": "P1",
+      "label": "GPT-5.6 System Card",
+      "url": "https://deploymentsafety.openai.com/gpt-5-6"
+    },
+    {
+      "id": "04-benchlm",
+      "priority": "P2",
+      "label": "GPT-5.6 Sol · BenchLM",
+      "url": "https://benchlm.ai/models/gpt-5-6-sol"
+    },
+    {
+      "id": "05-wikipedia",
+      "priority": "P3",
+      "label": "GPT-5.6 · Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/GPT-5.6"
+    }
+  ]
+}

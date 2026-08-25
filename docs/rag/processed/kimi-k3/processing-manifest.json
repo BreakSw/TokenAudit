@@ -1,0 +1,143 @@
+{
+  "chunking_policy": {
+    "combine_text_under_n_characters": 300,
+    "isolate_table": true,
+    "max_characters": 1800,
+    "new_after_n_characters": 1200,
+    "overlap_all": false,
+    "overlap_characters": 120,
+    "strategy": "by_title"
+  },
+  "coverage": {
+    "admitted_categories": [
+      "model_identity",
+      "context_output",
+      "reasoning_behavior",
+      "modalities",
+      "tools_agents",
+      "performance",
+      "architecture",
+      "pricing",
+      "safety_behavior",
+      "api_behavior"
+    ],
+    "coverage_gaps": [],
+    "explicit_model_chunks": 105,
+    "missing_categories": [],
+    "p0_p1_explicit_model_chunks": 39,
+    "rejected_categories": [],
+    "source_review_status": "APPROVE"
+  },
+  "dedup": {
+    "duplicates_removed": 1,
+    "engine": "llama-index-core",
+    "input_chunks": 156,
+    "strategy": "DocstoreStrategy.DUPLICATES_ONLY",
+    "unique_chunks": 155
+  },
+  "documents": [
+    {
+      "captured_at": "2026-08-23T10:52:36.507Z",
+      "chunks_before_dedup": 19,
+      "clean_characters": 13067,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\kimi-k3\\p0\\01-kimi-quickstart\\content.md",
+      "elements": 106,
+      "images": 4,
+      "source_id": "01-kimi-quickstart",
+      "source_level": "P0",
+      "source_url": "https://platform.kimi.ai/docs/guide/kimi-k3-quickstart",
+      "tables": 0
+    },
+    {
+      "captured_at": "2026-08-23T10:52:44.637Z",
+      "chunks_before_dedup": 20,
+      "clean_characters": 14275,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\kimi-k3\\p0\\02-github\\content.md",
+      "elements": 122,
+      "images": 9,
+      "source_id": "02-github",
+      "source_level": "P0",
+      "source_url": "https://github.com/MoonshotAI/Kimi-K3",
+      "tables": 3
+    },
+    {
+      "captured_at": "2026-08-23T10:52:54.717Z",
+      "chunks_before_dedup": 14,
+      "clean_characters": 6756,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\kimi-k3\\p1\\03-kimi-model-page\\content.md",
+      "elements": 74,
+      "images": 16,
+      "source_id": "03-kimi-model-page",
+      "source_level": "P1",
+      "source_url": "https://www.kimi.ai/ai-models/kimi-k3",
+      "tables": 0
+    },
+    {
+      "captured_at": "2026-08-23T10:53:04.312Z",
+      "chunks_before_dedup": 89,
+      "clean_characters": 79807,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\kimi-k3\\p2\\04-artificial-analysis\\content.md",
+      "elements": 1881,
+      "images": 1,
+      "source_id": "04-artificial-analysis",
+      "source_level": "P2",
+      "source_url": "https://artificialanalysis.ai/models/kimi-k3",
+      "tables": 0
+    },
+    {
+      "captured_at": "2026-08-23T10:53:16.582Z",
+      "chunks_before_dedup": 14,
+      "clean_characters": 12485,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\kimi-k3\\p3\\05-openlm\\content.md",
+      "elements": 57,
+      "images": 4,
+      "source_id": "05-openlm",
+      "source_level": "P3",
+      "source_url": "https://openlm.ai/kimi-k3/",
+      "tables": 2
+    }
+  ],
+  "generated_at": "2026-08-24T14:18:13.006896+00:00",
+  "model": {
+    "family": "kimi",
+    "label": "Kimi K3",
+    "model_id": "kimi-k3",
+    "source_review_status": "APPROVE",
+    "version": "k3"
+  },
+  "pipeline": {
+    "chunker": "unstructured chunk_by_title",
+    "claim_policy": "extractive P0/P1 target-model evidence only",
+    "deduplicator": "llama-index-core DocstoreStrategy.DUPLICATES_ONLY",
+    "document_structure": "unstructured elements",
+    "embedding": "voyage",
+    "ocr_and_image_structure": "unstructured hi_res/ocr_only",
+    "partition_and_noise_filter": "unstructured",
+    "rerank": "voyage",
+    "table_parser": "unstructured Table + text_as_html"
+  },
+  "retrieval_policy": {
+    "rerank_model": "rerank-2.5",
+    "rerank_top_k": 5,
+    "vector_top_k": 12
+  },
+  "schema_version": 3,
+  "stats": {
+    "attributes": 10,
+    "chunks_after_dedup": 155,
+    "chunks_before_dedup": 156,
+    "claims": 10,
+    "documents": 5,
+    "duplicate_chunks_removed": 1,
+    "elements": 2240,
+    "evidence_chunks": 9,
+    "ground_truth_claims": 10,
+    "image_unique_urls": 34,
+    "images_downloaded": 0,
+    "images_found": 34,
+    "ocr_success": 0,
+    "quarantined_claims": 0,
+    "records_for_embedding": 29,
+    "tables": 5
+  }
+}

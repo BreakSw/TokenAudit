@@ -1,0 +1,145 @@
+{
+  "chunking_policy": {
+    "combine_text_under_n_characters": 300,
+    "isolate_table": true,
+    "max_characters": 1800,
+    "new_after_n_characters": 1200,
+    "overlap_all": false,
+    "overlap_characters": 120,
+    "strategy": "by_title"
+  },
+  "coverage": {
+    "admitted_categories": [
+      "model_identity",
+      "context_output",
+      "reasoning_behavior",
+      "modalities",
+      "tools_agents",
+      "pricing",
+      "api_behavior"
+    ],
+    "coverage_gaps": [],
+    "explicit_model_chunks": 68,
+    "missing_categories": [
+      "safety_behavior"
+    ],
+    "p0_p1_explicit_model_chunks": 11,
+    "rejected_categories": [
+      "performance",
+      "architecture"
+    ],
+    "source_review_status": "APPROVE"
+  },
+  "dedup": {
+    "duplicates_removed": 1,
+    "engine": "llama-index-core",
+    "input_chunks": 188,
+    "strategy": "DocstoreStrategy.DUPLICATES_ONLY",
+    "unique_chunks": 187
+  },
+  "documents": [
+    {
+      "captured_at": "2026-08-23T10:48:28.152Z",
+      "chunks_before_dedup": 7,
+      "clean_characters": 3915,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\gpt-5.6-luna\\p0\\01-openai-model-page\\content.md",
+      "elements": 174,
+      "images": 2,
+      "source_id": "01-openai-model-page",
+      "source_level": "P0",
+      "source_url": "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
+      "tables": 1
+    },
+    {
+      "captured_at": "2026-08-23T10:48:29.727Z",
+      "chunks_before_dedup": 45,
+      "clean_characters": 32154,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\gpt-5.6-luna\\p0\\02-openai-family-release\\content.md",
+      "elements": 179,
+      "images": 6,
+      "source_id": "02-openai-family-release",
+      "source_level": "P0",
+      "source_url": "https://openai.com/index/gpt-5-6/",
+      "tables": 11
+    },
+    {
+      "captured_at": "2026-08-23T10:48:31.499Z",
+      "chunks_before_dedup": 17,
+      "clean_characters": 8151,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\gpt-5.6-luna\\p1\\03-openai-help\\content.md",
+      "elements": 78,
+      "images": 1,
+      "source_id": "03-openai-help",
+      "source_level": "P1",
+      "source_url": "https://help.openai.com/en/articles/20001325-a-preview-of-gpt-56-sol-terra-and-luna",
+      "tables": 2
+    },
+    {
+      "captured_at": "2026-08-23T10:48:32.405Z",
+      "chunks_before_dedup": 82,
+      "clean_characters": 76416,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\gpt-5.6-luna\\p2\\04-artificial-analysis\\content.md",
+      "elements": 1728,
+      "images": 1,
+      "source_id": "04-artificial-analysis",
+      "source_level": "P2",
+      "source_url": "https://artificialanalysis.ai/models/gpt-5-6-luna",
+      "tables": 0
+    },
+    {
+      "captured_at": "2026-08-23T10:48:37.726Z",
+      "chunks_before_dedup": 37,
+      "clean_characters": 22019,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\gpt-5.6-luna\\p3\\05-ai-souken\\content.md",
+      "elements": 417,
+      "images": 83,
+      "source_id": "05-ai-souken",
+      "source_level": "P3",
+      "source_url": "https://www.ai-souken.com/article/what-is-gpt-5-6",
+      "tables": 6
+    }
+  ],
+  "generated_at": "2026-08-24T14:17:51.275134+00:00",
+  "model": {
+    "family": "gpt",
+    "label": "GPT-5.6 Luna",
+    "model_id": "gpt-5.6-luna",
+    "source_review_status": "APPROVE",
+    "version": "5.6-luna"
+  },
+  "pipeline": {
+    "chunker": "unstructured chunk_by_title",
+    "claim_policy": "extractive P0/P1 target-model evidence only",
+    "deduplicator": "llama-index-core DocstoreStrategy.DUPLICATES_ONLY",
+    "document_structure": "unstructured elements",
+    "embedding": "voyage",
+    "ocr_and_image_structure": "unstructured hi_res/ocr_only",
+    "partition_and_noise_filter": "unstructured",
+    "rerank": "voyage",
+    "table_parser": "unstructured Table + text_as_html"
+  },
+  "retrieval_policy": {
+    "rerank_model": "rerank-2.5",
+    "rerank_top_k": 5,
+    "vector_top_k": 12
+  },
+  "schema_version": 3,
+  "stats": {
+    "attributes": 7,
+    "chunks_after_dedup": 187,
+    "chunks_before_dedup": 188,
+    "claims": 9,
+    "documents": 5,
+    "duplicate_chunks_removed": 1,
+    "elements": 2576,
+    "evidence_chunks": 2,
+    "ground_truth_claims": 7,
+    "image_unique_urls": 75,
+    "images_downloaded": 0,
+    "images_found": 93,
+    "ocr_success": 0,
+    "quarantined_claims": 2,
+    "records_for_embedding": 16,
+    "tables": 20
+  }
+}

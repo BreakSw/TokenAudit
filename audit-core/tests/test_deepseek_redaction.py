@@ -3,6 +3,8 @@ from __future__ import annotations
 import unittest
 from unittest.mock import Mock, patch
 
+import requests
+
 from audit_core.config import AuditConfig
 from audit_core.scripts.deepseek_api import DeepSeekError, deepseek_chat, normalize_chat_completions_url
 
@@ -76,6 +78,22 @@ class DeepSeekRedactionTest(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(result["status_code"], 200)
 
+    def test_json_response_mode_uses_openai_compatible_response_format(self) -> None:
+        response = Mock()
+        response.status_code = 200
+        response.headers = {"content-type": "application/json"}
+        response.json.return_value = {"choices": [{"message": {"content": "{}"}}]}
+        config = AuditConfig("https://judge.example/v1", "judge-key", "judge", 0.2, 128, 2, ".")
+
+        with patch("audit_core.scripts.deepseek_api.requests.post", return_value=response) as post:
+            deepseek_chat(
+                config=config,
+                messages=[{"role": "user", "content": "return json"}],
+                json_response=True,
+            )
+
+        assert post.call_args.kwargs["json"]["response_format"] == {"type": "json_object"}
+
     def test_raises_a_structured_error_for_http_failures(self) -> None:
         response = Mock()
         response.status_code = 404
@@ -90,6 +108,22 @@ class DeepSeekRedactionTest(unittest.TestCase):
         self.assertEqual(raised.exception.status_code, 404)
         self.assertEqual(raised.exception.reason, "endpoint_or_model_not_found")
         self.assertEqual(raised.exception.url, "https://judge.example/v1/chat/completions")
+
+    def test_retries_one_transient_network_failure(self) -> None:
+        response = Mock()
+        response.status_code = 200
+        response.headers = {"content-type": "application/json"}
+        response.json.return_value = {"choices": [{"message": {"content": "{}"}}]}
+        config = AuditConfig("https://judge.example/v1", "judge-key", "judge", 0.2, 128, 2, ".")
+
+        with patch(
+            "audit_core.scripts.deepseek_api.requests.post",
+            side_effect=[requests.ConnectionError("temporary disconnect"), response],
+        ) as post, patch("audit_core.scripts.deepseek_api.time.sleep"):
+            result = deepseek_chat(config=config, messages=[{"role": "user", "content": "facts"}])
+
+        assert result["ok"] is True
+        assert post.call_count == 2
 
 
 if __name__ == "__main__":

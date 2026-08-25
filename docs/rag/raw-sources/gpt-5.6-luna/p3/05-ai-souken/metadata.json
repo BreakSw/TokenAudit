@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Luna",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P3",
+  "sourceId": "05-ai-souken",
+  "label": "GPT-5.6 Sol/Terra/Luna analysis · AI Souken",
+  "requestedUrl": "https://www.ai-souken.com/article/what-is-gpt-5-6",
+  "finalUrl": "https://www.ai-souken.com/article/what-is-gpt-5-6",
+  "capturedAt": "2026-08-23T10:48:37.726Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 45908,
+  "markdownSha256": "7cf01019a7e227fcc7fdf9d9646e8be26531107f78a8c2ad0d6cc918cfbc7a60",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GPT-5.6とは？料金・性能・Sol/Terra/Lunaの使い分けを解説 | AI総合研究所",
+    "description": "GPT-5.6は2026年6月26日にプレビュー、7月9日に一般提供が開始されたOpenAIの新モデル家族です。フラッグシップSol、GPT-5.5相当を半額で提供するTerra、最安のLunaという3ティアと、推論エフォート・Ultra・Sol Proの設定、料金、主要ベンチマーク、ChatGPT/Codex/APIの提供、セーフティ設計、Claude Fable 5・GPT-5.5との使い分けを整理します。",
+    "language": "ja",
+    "sourceURL": "https://www.ai-souken.com/article/what-is-gpt-5-6",
+    "url": "https://www.ai-souken.com/article/what-is-gpt-5-6",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "publishedTime": "2026-07-10T00:00:00.000Z",
+    "ogTitle": "GPT-5.6とは？料金・性能・Sol/Terra/Lunaの使い分けを解説 | AI総合研究所",
+    "ogDescription": "GPT-5.6は2026年6月26日にプレビュー、7月9日に一般提供が開始されたOpenAIの新モデル家族です。フラッグシップSol、GPT-5.5相当を半額で提供するTerra、最安のLunaという3ティアと、推論エフォート・Ultra・Sol Proの設定、料金、主要ベンチマーク、ChatGPT/Codex/APIの提供、セーフティ設計、Claude Fable 5・GPT-5.5との使い分けを整理します。"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "model": "GLM-5.3",
+  "modelSlug": "glm-5.3",
+  "reviewStatus": "APPROVE",
+  "sources": [
+    {
+      "id": "01-bigmodel-docs",
+      "priority": "P0",
+      "label": "GLM-5.3 · BigModel Docs",
+      "url": "https://docs.bigmodel.cn/cn/guide/models/text/glm-5.3"
+    },
+    {
+      "id": "02-zai-docs",
+      "priority": "P0",
+      "label": "GLM-5.3 Overview · Z.AI Docs",
+      "url": "https://docs.z.ai/guides/llm/glm-5.3"
+    },
+    {
+      "id": "03-zai-blog",
+      "priority": "P1",
+      "label": "GLM-5.3: Frontier Coding with Emergent Cyber Capabilities",
+      "url": "https://z.ai/blog/glm-5.3"
+    },
+    {
+      "id": "04-infoq",
+      "priority": "P2",
+      "label": "GLM-5.3 report · InfoQ",
+      "url": "https://www.infoq.cn/article/xWyWwu4ZNptlhpb15tia"
+    },
+    {
+      "id": "05-datalearner",
+      "priority": "P3",
+      "label": "GLM-5.3 · DataLearner",
+      "url": "https://www.datalearner.com/ai-models/pretrained-models/glm-5-3"
+    }
+  ]
+}
