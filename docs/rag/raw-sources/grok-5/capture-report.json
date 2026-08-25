@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "model": "Grok 5",
+  "modelReviewStatus": "HOLD",
+  "generatedAt": "2026-08-23T10:54:11.720Z",
+  "total": 5,
+  "accepted": 5,
+  "rejected": 0,
+  "results": [
+    {
+      "sourceId": "01-xai-model-catalog",
+      "priority": "P0",
+      "requestedUrl": "https://docs.x.ai/docs/models",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 4669,
+      "directory": "p0/01-xai-model-catalog",
+      "error": null
+    },
+    {
+      "sourceId": "02-xai-grok",
+      "priority": "P0",
+      "requestedUrl": "https://x.ai/grok",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 3868,
+      "directory": "p0/02-xai-grok",
+      "error": null
+    },
+    {
+      "sourceId": "03-xai-grok-4-announcement",
+      "priority": "P1",
+      "requestedUrl": "https://x.ai/news/grok-4",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 10269,
+      "directory": "p1/03-xai-grok-4-announcement",
+      "error": null
+    },
+    {
+      "sourceId": "04-artificial-analysis-index",
+      "priority": "P2",
+      "requestedUrl": "https://artificialanalysis.ai/models",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 122846,
+      "directory": "p2/04-artificial-analysis-index",
+      "error": null
+    },
+    {
+      "sourceId": "05-wikipedia",
+      "priority": "P3",
+      "requestedUrl": "https://en.wikipedia.org/wiki/Grok_(chatbot)",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 256596,
+      "directory": "p3/05-wikipedia",
+      "error": null
+    }
+  ]
+}

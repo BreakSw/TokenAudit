@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Terra",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P0",
+  "sourceId": "01-openai-model-page",
+  "label": "GPT-5.6 Terra Model · OpenAI API",
+  "requestedUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+  "finalUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+  "capturedAt": "2026-08-23T10:48:17.953Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 6071,
+  "markdownSha256": "43bda3493fd70b8e9a2c83c8ca6c7b337c3d776f25603fb189cbb40a14f64703",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GPT-5.6 Terra Model | OpenAI API",
+    "language": "en",
+    "sourceURL": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+    "url": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+    "statusCode": 200,
+    "contentType": "text/html",
+    "ogTitle": "GPT-5.6 Terra Model | OpenAI API"
+  }
+}

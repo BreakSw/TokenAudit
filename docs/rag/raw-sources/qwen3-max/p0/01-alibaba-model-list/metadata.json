@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Qwen3-Max",
+  "modelReviewStatus": "CONDITIONAL",
+  "priority": "P0",
+  "sourceId": "01-alibaba-model-list",
+  "label": "Model Studio model list · Alibaba Cloud",
+  "requestedUrl": "https://www.alibabacloud.com/help/en/model-studio/models",
+  "finalUrl": "https://www.alibabacloud.com/help/en/model-studio/models",
+  "capturedAt": "2026-08-23T10:55:03.927Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 91212,
+  "markdownSha256": "6a67ce258b9d73f16f212880c00787fdcbff0934d912ba8b6ea7afdee4ecbee0",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Supported Models and Capabilities Overview - Model Studio - Alibaba Cloud - Alibaba Cloud Model Studio - Alibaba Cloud Documentation Center",
+    "description": "Supported Models and Capabilities Overview - Model Studio - Alibaba Cloud,Alibaba Cloud Model Studio:Alibaba Cloud Model Studio offers Qwen and third-party models for text, image, audio, and video. Extract text descriptions or structured data from images and videos",
+    "language": "en",
+    "sourceURL": "https://www.alibabacloud.com/help/en/model-studio/models",
+    "url": "https://www.alibabacloud.com/help/en/model-studio/models",
+    "statusCode": 200,
+    "contentType": "text/html;charset=UTF-8",
+    "ogTitle": "Recommended models - Alibaba Cloud",
+    "ogDescription": "Supported Models and Capabilities Overview - Model Studio - Alibaba Cloud,Alibaba Cloud Model Studio:Alibaba Cloud Model Studio offers Qwen and third-party models for text, image, audio, and video. Extract text descriptions or structured data from images and videos"
+  }
+}

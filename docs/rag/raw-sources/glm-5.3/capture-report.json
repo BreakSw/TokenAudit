@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "model": "GLM-5.3",
+  "modelReviewStatus": "APPROVE",
+  "generatedAt": "2026-08-23T10:55:03.828Z",
+  "total": 5,
+  "accepted": 5,
+  "rejected": 0,
+  "results": [
+    {
+      "sourceId": "01-bigmodel-docs",
+      "priority": "P0",
+      "requestedUrl": "https://docs.bigmodel.cn/cn/guide/models/text/glm-5.3",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 17450,
+      "directory": "p0/01-bigmodel-docs",
+      "error": null
+    },
+    {
+      "sourceId": "02-zai-docs",
+      "priority": "P0",
+      "requestedUrl": "https://docs.z.ai/guides/llm/glm-5.3",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 22552,
+      "directory": "p0/02-zai-docs",
+      "error": null
+    },
+    {
+      "sourceId": "03-zai-blog",
+      "priority": "P1",
+      "requestedUrl": "https://z.ai/blog/glm-5.3",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 21265,
+      "directory": "p1/03-zai-blog",
+      "error": null
+    },
+    {
+      "sourceId": "04-infoq",
+      "priority": "P2",
+      "requestedUrl": "https://www.infoq.cn/article/xWyWwu4ZNptlhpb15tia",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 5915,
+      "directory": "p2/04-infoq",
+      "error": null
+    },
+    {
+      "sourceId": "05-datalearner",
+      "priority": "P3",
+      "requestedUrl": "https://www.datalearner.com/ai-models/pretrained-models/glm-5-3",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 8494,
+      "directory": "p3/05-datalearner",
+      "error": null
+    }
+  ]
+}

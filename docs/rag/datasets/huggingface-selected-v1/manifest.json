@@ -1,0 +1,92 @@
+{
+  "data_bytes_before_manifest": 99349005,
+  "models": [
+    {
+      "bytes": 8713514,
+      "confidence": "high for captured coding-agent behavior",
+      "model_id": "claude-fable-5",
+      "output": "claude-fable-5/selected.jsonl",
+      "repository": "Glint-Research/Fable-5-traces",
+      "rows": 500,
+      "selection": "500 deterministic rows covering every available source session",
+      "source_url": "https://huggingface.co/datasets/Glint-Research/Fable-5-traces"
+    },
+    {
+      "bytes": 6570625,
+      "confidence": "medium; source-asserted high-reasoning distillation",
+      "model_id": "claude-opus-4.6",
+      "output": "claude-opus-4.6/selected.parquet",
+      "repository": "TeichAI/Claude-Opus-4.6-Reasoning-887x",
+      "rows": 886,
+      "selection": "complete Parquet split",
+      "source_url": "https://huggingface.co/datasets/TeichAI/Claude-Opus-4.6-Reasoning-887x"
+    },
+    {
+      "bytes": 53807308,
+      "confidence": "high for captured agent/tool behavior",
+      "model_id": "deepseek-v4-pro",
+      "output": "deepseek-v4-pro/selected.jsonl",
+      "repository": "TeichAI/DeepSeek-v4-Pro-Agent",
+      "rows": 400,
+      "selection": "8 evenly spaced blocks, deduplicated by session_id",
+      "source_url": "https://huggingface.co/datasets/TeichAI/DeepSeek-v4-Pro-Agent"
+    },
+    {
+      "bytes": 4468700,
+      "confidence": "high for benchmark-observed agent behavior",
+      "model_id": "glm-5.2",
+      "output": "glm-5.2/selected.jsonl",
+      "repository": "AletheiaResearch/GLM-5.2-Bench",
+      "rows": 1556,
+      "selection": "all passed and failed benchmark sessions",
+      "source_url": "https://huggingface.co/datasets/AletheiaResearch/GLM-5.2-Bench"
+    },
+    {
+      "bytes": 3007045,
+      "confidence": "medium; persona-injected distillation must not define native style",
+      "model_id": "gpt-5.6-luna",
+      "output": "gpt-5.6-luna/selected.jsonl",
+      "repository": "empero-ai/gpt-5.6-luna-sft-900x",
+      "rows": 890,
+      "selection": "complete compact SFT set",
+      "source_url": "https://huggingface.co/datasets/empero-ai/gpt-5.6-luna-sft-900x"
+    },
+    {
+      "bytes": 20135653,
+      "confidence": "high for verified coding, review, and tool behavior",
+      "model_id": "gpt-5.6-sol",
+      "output": "gpt-5.6-sol/selected.jsonl",
+      "repository": "greghavens/gpt-5.6-sol-coding-and-debugging-traces",
+      "rows": 553,
+      "selection": "one final full-context row per trajectory, category-stratified",
+      "source_url": "https://huggingface.co/datasets/greghavens/gpt-5.6-sol-coding-and-debugging-traces"
+    },
+    {
+      "bytes": 2644345,
+      "confidence": "medium-high; observed_models identifies moonshotai/kimi-k3, but rows are not model-attested",
+      "model_id": "kimi-k3",
+      "output": "kimi-k3/selected.parquet",
+      "repository": "greghavens/kimi-k3-coding-and-debugging-traces",
+      "rows": 1163,
+      "selection": "final row plus one midpoint for trajectories with at least four steps",
+      "source_url": "https://huggingface.co/datasets/greghavens/kimi-k3-coding-and-debugging-traces"
+    },
+    {
+      "bytes": 0,
+      "confidence": "unavailable",
+      "model_id": "gpt-5.6-terra",
+      "output": null,
+      "repository": null,
+      "rows": 0,
+      "selection": "not downloaded: no verified public Terra rows found",
+      "source_url": null
+    }
+  ],
+  "schema_version": 1,
+  "secret_redaction": {
+    "placeholder": "<TOKENAUDIT_REDACTED_SECRET>",
+    "replacements": 0
+  },
+  "selection_name": "huggingface-selected-v1",
+  "selection_policy": "Quality-first approximate 500 MB target; no hard byte cutoff. Large repositories are streamed and only selected rows are persisted."
+}

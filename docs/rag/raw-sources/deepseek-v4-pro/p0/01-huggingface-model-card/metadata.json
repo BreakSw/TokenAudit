@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "model": "DeepSeek-V4-Pro",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P0",
+  "sourceId": "01-huggingface-model-card",
+  "label": "DeepSeek-V4-Pro model card · DeepSeek AI",
+  "requestedUrl": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro",
+  "finalUrl": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro",
+  "capturedAt": "2026-08-23T10:51:54.277Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 17683,
+  "markdownSha256": "9a830441fd3981cc93ddf22dee3fdfe1271621cda9f59d5b403c4e18e76fb806",
+  "error": null,
+  "sourceMetadata": {
+    "title": "deepseek-ai/DeepSeek-V4-Pro · Hugging Face",
+    "description": "We’re on a journey to advance and democratize artificial intelligence through open source and open science.",
+    "sourceURL": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro",
+    "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "deepseek-ai/DeepSeek-V4-Pro · Hugging Face",
+    "ogDescription": "We’re on a journey to advance and democratize artificial intelligence through open source and open science."
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "model": "GLM-5.2",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P0",
+  "sourceId": "02-zai-docs",
+  "label": "GLM-5.2 Overview · Z.AI Docs",
+  "requestedUrl": "https://docs.z.ai/guides/llm/glm-5.2",
+  "finalUrl": "https://docs.z.ai/guides/llm/glm-5.2",
+  "capturedAt": "2026-08-24T14:15:06.664Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 23511,
+  "markdownSha256": "3b4cd2953fa2d9855b8f02d17fd4936b0b66850c8c81af97054322102c4a2181",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GLM-5.2 - Overview - Z.AI DEVELOPER DOCUMENT",
+    "language": "en",
+    "sourceURL": "https://docs.z.ai/guides/llm/glm-5.2",
+    "url": "https://docs.z.ai/guides/llm/glm-5.2",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "GLM-5.2 - Overview - Z.AI DEVELOPER DOCUMENT"
+  }
+}

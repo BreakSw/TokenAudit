@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "model": "Kimi K3",
+  "modelSlug": "kimi-k3",
+  "reviewStatus": "APPROVE",
+  "sources": [
+    {
+      "id": "01-kimi-quickstart",
+      "priority": "P0",
+      "label": "Kimi K3 Quickstart · Kimi API Platform",
+      "url": "https://platform.kimi.ai/docs/guide/kimi-k3-quickstart"
+    },
+    {
+      "id": "02-github",
+      "priority": "P0",
+      "label": "MoonshotAI/Kimi-K3 · GitHub",
+      "url": "https://github.com/MoonshotAI/Kimi-K3"
+    },
+    {
+      "id": "03-kimi-model-page",
+      "priority": "P1",
+      "label": "Kimi K3 model page",
+      "url": "https://www.kimi.ai/ai-models/kimi-k3"
+    },
+    {
+      "id": "04-artificial-analysis",
+      "priority": "P2",
+      "label": "Kimi K3 · Artificial Analysis",
+      "url": "https://artificialanalysis.ai/models/kimi-k3"
+    },
+    {
+      "id": "05-openlm",
+      "priority": "P3",
+      "label": "Kimi K3 · OpenLM.ai",
+      "url": "https://openlm.ai/kimi-k3/"
+    }
+  ]
+}

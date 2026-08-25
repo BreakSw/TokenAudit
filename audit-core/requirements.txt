@@ -1,6 +1,16 @@
-langgraph>=0.2.0
-requests>=2.31.0
-pandas>=2.2.0
-openpyxl>=3.1.0
-fpdf2>=2.7.0
-python-dotenv>=1.0.0
+# Audit orchestration and HTTP clients
+langgraph>=0.2.0,<2.0
+requests>=2.31.0,<3.0
+python-dotenv>=1.0.0,<2.0
+
+# Report export
+pandas>=2.2.0,<4.0
+openpyxl>=3.1.0,<4.0
+fpdf2>=2.7.0,<3.0
+
+# Local vector database compatibility used by the deep-audit stack
+pymilvus==3.0.1
+milvus-lite==3.2.0
+
+# Test runner
+pytest>=8.0.0,<10.0

@@ -22,6 +22,54 @@ def _response(status_code=200, response=None, ok=True):
 class RelayPreflightTest(unittest.TestCase):
     @patch("audit_core.scripts.relay_preflight.log_event")
     @patch("audit_core.scripts.relay_preflight.token_chat", return_value=_response())
+    @patch(
+        "audit_core.scripts.relay_preflight._check_dns_integrity",
+        return_value={
+            "status": "contaminated",
+            "reason": "system_disagrees_with_domestic_doh",
+            "system_addresses": ["203.0.113.10"],
+            "trusted_addresses": ["198.51.100.20"],
+        },
+    )
+    def test_dns_mismatch_is_advisory_and_real_preflight_continues(self, _dns_mock, token_chat_mock, log_event_mock):
+        result = run_relay_preflight(
+            base_url="https://relay.invalid-domain-for-test.cn",
+            token="secret-token",
+            model="claimed-model",
+            timeout_s=60,
+        )
+
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["reason"], "connected")
+        self.assertEqual(result["dns_integrity"]["status"], "contaminated")
+        token_chat_mock.assert_called_once()
+        dns_event = next(call for call in log_event_mock.call_args_list if call.args[0] == "preflight_dns_integrity")
+        self.assertTrue(dns_event.args[1]["advisory"])
+        self.assertFalse(dns_event.args[1]["blocking"])
+        self.assertEqual(dns_event.args[1]["severity"], "warning")
+        self.assertEqual(log_event_mock.call_args_list[-1].args[0], "preflight_end")
+
+    @patch("audit_core.scripts.relay_preflight.log_event")
+    @patch("audit_core.scripts.relay_preflight.token_chat", return_value=_response())
+    @patch(
+        "audit_core.scripts.relay_preflight._check_dns_integrity",
+        return_value={"status": "inconclusive", "reason": "domestic_doh_unavailable"},
+    )
+    def test_unverified_dns_is_advisory_and_real_preflight_continues(self, _dns_mock, token_chat_mock, _log_event_mock):
+        result = run_relay_preflight(
+            base_url="https://relay.invalid-domain-for-test.cn",
+            token="secret-token",
+            model="claimed-model",
+            timeout_s=60,
+        )
+
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["reason"], "connected")
+        self.assertEqual(result["dns_integrity"]["status"], "inconclusive")
+        token_chat_mock.assert_called_once()
+
+    @patch("audit_core.scripts.relay_preflight.log_event")
+    @patch("audit_core.scripts.relay_preflight.token_chat", return_value=_response())
     def test_passes_only_after_a_real_compatible_model_response(self, token_chat_mock, log_event_mock):
         result = run_relay_preflight(
             base_url="https://relay.example",

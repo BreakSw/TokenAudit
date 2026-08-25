@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Terra",
+  "modelReviewStatus": "APPROVE",
+  "generatedAt": "2026-08-23T10:48:28.048Z",
+  "total": 5,
+  "accepted": 5,
+  "rejected": 0,
+  "results": [
+    {
+      "sourceId": "01-openai-model-page",
+      "priority": "P0",
+      "requestedUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 6071,
+      "directory": "p0/01-openai-model-page",
+      "error": null
+    },
+    {
+      "sourceId": "02-openai-family-release",
+      "priority": "P0",
+      "requestedUrl": "https://openai.com/index/gpt-5-6/",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 38110,
+      "directory": "p0/02-openai-family-release",
+      "error": null
+    },
+    {
+      "sourceId": "03-openai-price-performance",
+      "priority": "P1",
+      "requestedUrl": "https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6/",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 10054,
+      "directory": "p1/03-openai-price-performance",
+      "error": null
+    },
+    {
+      "sourceId": "04-artificial-analysis",
+      "priority": "P2",
+      "requestedUrl": "https://artificialanalysis.ai/models/gpt-5-6-terra",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 21158,
+      "directory": "p2/04-artificial-analysis",
+      "error": null
+    },
+    {
+      "sourceId": "05-openai-community",
+      "priority": "P3",
+      "requestedUrl": "https://community.openai.com/t/gpt-5-6-sol-vs-terra-what-are-you-seeing-in-real-development-during-these-first-days/1386726/6",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 16402,
+      "directory": "p3/05-openai-community",
+      "error": null
+    }
+  ]
+}

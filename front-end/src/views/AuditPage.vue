@@ -1,6 +1,6 @@
 <template>
-  <div class="audit-page" aria-label="实时审计控制台">
-    <AuditForm />
+  <div class="audit-page" aria-label="快速审计控制台">
+    <AuditForm mode="quick" />
   </div>
 </template>
 

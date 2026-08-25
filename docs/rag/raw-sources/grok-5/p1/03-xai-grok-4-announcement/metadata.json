@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Grok 5",
+  "modelReviewStatus": "HOLD",
+  "priority": "P1",
+  "sourceId": "03-xai-grok-4-announcement",
+  "label": "Grok 4 announcement · xAI",
+  "requestedUrl": "https://x.ai/news/grok-4",
+  "finalUrl": "https://x.ai/news/grok-4",
+  "capturedAt": "2026-08-23T10:53:40.802Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 10269,
+  "markdownSha256": "d298dfbe10b0dd3ccfe997cefbcb66215db868b854d31676c72c3152f30110fb",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Grok 4 | SpaceXAI",
+    "description": "Grok 4 is the most intelligent model in the world. It includes native tool use and real-time search integration, and is available now to SuperGrok and Premium+ subscribers, as well as through the xAI API. We are also introducing a new SuperGrok Heavy tier with access to Grok 4 Heavy - the most powerful version of Grok 4.",
+    "language": "en",
+    "sourceURL": "https://x.ai/news/grok-4",
+    "url": "https://x.ai/news/grok-4",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Grok 4",
+    "ogDescription": "Grok 4 is the most intelligent model in the world. It includes native tool use and real-time search integration, and is available now to SuperGrok and Premium+ subscribers, as well as through the xAI API. We are also introducing a new SuperGrok Heavy tier with access to Grok 4 Heavy - the most powerful version of Grok 4."
+  }
+}

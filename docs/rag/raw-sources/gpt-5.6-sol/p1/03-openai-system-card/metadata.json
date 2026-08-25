@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Sol",
+  "priority": "P1",
+  "sourceId": "03-openai-system-card",
+  "label": "GPT-5.6 System Card",
+  "requestedUrl": "https://deploymentsafety.openai.com/gpt-5-6",
+  "finalUrl": "https://deploymentsafety.openai.com/gpt-5-6",
+  "capturedAt": "2026-08-23T10:34:07.145Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 160251,
+  "markdownSha256": "8e6f98c89fa0ca1422e24e3ea5deae008ba09aabaaeeaf088648c0885341a5b2",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GPT-5.6 System Card - OpenAI Deployment Safety Hub",
+    "description": "GPT-5.6 is a new family of three models: Sol, our new flagship model; Terra, a capable lower-cost option; and Luna, our fastest and most cost-efficient model. The safeguards we have built for this launch—our most robust yet—are built to deliver these models safely and at scale, around the world.",
+    "language": "en",
+    "sourceURL": "https://deploymentsafety.openai.com/gpt-5-6",
+    "url": "https://deploymentsafety.openai.com/gpt-5-6",
+    "statusCode": 200,
+    "contentType": "text/html",
+    "ogTitle": "GPT-5.6 System Card - OpenAI Deployment Safety Hub",
+    "ogDescription": "GPT-5.6 is a new family of three models: Sol, our new flagship model; Terra, a capable lower-cost option; and Luna, our fastest and most cost-efficient model. The safeguards we have built for this launch—our most robust yet—are built to deliver these models safely and at scale, around the world."
+  }
+}

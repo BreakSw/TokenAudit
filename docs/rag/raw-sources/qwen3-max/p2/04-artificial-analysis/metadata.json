@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Qwen3-Max",
+  "modelReviewStatus": "CONDITIONAL",
+  "priority": "P2",
+  "sourceId": "04-artificial-analysis",
+  "label": "Qwen3-Max · Artificial Analysis",
+  "requestedUrl": "https://artificialanalysis.ai/models/qwen3-max",
+  "finalUrl": "https://artificialanalysis.ai/models/qwen3-max",
+  "capturedAt": "2026-08-23T10:55:37.577Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 19971,
+  "markdownSha256": "84d9e3b3d87e9543bf201a45c374b9b166e9d38ea521ae5f4a95044526ad658c",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Qwen3 Max - Intelligence, Performance & Price Analysis | Artificial Analysis",
+    "description": "Analysis of Alibaba's Qwen3 Max and comparison to other AI models across key metrics including quality, price, performance (tokens per second & time to first token), context window & more.",
+    "language": "en",
+    "sourceURL": "https://artificialanalysis.ai/models/qwen3-max",
+    "url": "https://artificialanalysis.ai/models/qwen3-max",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Qwen3 Max - Intelligence, Performance & Price Analysis | Artificial Analysis",
+    "ogDescription": "Analysis of Alibaba's Qwen3 Max and comparison to other AI models across key metrics including quality, price, performance (tokens per second & time to first token), context window & more."
+  }
+}

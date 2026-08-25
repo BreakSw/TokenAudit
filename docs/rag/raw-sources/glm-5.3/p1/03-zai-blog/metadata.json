@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "model": "GLM-5.3",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P1",
+  "sourceId": "03-zai-blog",
+  "label": "GLM-5.3: Frontier Coding with Emergent Cyber Capabilities",
+  "requestedUrl": "https://z.ai/blog/glm-5.3",
+  "finalUrl": "https://z.ai/blog/glm-5.3",
+  "capturedAt": "2026-08-23T10:54:29.210Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 21265,
+  "markdownSha256": "1a3ccbb21fce46ce3b11fe725d97b98d8a081ab50bd1faa1008983e721587c0a",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GLM-5.3: Frontier Coding with Emergent Cyber Capabilities",
+    "language": "en",
+    "sourceURL": "https://z.ai/blog/glm-5.3",
+    "url": "https://z.ai/blog/glm-5.3",
+    "statusCode": 200,
+    "contentType": "text/html"
+  }
+}

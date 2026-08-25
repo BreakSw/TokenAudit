@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "model": "Qwen3-Max",
+  "modelReviewStatus": "CONDITIONAL",
+  "generatedAt": "2026-08-23T10:55:55.530Z",
+  "total": 5,
+  "accepted": 5,
+  "rejected": 0,
+  "results": [
+    {
+      "sourceId": "01-alibaba-model-list",
+      "priority": "P0",
+      "requestedUrl": "https://www.alibabacloud.com/help/en/model-studio/models",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 91212,
+      "directory": "p0/01-alibaba-model-list",
+      "error": null
+    },
+    {
+      "sourceId": "02-qwen-api-reference",
+      "priority": "P0",
+      "requestedUrl": "https://www.alibabacloud.com/help/en/model-studio/qwen-api-reference",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 26581,
+      "directory": "p0/02-qwen-api-reference",
+      "error": null
+    },
+    {
+      "sourceId": "03-qwen3-announcement",
+      "priority": "P1",
+      "requestedUrl": "https://qwen.ai/blog?id=qwen3",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 19036,
+      "directory": "p1/03-qwen3-announcement",
+      "error": null
+    },
+    {
+      "sourceId": "04-artificial-analysis",
+      "priority": "P2",
+      "requestedUrl": "https://artificialanalysis.ai/models/qwen3-max",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 19971,
+      "directory": "p2/04-artificial-analysis",
+      "error": null
+    },
+    {
+      "sourceId": "05-benchlm",
+      "priority": "P3",
+      "requestedUrl": "https://benchlm.ai/models/qwen3-max",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 9222,
+      "directory": "p3/05-benchlm",
+      "error": null
+    }
+  ]
+}

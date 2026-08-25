@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "model": "GLM-5.2",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P2",
+  "sourceId": "04-glm-52-bench",
+  "label": "AletheiaResearch GLM-5.2-Bench",
+  "requestedUrl": "https://huggingface.co/datasets/AletheiaResearch/GLM-5.2-Bench",
+  "finalUrl": "https://huggingface.co/datasets/AletheiaResearch/GLM-5.2-Bench",
+  "capturedAt": "2026-08-24T14:15:24.932Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 42032,
+  "markdownSha256": "45bca7f6e5efd38cac3ac83008190ddcb09ffe3925fe623db46ee8d8ce2e4f29",
+  "error": null,
+  "sourceMetadata": {
+    "title": "AletheiaResearch/GLM-5.2-Bench · Datasets at Hugging Face",
+    "description": "We’re on a journey to advance and democratize artificial intelligence through open source and open science.",
+    "sourceURL": "https://huggingface.co/datasets/AletheiaResearch/GLM-5.2-Bench",
+    "url": "https://huggingface.co/datasets/AletheiaResearch/GLM-5.2-Bench",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "AletheiaResearch/GLM-5.2-Bench · Datasets at Hugging Face",
+    "ogDescription": "We’re on a journey to advance and democratize artificial intelligence through open source and open science."
+  }
+}

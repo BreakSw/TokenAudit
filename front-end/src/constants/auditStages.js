@@ -36,6 +36,44 @@ export const AUDIT_STAGES = [
   }
 ]
 
+export const DEEP_AUDIT_STAGES = [
+  {
+    key: "rag_retrieval",
+    label: "双库检索",
+    detail: "并行检索官方规格与模型行为证据"
+  },
+  {
+    key: "ground_truth",
+    label: "基线整理",
+    detail: "由审计者 Agent 区分硬事实与软行为特征"
+  },
+  {
+    key: "probe_design",
+    label: "动态出题",
+    detail: "根据当前轮次和证据缺口生成新母题"
+  },
+  {
+    key: "fuzz_execute",
+    label: "模糊执行",
+    detail: "每题生成三个变体并并行调用目标模型"
+  },
+  {
+    key: "parallel_judging",
+    label: "并行裁判",
+    detail: "语义、行为差分与一致性 Judge 同时判定"
+  },
+  {
+    key: "red_team",
+    label: "反方复核",
+    detail: "排查路由、截断、提示改写等替代解释"
+  },
+  {
+    key: "final_decision",
+    label: "综合结论",
+    detail: "锁定确定性分数并生成可追溯结论"
+  }
+]
+
 export function stageIndex(key) {
   const index = AUDIT_STAGES.findIndex((stage) => stage.key === key)
   return index === -1 ? 0 : index

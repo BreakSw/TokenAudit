@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Fable 5",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P0",
+  "sourceId": "02-claude-docs-introduction",
+  "label": "Introducing Claude Fable 5 and Claude Mythos 5",
+  "requestedUrl": "https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5",
+  "finalUrl": "https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5",
+  "capturedAt": "2026-08-23T10:51:16.649Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 9058,
+  "markdownSha256": "d5cfdc435f338ad4f9e40fb695bd649b0753c90912406cfdd264e759780b245a",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Introducing Claude Fable 5 and Claude Mythos 5 - Claude Platform Docs",
+    "description": "Claude Fable 5 and Claude Mythos 5 capabilities, API changes, and availability.",
+    "language": "en-US",
+    "sourceURL": "https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Introducing Claude Fable 5 and Claude Mythos 5",
+    "ogDescription": "Claude Fable 5 and Claude Mythos 5 capabilities, API changes, and availability."
+  }
+}

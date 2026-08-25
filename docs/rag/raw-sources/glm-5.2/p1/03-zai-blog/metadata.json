@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "model": "GLM-5.2",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P1",
+  "sourceId": "03-zai-blog",
+  "label": "GLM-5.2 official release",
+  "requestedUrl": "https://z.ai/blog/glm-5.2",
+  "finalUrl": "https://z.ai/blog/glm-5.2",
+  "capturedAt": "2026-08-24T14:15:15.906Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 21041,
+  "markdownSha256": "15926df3489f503e6ef13df6323de974debfc69414195c6f418295261c5f6486",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GLM-5.2: Built for Long-Horizon Tasks",
+    "language": "en",
+    "sourceURL": "https://z.ai/blog/glm-5.2",
+    "url": "https://z.ai/blog/glm-5.2",
+    "statusCode": 200,
+    "contentType": "text/html"
+  }
+}

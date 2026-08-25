@@ -18,6 +18,10 @@
         <span class="record-count">{{ records.length }} RECORDS</span>
       </header>
 
+      <div v-if="operationError" data-testid="history-operation-error" class="operation-error" role="alert">
+        {{ operationError }}
+      </div>
+
       <div v-if="loading" data-testid="history-loading" class="state-panel" role="status" aria-live="polite">
         <span class="state-prompt">$</span>
         <div><strong>正在加载审计记录</strong><p>正在读取历史任务索引…</p></div>
@@ -33,17 +37,29 @@
         <div>
           <strong>暂无审计记录</strong>
           <p>发起首个审计后，任务状态与报告入口会显示在这里。</p>
-          <el-button type="primary" size="small" @click="router.push('/audit')">发起审计</el-button>
+          <el-button type="primary" size="small" @click="router.push('/audit')">快速审计</el-button>
         </div>
       </div>
 
       <div v-else data-testid="history-table" class="table-scroll" tabindex="0" aria-label="审计历史列表，可横向滚动">
         <el-table :data="records" class="compact-table" style="width: 100%">
           <el-table-column label="审计 ID" width="94">
-            <template #default="{ row }"><code class="mono-value">#{{ row.id }}</code></template>
+            <template #default="{ row }">
+              <span class="audit-id-cell">
+                <code class="mono-value">#{{ row.id }}</code>
+                <span v-if="unreadIds.has(Number(row.id))" class="row-unread-dot" title="报告尚未查看" aria-label="未查看报告" />
+              </span>
+            </template>
           </el-table-column>
           <el-table-column label="Token ID" width="100">
             <template #default="{ row }"><code class="mono-value">{{ row.tokenId }}</code></template>
+          </el-table-column>
+          <el-table-column label="审计类型" width="116">
+            <template #default="{ row }">
+              <span class="mode-badge" :class="`mode-badge--${auditMode(row)}`">
+                {{ auditMode(row) === "deep" ? "深度审计" : "快速审计" }}
+              </span>
+            </template>
           </el-table-column>
           <el-table-column prop="auditTime" label="审计时间" min-width="174" />
           <el-table-column label="状态" width="118">
@@ -68,9 +84,20 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="108">
+          <el-table-column label="操作" width="178">
             <template #default="{ row }">
-              <el-button type="primary" plain size="small" @click="open(row.id)">查看报告</el-button>
+              <div class="row-actions">
+                <el-button type="primary" plain size="small" @click="open(row.id)">查看报告</el-button>
+                <el-button
+                  type="danger"
+                  plain
+                  size="small"
+                  :loading="deletingIds.has(row.id)"
+                  :disabled="row.status === 'running'"
+                  :title="row.status === 'running' ? '请先终止正在运行的审计' : '删除该审计及其事实事件'"
+                  @click="remove(row)"
+                >删除</el-button>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -82,13 +109,22 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from "vue"
 import { useRouter } from "vue-router"
-import { ElMessage } from "element-plus"
-import { listAudits } from "../request/api"
+import { ElMessage, ElMessageBox } from "element-plus"
+import { deleteAudit, listAudits } from "../request/api"
+import {
+  AUDIT_READ_STATE_EVENT,
+  markAllAuditReportsRead,
+  markAuditReportRead,
+  unreadAuditReportIds
+} from "../utils/auditReadState"
 
 const router = useRouter()
 const records = ref([])
 const loading = ref(true)
 const loadError = ref("")
+const operationError = ref("")
+const unreadIds = ref(new Set())
+const deletingIds = ref(new Set())
 let requestSequence = 0
 let componentAlive = true
 
@@ -111,7 +147,47 @@ async function reload() {
 }
 
 function open(id) {
+  unreadIds.value = markAuditReportRead(id)
   router.push(`/report/${id}`)
+}
+
+async function remove(row) {
+  if (row.status === "running" || deletingIds.value.has(row.id)) return
+  try {
+    await ElMessageBox.confirm(
+      `确认删除审计 #${row.id}？对应报告与事实事件也会一并删除，且无法恢复。`,
+      "删除审计记录",
+      { type: "warning", confirmButtonText: "删除", cancelButtonText: "取消" }
+    )
+  } catch (error) {
+    if (error === "cancel" || error === "close") return
+    operationError.value = error?.message || "删除确认失败"
+    return
+  }
+  if (!componentAlive) return
+  deletingIds.value.add(row.id)
+  operationError.value = ""
+  try {
+    await deleteAudit(row.id)
+    if (!componentAlive) return
+    records.value = records.value.filter((item) => item.id !== row.id)
+    unreadIds.value = markAuditReportRead(row.id)
+    ElMessage.success(`审计 #${row.id} 已删除`)
+  } catch (error) {
+    if (!componentAlive) return
+    operationError.value = error?.response?.data?.error || error?.message || "删除失败"
+    ElMessage.error(operationError.value)
+  } finally {
+    if (componentAlive) deletingIds.value.delete(row.id)
+  }
+}
+
+function auditMode(row) {
+  return row?.auditMode === "deep" ? "deep" : "quick"
+}
+
+function syncUnreadIds() {
+  unreadIds.value = unreadAuditReportIds()
 }
 
 function statusType(status) {
@@ -121,10 +197,16 @@ function statusType(status) {
   return "info"
 }
 
-onMounted(reload)
+onMounted(() => {
+  unreadIds.value = markAllAuditReportsRead()
+  window.addEventListener(AUDIT_READ_STATE_EVENT, syncUnreadIds)
+  reload()
+})
 onBeforeUnmount(() => {
   componentAlive = false
   requestSequence += 1
+  deletingIds.value.clear()
+  window.removeEventListener(AUDIT_READ_STATE_EVENT, syncUnreadIds)
 })
 </script>
 
@@ -147,10 +229,18 @@ onBeforeUnmount(() => {
 .state-panel strong { color: var(--ta-text); font-size: 12px; font-weight: 550; }
 .state-panel p { margin: 5px 0 11px; color: var(--ta-faint); font-size: 10px; }
 .table-scroll { overflow-x: auto; }
-.compact-table { min-width: 982px; }
+.compact-table { min-width: 1098px; }
 .compact-table :deep(.el-table__cell) { padding: 8px 0; }
 .compact-table :deep(.cell) { font-size: 11px; }
 .mono-value { color: var(--ta-green); font-size: 10px; }
+.audit-id-cell { display: inline-flex; align-items: center; gap: 7px; }
+.row-unread-dot { width: 6px; height: 6px; flex: 0 0 auto; background: var(--ta-danger); border-radius: 50%; box-shadow: 0 0 8px rgba(255, 102, 112, .55); }
+.row-actions { display: flex; gap: 6px; }
+.row-actions :deep(.el-button) { margin-left: 0; }
+.operation-error { margin: 10px 14px 0; padding: 8px 10px; color: var(--ta-danger); background: rgba(255, 125, 121, .055); border: 1px solid rgba(255, 125, 121, .2); border-radius: 4px; font-size: 11px; }
+.mode-badge { display: inline-flex; padding: 3px 7px; color: var(--ta-muted); font-family: var(--ta-mono); font-size: 9px; letter-spacing: .04em; background: rgba(143, 159, 151, .07); border: 1px solid var(--ta-line); border-radius: 3px; }
+.mode-badge--deep { color: #8eb9ff; background: rgba(94, 153, 255, .08); border-color: rgba(94, 153, 255, .22); }
+.mode-badge--quick { color: var(--ta-green); background: rgba(67, 224, 162, .06); border-color: rgba(67, 224, 162, .18); }
 .status-badge { font-family: var(--ta-mono); font-size: 9px; text-transform: uppercase; }
 .status-badge--completed { color: var(--ta-green); }
 .status-badge--running { color: var(--ta-amber); }

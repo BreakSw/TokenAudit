@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Sol",
+  "priority": "P0",
+  "sourceId": "02-openai-release",
+  "label": "Previewing GPT-5.6 Sol",
+  "requestedUrl": "https://openai.com/index/previewing-gpt-5-6-sol/",
+  "finalUrl": "https://openai.com/index/previewing-gpt-5-6-sol/",
+  "capturedAt": "2026-08-23T10:34:04.731Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 33467,
+  "markdownSha256": "d60639112a041576135196e93aa2762e349c33cac9af337ad834588b2438c206",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Previewing GPT-5.6 Sol: a next-generation model | OpenAI",
+    "description": "OpenAI previews GPT-5.6 Sol, a next-generation model with stronger capabilities in coding, science, and cybersecurity, paired with its most advanced safety stack.",
+    "language": "en-US",
+    "sourceURL": "https://openai.com/index/previewing-gpt-5-6-sol/",
+    "url": "https://openai.com/index/previewing-gpt-5-6-sol/",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Previewing GPT-5.6 Sol: a next-generation model",
+    "ogDescription": "OpenAI previews GPT-5.6 Sol, a next-generation model with stronger capabilities in coding, science, and cybersecurity, paired with its most advanced safety stack."
+  }
+}

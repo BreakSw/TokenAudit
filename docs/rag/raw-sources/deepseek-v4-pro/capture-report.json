@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "model": "DeepSeek-V4-Pro",
+  "modelReviewStatus": "APPROVE",
+  "generatedAt": "2026-08-23T10:52:36.406Z",
+  "total": 5,
+  "accepted": 5,
+  "rejected": 0,
+  "results": [
+    {
+      "sourceId": "01-huggingface-model-card",
+      "priority": "P0",
+      "requestedUrl": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 17683,
+      "directory": "p0/01-huggingface-model-card",
+      "error": null
+    },
+    {
+      "sourceId": "02-deepseek-release",
+      "priority": "P0",
+      "requestedUrl": "https://api-docs.deepseek.com/news/news260813/",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 1381,
+      "directory": "p0/02-deepseek-release",
+      "error": null
+    },
+    {
+      "sourceId": "03-deepseek-platform",
+      "priority": "P1",
+      "requestedUrl": "https://platform.deepseek.com/",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 1189,
+      "directory": "p1/03-deepseek-platform",
+      "error": null
+    },
+    {
+      "sourceId": "04-forbes",
+      "priority": "P2",
+      "requestedUrl": "https://www.forbes.com/sites/jonmarkman/2026/08/18/deepseek-releases-v4-pro-at-14x-the-price-of-its-cheapest-model/",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 14241,
+      "directory": "p2/04-forbes",
+      "error": null
+    },
+    {
+      "sourceId": "05-ai-release-tracker",
+      "priority": "P3",
+      "requestedUrl": "https://aireleasetracker.com/model/deepseek/deepseek-v4-pro",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 10221,
+      "directory": "p3/05-ai-release-tracker",
+      "error": null
+    }
+  ]
+}

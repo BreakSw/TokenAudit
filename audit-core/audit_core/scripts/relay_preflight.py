@@ -1,6 +1,12 @@
 from __future__ import annotations
 
+import ipaddress
+import os
+import socket
 from typing import Any
+from urllib.parse import urlsplit
+
+import requests
 
 from audit_core.scripts.token_api import token_chat
 from audit_core.utils import log_event
@@ -19,6 +25,18 @@ def run_relay_preflight(
             "phase": "preflight",
             "model": model,
             "base_url": base_url,
+        },
+    )
+    dns_diagnostic = _check_dns_integrity(base_url, timeout_s=min(max(1.0, timeout_s), 10.0))
+    dns_status = str(dns_diagnostic.get("status") or "unknown")
+    log_event(
+        "preflight_dns_integrity",
+        {
+            "phase": "preflight",
+            "advisory": True,
+            "blocking": False,
+            "severity": "warning" if dns_status in {"contaminated", "inconclusive"} else "info",
+            **dns_diagnostic,
         },
     )
     response = token_chat(
@@ -47,9 +65,120 @@ def run_relay_preflight(
         "model": model,
         "reason": reason,
         "message": message,
+        "dns_integrity": dns_diagnostic,
     }
     log_event("preflight_end", {"phase": "preflight", **result})
     return result
+
+
+def _check_dns_integrity(base_url: str, *, timeout_s: float) -> dict[str, Any]:
+    if os.getenv("AUDIT_DNS_INTEGRITY_CHECK", "false").strip().casefold() in {"0", "false", "no", "off"}:
+        return {"status": "disabled", "reason": "disabled_by_configuration"}
+
+    hostname = (urlsplit((base_url or "").strip()).hostname or "").strip().casefold()
+    if not hostname:
+        return {"status": "inconclusive", "reason": "missing_hostname"}
+    try:
+        ipaddress.ip_address(hostname)
+        return {"status": "skipped", "reason": "literal_ip", "hostname": hostname}
+    except ValueError:
+        pass
+    if hostname == "localhost" or hostname.endswith((".localhost", ".example", ".test", ".invalid")):
+        return {"status": "skipped", "reason": "local_or_reserved_hostname", "hostname": hostname}
+
+    system_addresses = _system_addresses(hostname)
+    alidns = _doh_addresses("https://dns.alidns.com/resolve", hostname, timeout_s=timeout_s)
+    dnspod = _doh_addresses("https://doh.pub/dns-query", hostname, timeout_s=timeout_s)
+    trusted_sources = [addresses for addresses in (alidns, dnspod) if addresses]
+    if not system_addresses:
+        return {
+            "status": "inconclusive",
+            "reason": "system_resolution_unavailable",
+            "hostname": hostname,
+            "system_count": len(system_addresses),
+            "alidns_count": len(alidns),
+            "dnspod_count": len(dnspod),
+        }
+
+    if not trusted_sources:
+        return {
+            "status": "inconclusive",
+            "reason": "domestic_doh_unavailable",
+            "hostname": hostname,
+            "system_count": len(system_addresses),
+            "alidns_count": 0,
+            "dnspod_count": 0,
+        }
+
+    if len(trusted_sources) == 2:
+        trusted_addresses = trusted_sources[0] & trusted_sources[1]
+        if not trusted_addresses:
+            return {
+                "status": "inconclusive",
+                "reason": "domestic_doh_providers_disagree",
+                "hostname": hostname,
+                "system_count": len(system_addresses),
+                "alidns_count": len(alidns),
+                "dnspod_count": len(dnspod),
+            }
+    else:
+        trusted_addresses = trusted_sources[0]
+
+    overlap = system_addresses & trusted_addresses
+    return {
+        "status": "passed" if overlap else "contaminated",
+        "reason": "system_matches_domestic_doh" if overlap else "system_disagrees_with_domestic_doh",
+        "hostname": hostname,
+        "system_count": len(system_addresses),
+        "trusted_provider_count": len(trusted_sources),
+        "trusted_count": len(trusted_addresses),
+        "overlap_count": len(overlap),
+        "system_addresses": sorted(system_addresses),
+        "trusted_addresses": sorted(trusted_addresses),
+    }
+
+
+def _system_addresses(hostname: str) -> set[str]:
+    try:
+        rows = socket.getaddrinfo(hostname, 443, type=socket.SOCK_STREAM)
+    except OSError:
+        return set()
+    return {
+        str(row[4][0])
+        for row in rows
+        if row[4] and _is_public_ip(str(row[4][0]))
+    }
+
+
+def _doh_addresses(endpoint: str, hostname: str, *, timeout_s: float) -> set[str]:
+    try:
+        response = requests.get(
+            endpoint,
+            params={"name": hostname, "type": "A"},
+            headers={"Accept": "application/dns-json"},
+            timeout=(5.0, max(1.0, timeout_s)),
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except Exception:
+        return set()
+    answers = payload.get("Answer") if isinstance(payload, dict) else None
+    if not isinstance(answers, list):
+        return set()
+    return {
+        str(answer.get("data") or "")
+        for answer in answers
+        if isinstance(answer, dict)
+        and int(answer.get("type") or 0) == 1
+        and _is_public_ip(str(answer.get("data") or ""))
+    }
+
+
+def _is_public_ip(value: str) -> bool:
+    try:
+        return ipaddress.ip_address(value).is_global
+    except ValueError:
+        return False
 
 
 def _has_compatible_response(response: dict[str, Any]) -> bool:
@@ -124,5 +253,7 @@ def _default_message(reason: str) -> str:
         "upstream_unavailable": "中转站或其上游服务不可用",
         "invalid_request_or_model": "中转站拒绝请求，请检查声明模型和兼容接口",
         "incompatible_response": "中转站返回内容不符合 OpenAI 兼容格式",
+        "dns_integrity_mismatch": "系统 DNS 与国内加密 DNS 结果不一致，疑似 DNS 污染",
+        "dns_integrity_unverified": "无法确认系统 DNS 与国内加密 DNS 一致，已在付费调用前停止",
     }
     return messages.get(reason, "中转站预检失败")

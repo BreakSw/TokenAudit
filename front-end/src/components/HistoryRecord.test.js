@@ -1,12 +1,12 @@
 import { flushPromises, mount } from "@vue/test-utils"
-import ElementPlus, { ElMessage } from "element-plus"
+import ElementPlus, { ElMessage, ElMessageBox } from "element-plus"
 import { createMemoryHistory, createRouter } from "vue-router"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import HistoryRecord from "./HistoryRecord.vue"
-import { listAudits } from "../request/api"
+import { deleteAudit, listAudits } from "../request/api"
 
-vi.mock("../request/api", () => ({ listAudits: vi.fn() }))
+vi.mock("../request/api", () => ({ deleteAudit: vi.fn(), listAudits: vi.fn() }))
 
 const wrappers = []
 
@@ -48,7 +48,11 @@ function buttonWithText(wrapper, text) {
   return button
 }
 
-beforeEach(() => vi.mocked(listAudits).mockReset())
+beforeEach(() => {
+  vi.mocked(listAudits).mockReset()
+  vi.mocked(deleteAudit).mockReset()
+  localStorage.clear()
+})
 
 afterEach(() => {
   wrappers.splice(0).forEach((wrapper) => wrapper.unmount())
@@ -57,6 +61,25 @@ afterEach(() => {
 })
 
 describe("HistoryRecord", () => {
+  it("clears row unread dots as soon as the history list is opened", async () => {
+    localStorage.setItem("tokenauditUnreadAuditReportIds", "[52]")
+    vi.mocked(listAudits).mockResolvedValue([{
+      id: 52,
+      tokenId: 15,
+      auditTime: "now",
+      status: "completed",
+      auditMode: "deep",
+      progress: 100,
+      overallConclusion: "done"
+    }])
+
+    const { wrapper } = await mountHistoryRecord()
+    await flushPromises()
+
+    expect(wrapper.find(".row-unread-dot").exists()).toBe(false)
+    expect(localStorage.getItem("tokenauditUnreadAuditReportIds")).toBe("[]")
+  })
+
   it("shows loading, then audit fields and report navigation", async () => {
     const response = deferred()
     vi.mocked(listAudits).mockReturnValue(response.promise)
@@ -68,6 +91,7 @@ describe("HistoryRecord", () => {
       tokenId: 7,
       auditTime: "2026-08-08 16:30:00",
       status: "completed",
+      auditMode: "deep",
       progress: 100,
       overallConclusion: "该 Token 的模型身份与宣称一致，但需要持续观察配额策略。"
     }])
@@ -81,10 +105,50 @@ describe("HistoryRecord", () => {
     expect(table.text()).toContain("100%")
     expect(wrapper.get(".conclusion-text").attributes("title")).toContain("模型身份与宣称一致")
     expect(wrapper.get(".status-badge--completed").exists()).toBe(true)
+    expect(wrapper.get(".mode-badge--deep").text()).toBe("深度审计")
 
     await buttonWithText(wrapper, "查看报告").trigger("click")
     await flushPromises()
     expect(router.currentRoute.value.fullPath).toBe("/report/42")
+  })
+
+  it("deletes a terminal audit after confirmation", async () => {
+    vi.mocked(listAudits).mockResolvedValue([{
+      id: 52,
+      tokenId: 15,
+      auditTime: "now",
+      status: "completed",
+      auditMode: "deep",
+      progress: 100,
+      overallConclusion: "done"
+    }])
+    vi.mocked(deleteAudit).mockResolvedValue()
+    vi.spyOn(ElMessageBox, "confirm").mockResolvedValue("confirm")
+    const { wrapper } = await mountHistoryRecord()
+    await flushPromises()
+
+    await buttonWithText(wrapper, "删除").trigger("click")
+    await flushPromises()
+
+    expect(deleteAudit).toHaveBeenCalledWith(52)
+    expect(wrapper.text()).not.toContain("#52")
+  })
+
+  it("disables deletion for a running audit", async () => {
+    vi.mocked(listAudits).mockResolvedValue([{
+      id: 53,
+      tokenId: 15,
+      auditTime: "now",
+      status: "running",
+      auditMode: "deep",
+      progress: 50,
+      overallConclusion: ""
+    }])
+    const { wrapper } = await mountHistoryRecord()
+    await flushPromises()
+
+    expect(buttonWithText(wrapper, "删除").attributes("disabled")).toBeDefined()
+    expect(deleteAudit).not.toHaveBeenCalled()
   })
 
   it("renders a real empty state that can start a new audit", async () => {
@@ -94,7 +158,7 @@ describe("HistoryRecord", () => {
 
     expect(wrapper.get('[data-testid="history-empty"]').text()).toContain("暂无审计记录")
     expect(wrapper.find('[data-testid="history-table"]').exists()).toBe(false)
-    await buttonWithText(wrapper, "发起审计").trigger("click")
+    await buttonWithText(wrapper, "快速审计").trigger("click")
     await flushPromises()
     expect(router.currentRoute.value.fullPath).toBe("/audit")
   })

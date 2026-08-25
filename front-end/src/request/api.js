@@ -34,6 +34,11 @@ export async function startAudit(payload) {
   return data
 }
 
+export async function startDeepAudit(payload) {
+  const { data } = await http.post("/api/audits/deep", payload)
+  return data
+}
+
 export async function getAudit(id) {
   const { data } = await http.get(`/api/audits/${id}`)
   return data
@@ -57,6 +62,15 @@ export async function cancelAudit(id) {
 export async function updateTokenClaimedModel(id, claimedModel) {
   const { data } = await http.put(`/api/tokens/${id}/model`, { claimedModel })
   return data
+}
+
+export async function updateTokenBaseUrl(id, tokenBaseUrl) {
+  const { data } = await http.put(`/api/tokens/${id}/url`, { tokenBaseUrl })
+  return data
+}
+
+export async function deleteAudit(id) {
+  await http.delete(`/api/audits/${id}`)
 }
 
 export async function getAuditAiConfig() {

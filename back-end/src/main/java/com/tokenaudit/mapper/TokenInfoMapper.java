@@ -26,5 +26,8 @@ public interface TokenInfoMapper {
 
     @Update("UPDATE token_info SET claimed_model = #{claimedModel} WHERE id = #{id}")
     int updateClaimedModel(@Param("id") Long id, @Param("claimedModel") String claimedModel);
+
+    @Update("UPDATE token_info SET token_base_url = #{tokenBaseUrl} WHERE id = #{id}")
+    int updateTokenBaseUrl(@Param("id") Long id, @Param("tokenBaseUrl") String tokenBaseUrl);
 }
 

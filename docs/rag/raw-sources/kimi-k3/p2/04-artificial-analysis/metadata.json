@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Kimi K3",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P2",
+  "sourceId": "04-artificial-analysis",
+  "label": "Kimi K3 · Artificial Analysis",
+  "requestedUrl": "https://artificialanalysis.ai/models/kimi-k3",
+  "finalUrl": "https://artificialanalysis.ai/models/kimi-k3",
+  "capturedAt": "2026-08-23T10:53:04.312Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 129731,
+  "markdownSha256": "3215d02846f5f10db4eb44386ef7c8fc003080b4b50afac1a0f61d07eb80b7be",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Kimi K3 (max) - Intelligence, Performance & Price Analysis | Artificial Analysis",
+    "description": "Analysis of Kimi's Kimi K3 (max) and comparison to other AI models across key metrics including quality, price, performance (tokens per second & time to first token), context window & more.",
+    "language": "en",
+    "sourceURL": "https://artificialanalysis.ai/models/kimi-k3",
+    "url": "https://artificialanalysis.ai/models/kimi-k3",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Kimi K3 (max) - Intelligence, Performance & Price Analysis | Artificial Analysis",
+    "ogDescription": "Analysis of Kimi's Kimi K3 (max) and comparison to other AI models across key metrics including quality, price, performance (tokens per second & time to first token), context window & more."
+  }
+}

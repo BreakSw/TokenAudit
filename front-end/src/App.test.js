@@ -4,15 +4,17 @@ import { createMemoryHistory, createRouter } from "vue-router"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import App from "./App.vue"
-import { deleteAuditAiConfig, getAuditAiConfig, saveAuditAiConfig } from "./request/api"
+import { deleteAuditAiConfig, getAuditAiConfig, listAudits, saveAuditAiConfig } from "./request/api"
 
 vi.mock("./request/api", () => ({
   deleteAuditAiConfig: vi.fn(),
   getAuditAiConfig: vi.fn(),
+  listAudits: vi.fn(),
   saveAuditAiConfig: vi.fn()
 }))
 
 const ViewStub = { template: "<div>route content</div>" }
+const appWrappers = []
 const DrawerStub = {
   props: ["modelValue", "title"],
   template: `
@@ -29,6 +31,7 @@ function createTestRouter() {
       { path: "/", component: ViewStub },
       { path: "/home", component: ViewStub, meta: { title: "项目主页", section: "HOME" } },
       { path: "/audit", component: ViewStub },
+      { path: "/audit/deep", component: ViewStub },
       { path: "/tokens", component: ViewStub },
       { path: "/history", component: ViewStub },
       { path: "/guide", component: ViewStub },
@@ -55,6 +58,7 @@ async function mountApp(path = "/") {
   })
 
   await flushPromises()
+  appWrappers.push(wrapper)
   return wrapper
 }
 
@@ -71,12 +75,16 @@ async function openSettings(wrapper) {
 
 beforeEach(() => {
   vi.mocked(getAuditAiConfig).mockResolvedValue({ configured: false, expiresInSeconds: 0 })
+  vi.mocked(listAudits).mockResolvedValue([])
   vi.mocked(saveAuditAiConfig).mockResolvedValue({ configured: true, apiKeyMasked: "sk-o***abcd", expiresInSeconds: 86400 })
   vi.mocked(deleteAuditAiConfig).mockResolvedValue()
 })
 
 afterEach(() => {
+  appWrappers.splice(0).forEach((wrapper) => wrapper.unmount())
   document.body.innerHTML = ""
+  localStorage.clear()
+  vi.useRealTimers()
 })
 
 describe("console shell routing", () => {
@@ -93,8 +101,16 @@ describe("console shell routing", () => {
   it("shows the regular route title and marks its navigation link current", async () => {
     const wrapper = await mountApp("/audit")
 
-    expect(wrapper.get(".header-heading h1").text()).toBe("发起审计")
+    expect(wrapper.get(".header-heading h1").text()).toBe("快速审计")
     expect(wrapper.get('.primary-nav a[href="/audit"]').attributes("aria-current")).toBe("page")
+  })
+
+  it("shows deep audit as an independent navigation destination", async () => {
+    const wrapper = await mountApp("/audit/deep")
+
+    expect(wrapper.get(".header-heading h1").text()).toBe("深度审计")
+    expect(wrapper.get('.primary-nav a[href="/audit/deep"]').attributes("aria-current")).toBe("page")
+    expect(wrapper.get('.primary-nav a[href="/audit"]').attributes("aria-current")).toBeUndefined()
   })
 
   it("shows the report title and marks history current", async () => {
@@ -103,6 +119,23 @@ describe("console shell routing", () => {
     expect(wrapper.get(".header-heading h1").text()).toBe("审计报告")
     expect(wrapper.get('.primary-nav a[href="/history"]').classes()).toContain("is-active")
     expect(wrapper.get('.primary-nav a[href="/history"]').attributes("aria-current")).toBe("page")
+  })
+
+  it("shows a history dot when a running audit completes and clears it after opening history", async () => {
+    vi.useFakeTimers()
+    vi.mocked(listAudits)
+      .mockResolvedValueOnce([{ id: 88, status: "running" }])
+      .mockResolvedValueOnce([{ id: 88, status: "completed" }])
+    const wrapper = await mountApp("/audit/deep")
+
+    expect(wrapper.find('[data-testid="history-unread-dot"]').exists()).toBe(false)
+    await vi.advanceTimersByTimeAsync(5000)
+    await flushPromises()
+    expect(wrapper.get('[data-testid="history-unread-dot"]').attributes("aria-label")).toContain("1 份")
+
+    await wrapper.get('.primary-nav a[href="/history"]').trigger("click")
+    await flushPromises()
+    expect(wrapper.find('[data-testid="history-unread-dot"]').exists()).toBe(false)
   })
 })
 

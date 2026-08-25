@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Opus 4.6",
+  "modelSlug": "claude-opus-4.6",
+  "reviewStatus": "CONDITIONAL",
+  "sources": [
+    {
+      "id": "01-anthropic-opus",
+      "priority": "P0",
+      "label": "Claude Opus · Anthropic",
+      "url": "https://www.anthropic.com/claude/opus"
+    },
+    {
+      "id": "02-anthropic-models-overview",
+      "priority": "P0",
+      "label": "Claude models overview · Anthropic",
+      "url": "https://platform.claude.com/docs/en/about-claude/models/overview"
+    },
+    {
+      "id": "03-aws-bedrock-model-ids",
+      "priority": "P1",
+      "label": "Amazon Bedrock model IDs",
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html"
+    },
+    {
+      "id": "04-artificial-analysis",
+      "priority": "P2",
+      "label": "Claude Opus 4.6 · Artificial Analysis",
+      "url": "https://artificialanalysis.ai/models/claude-opus-4-6"
+    },
+    {
+      "id": "05-wikipedia",
+      "priority": "P3",
+      "label": "Claude · Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Claude_(AI)"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "model": "GLM-5.2",
+  "modelSlug": "glm-5.2",
+  "reviewStatus": "APPROVE",
+  "sources": [
+    {
+      "id": "01-bigmodel-docs",
+      "priority": "P0",
+      "label": "GLM-5.2 · BigModel Docs",
+      "url": "https://docs.bigmodel.cn/cn/guide/models/text/glm-5.2"
+    },
+    {
+      "id": "02-zai-docs",
+      "priority": "P0",
+      "label": "GLM-5.2 Overview · Z.AI Docs",
+      "url": "https://docs.z.ai/guides/llm/glm-5.2"
+    },
+    {
+      "id": "03-zai-blog",
+      "priority": "P1",
+      "label": "GLM-5.2 official release",
+      "url": "https://z.ai/blog/glm-5.2"
+    },
+    {
+      "id": "04-glm-52-bench",
+      "priority": "P2",
+      "label": "AletheiaResearch GLM-5.2-Bench",
+      "url": "https://huggingface.co/datasets/AletheiaResearch/GLM-5.2-Bench"
+    },
+    {
+      "id": "05-glm-52-agent",
+      "priority": "P3",
+      "label": "AletheiaResearch GLM-5.2-Agent",
+      "url": "https://huggingface.co/datasets/AletheiaResearch/GLM-5.2-Agent"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Terra",
+  "modelSlug": "gpt-5.6-terra",
+  "reviewStatus": "APPROVE",
+  "sources": [
+    {
+      "id": "01-openai-model-page",
+      "priority": "P0",
+      "label": "GPT-5.6 Terra Model · OpenAI API",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.6-terra"
+    },
+    {
+      "id": "02-openai-family-release",
+      "priority": "P0",
+      "label": "GPT-5.6: Frontier intelligence",
+      "url": "https://openai.com/index/gpt-5-6/"
+    },
+    {
+      "id": "03-openai-price-performance",
+      "priority": "P1",
+      "label": "Advancing the price-performance frontier with GPT-5.6",
+      "url": "https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6/"
+    },
+    {
+      "id": "04-artificial-analysis",
+      "priority": "P2",
+      "label": "GPT-5.6 Terra · Artificial Analysis",
+      "url": "https://artificialanalysis.ai/models/gpt-5-6-terra"
+    },
+    {
+      "id": "05-openai-community",
+      "priority": "P3",
+      "label": "Sol vs Terra developer discussion · OpenAI Community",
+      "url": "https://community.openai.com/t/gpt-5-6-sol-vs-terra-what-are-you-seeing-in-real-development-during-these-first-days/1386726/6"
+    }
+  ]
+}

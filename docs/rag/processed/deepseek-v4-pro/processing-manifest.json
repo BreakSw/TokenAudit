@@ -1,0 +1,144 @@
+{
+  "chunking_policy": {
+    "combine_text_under_n_characters": 300,
+    "isolate_table": true,
+    "max_characters": 1800,
+    "new_after_n_characters": 1200,
+    "overlap_all": false,
+    "overlap_characters": 120,
+    "strategy": "by_title"
+  },
+  "coverage": {
+    "admitted_categories": [
+      "context_output",
+      "reasoning_behavior",
+      "tools_agents",
+      "performance",
+      "architecture",
+      "pricing",
+      "api_behavior"
+    ],
+    "coverage_gaps": [],
+    "explicit_model_chunks": 17,
+    "missing_categories": [
+      "model_identity",
+      "modalities",
+      "safety_behavior"
+    ],
+    "p0_p1_explicit_model_chunks": 12,
+    "rejected_categories": [],
+    "source_review_status": "APPROVE"
+  },
+  "dedup": {
+    "duplicates_removed": 0,
+    "engine": "llama-index-core",
+    "input_chunks": 45,
+    "strategy": "DocstoreStrategy.DUPLICATES_ONLY",
+    "unique_chunks": 45
+  },
+  "documents": [
+    {
+      "captured_at": "2026-08-23T10:51:54.277Z",
+      "chunks_before_dedup": 18,
+      "clean_characters": 10731,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\deepseek-v4-pro\\p0\\01-huggingface-model-card\\content.md",
+      "elements": 112,
+      "images": 8,
+      "source_id": "01-huggingface-model-card",
+      "source_level": "P0",
+      "source_url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro",
+      "tables": 5
+    },
+    {
+      "captured_at": "2026-08-23T10:52:02.160Z",
+      "chunks_before_dedup": 2,
+      "clean_characters": 821,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\deepseek-v4-pro\\p0\\02-deepseek-release\\content.md",
+      "elements": 13,
+      "images": 2,
+      "source_id": "02-deepseek-release",
+      "source_level": "P0",
+      "source_url": "https://api-docs.deepseek.com/news/news260813/",
+      "tables": 0
+    },
+    {
+      "captured_at": "2026-08-23T10:52:09.743Z",
+      "chunks_before_dedup": 1,
+      "clean_characters": 743,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\deepseek-v4-pro\\p1\\03-deepseek-platform\\content.md",
+      "elements": 14,
+      "images": 0,
+      "source_id": "03-deepseek-platform",
+      "source_level": "P1",
+      "source_url": "https://platform.deepseek.com/",
+      "tables": 0
+    },
+    {
+      "captured_at": "2026-08-23T10:52:17.410Z",
+      "chunks_before_dedup": 11,
+      "clean_characters": 10567,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\deepseek-v4-pro\\p2\\04-forbes\\content.md",
+      "elements": 101,
+      "images": 2,
+      "source_id": "04-forbes",
+      "source_level": "P2",
+      "source_url": "https://www.forbes.com/sites/jonmarkman/2026/08/18/deepseek-releases-v4-pro-at-14x-the-price-of-its-cheapest-model/",
+      "tables": 0
+    },
+    {
+      "captured_at": "2026-08-23T10:52:26.449Z",
+      "chunks_before_dedup": 13,
+      "clean_characters": 7051,
+      "content_path": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\raw-sources\\deepseek-v4-pro\\p3\\05-ai-release-tracker\\content.md",
+      "elements": 63,
+      "images": 0,
+      "source_id": "05-ai-release-tracker",
+      "source_level": "P3",
+      "source_url": "https://aireleasetracker.com/model/deepseek/deepseek-v4-pro",
+      "tables": 1
+    }
+  ],
+  "generated_at": "2026-08-24T14:17:43.358769+00:00",
+  "model": {
+    "family": "deepseek",
+    "label": "DeepSeek-V4-Pro",
+    "model_id": "deepseek-v4-pro",
+    "source_review_status": "APPROVE",
+    "version": "4-pro"
+  },
+  "pipeline": {
+    "chunker": "unstructured chunk_by_title",
+    "claim_policy": "extractive P0/P1 target-model evidence only",
+    "deduplicator": "llama-index-core DocstoreStrategy.DUPLICATES_ONLY",
+    "document_structure": "unstructured elements",
+    "embedding": "voyage",
+    "ocr_and_image_structure": "unstructured hi_res/ocr_only",
+    "partition_and_noise_filter": "unstructured",
+    "rerank": "voyage",
+    "table_parser": "unstructured Table + text_as_html"
+  },
+  "retrieval_policy": {
+    "rerank_model": "rerank-2.5",
+    "rerank_top_k": 5,
+    "vector_top_k": 12
+  },
+  "schema_version": 3,
+  "stats": {
+    "attributes": 7,
+    "chunks_after_dedup": 45,
+    "chunks_before_dedup": 45,
+    "claims": 7,
+    "documents": 5,
+    "duplicate_chunks_removed": 0,
+    "elements": 303,
+    "evidence_chunks": 5,
+    "ground_truth_claims": 7,
+    "image_unique_urls": 12,
+    "images_downloaded": 0,
+    "images_found": 12,
+    "ocr_success": 0,
+    "quarantined_claims": 0,
+    "records_for_embedding": 19,
+    "tables": 6
+  }
+}

@@ -19,6 +19,7 @@ async function mountHome() {
     routes: [
       { path: "/", component: RouteStub },
       { path: "/audit", component: RouteStub },
+      { path: "/audit/deep", component: RouteStub },
       { path: "/tokens", component: RouteStub },
       { path: "/history", component: RouteStub },
       { path: "/report/:id", component: RouteStub }
@@ -141,7 +142,8 @@ describe("HomeView dashboard navigation", () => {
   it.each([
     ["查看审计报告", "/report/8"],
     ["全部历史 →", "/history"],
-    ["发起审计", "/audit"],
+    ["快速审计", "/audit"],
+    ["深度审计", "/audit/deep"],
     ["管理 Token", "/tokens"]
   ])("navigates from %s to %s", async (label, expectedPath) => {
     vi.mocked(listTokens).mockResolvedValue([{ id: 1 }, { id: 2 }])

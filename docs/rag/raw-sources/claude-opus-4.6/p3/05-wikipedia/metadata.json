@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Opus 4.6",
+  "modelReviewStatus": "CONDITIONAL",
+  "priority": "P3",
+  "sourceId": "05-wikipedia",
+  "label": "Claude · Wikipedia",
+  "requestedUrl": "https://en.wikipedia.org/wiki/Claude_(AI)",
+  "finalUrl": "https://en.wikipedia.org/wiki/Claude_(AI)",
+  "capturedAt": "2026-08-23T10:50:56.644Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 146895,
+  "markdownSha256": "ede07ba8d2445e7768da5e918137b9afec2645440ff9b008381473f3e2495c60",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Claude (AI) - Wikipedia",
+    "language": "en",
+    "sourceURL": "https://en.wikipedia.org/wiki/Claude_(AI)",
+    "url": "https://en.wikipedia.org/wiki/Claude_(AI)",
+    "statusCode": 200,
+    "contentType": "text/html; charset=UTF-8",
+    "ogTitle": "Claude (AI) - Wikipedia"
+  }
+}

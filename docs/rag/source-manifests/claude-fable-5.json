@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Fable 5",
+  "modelSlug": "claude-fable-5",
+  "reviewStatus": "APPROVE",
+  "sources": [
+    {
+      "id": "01-anthropic-fable",
+      "priority": "P0",
+      "label": "Claude Fable · Anthropic",
+      "url": "https://www.anthropic.com/claude/fable"
+    },
+    {
+      "id": "02-claude-docs-introduction",
+      "priority": "P0",
+      "label": "Introducing Claude Fable 5 and Claude Mythos 5",
+      "url": "https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5"
+    },
+    {
+      "id": "03-anthropic-research",
+      "priority": "P1",
+      "label": "Claude Fable 5 and Claude Mythos 5 · Anthropic Research",
+      "url": "https://www.anthropic.com/research/claude-fable-5-mythos-5"
+    },
+    {
+      "id": "04-artificial-analysis",
+      "priority": "P2",
+      "label": "Claude Fable 5 · Artificial Analysis",
+      "url": "https://artificialanalysis.ai/models/claude-fable-5"
+    },
+    {
+      "id": "05-japan-ai",
+      "priority": "P3",
+      "label": "Claude Fable 5 analysis · JAPAN AI",
+      "url": "https://japan-ai.co.jp/media/7250/"
+    }
+  ]
+}

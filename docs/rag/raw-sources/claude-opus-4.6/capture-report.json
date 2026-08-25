@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Opus 4.6",
+  "modelReviewStatus": "CONDITIONAL",
+  "generatedAt": "2026-08-23T10:51:08.539Z",
+  "total": 5,
+  "accepted": 5,
+  "rejected": 0,
+  "results": [
+    {
+      "sourceId": "01-anthropic-opus",
+      "priority": "P0",
+      "requestedUrl": "https://www.anthropic.com/claude/opus",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 15660,
+      "directory": "p0/01-anthropic-opus",
+      "error": null
+    },
+    {
+      "sourceId": "02-anthropic-models-overview",
+      "priority": "P0",
+      "requestedUrl": "https://platform.claude.com/docs/en/about-claude/models/overview",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 6537,
+      "directory": "p0/02-anthropic-models-overview",
+      "error": null
+    },
+    {
+      "sourceId": "03-aws-bedrock-model-ids",
+      "priority": "P1",
+      "requestedUrl": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 8868,
+      "directory": "p1/03-aws-bedrock-model-ids",
+      "error": null
+    },
+    {
+      "sourceId": "04-artificial-analysis",
+      "priority": "P2",
+      "requestedUrl": "https://artificialanalysis.ai/models/claude-opus-4-6",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 21787,
+      "directory": "p2/04-artificial-analysis",
+      "error": null
+    },
+    {
+      "sourceId": "05-wikipedia",
+      "priority": "P3",
+      "requestedUrl": "https://en.wikipedia.org/wiki/Claude_(AI)",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 146895,
+      "directory": "p3/05-wikipedia",
+      "error": null
+    }
+  ]
+}

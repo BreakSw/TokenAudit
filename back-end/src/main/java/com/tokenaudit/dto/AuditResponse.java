@@ -4,6 +4,7 @@ import java.util.Map;
 
 public class AuditResponse {
     private Long auditId;
+    private String auditMode;
     private Map<String, Object> report;
 
     public Long getAuditId() {
@@ -12,6 +13,14 @@ public class AuditResponse {
 
     public void setAuditId(Long auditId) {
         this.auditId = auditId;
+    }
+
+    public String getAuditMode() {
+        return auditMode;
+    }
+
+    public void setAuditMode(String auditMode) {
+        this.auditMode = auditMode;
     }
 
     public Map<String, Object> getReport() {

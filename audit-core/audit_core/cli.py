@@ -9,6 +9,7 @@ from typing import Any
 from audit_core.agents import OrchestratorAgent
 from audit_core.agents.orchestrator_agent import OrchestratorInput
 from audit_core.config import load_config
+from audit_core.deep import DeepAuditOrchestrator, DeepAuditSettings
 from audit_core.scripts.audit_ai_preflight import run_audit_ai_preflight
 from audit_core.scripts.relay_preflight import run_relay_preflight
 from audit_core.scripts.report_generate import default_basename, export_excel, export_pdf, write_report_json, write_report_markdown
@@ -73,7 +74,21 @@ def main() -> int:
         sys.stderr.flush()
         return 4
 
-    report = OrchestratorAgent().run(config=config, inp=orch_inp)
+    audit_mode = str(inp_obj.get("audit_mode") or "quick").strip().casefold()
+    if audit_mode == "deep":
+        report = DeepAuditOrchestrator().run(
+            config=config,
+            inp=orch_inp,
+            settings=DeepAuditSettings(
+                rounds=int(inp_obj.get("deep_audit_rounds") or 2),
+                questions_per_round=3,
+                variants_per_question=3,
+                target_concurrency=int(inp_obj.get("deep_target_concurrency") or 3),
+                adaptive_early_stop=bool(inp_obj.get("adaptive_early_stop", False)),
+            ),
+        )
+    else:
+        report = OrchestratorAgent().run(config=config, inp=orch_inp)
 
     export_formats = inp_obj.get("export_formats") or []
     if isinstance(export_formats, str):

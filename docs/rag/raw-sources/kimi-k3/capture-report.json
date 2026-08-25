@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "model": "Kimi K3",
+  "modelReviewStatus": "APPROVE",
+  "generatedAt": "2026-08-23T10:53:25.369Z",
+  "total": 5,
+  "accepted": 5,
+  "rejected": 0,
+  "results": [
+    {
+      "sourceId": "01-kimi-quickstart",
+      "priority": "P0",
+      "requestedUrl": "https://platform.kimi.ai/docs/guide/kimi-k3-quickstart",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 18862,
+      "directory": "p0/01-kimi-quickstart",
+      "error": null
+    },
+    {
+      "sourceId": "02-github",
+      "priority": "P0",
+      "requestedUrl": "https://github.com/MoonshotAI/Kimi-K3",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 23292,
+      "directory": "p0/02-github",
+      "error": null
+    },
+    {
+      "sourceId": "03-kimi-model-page",
+      "priority": "P1",
+      "requestedUrl": "https://www.kimi.ai/ai-models/kimi-k3",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 8881,
+      "directory": "p1/03-kimi-model-page",
+      "error": null
+    },
+    {
+      "sourceId": "04-artificial-analysis",
+      "priority": "P2",
+      "requestedUrl": "https://artificialanalysis.ai/models/kimi-k3",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 129731,
+      "directory": "p2/04-artificial-analysis",
+      "error": null
+    },
+    {
+      "sourceId": "05-openlm",
+      "priority": "P3",
+      "requestedUrl": "https://openlm.ai/kimi-k3/",
+      "acceptedForReview": true,
+      "firecrawlHttpStatus": 200,
+      "sourceHttpStatus": 200,
+      "markdownCharacters": 15491,
+      "directory": "p3/05-openlm",
+      "error": null
+    }
+  ]
+}

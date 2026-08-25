@@ -1,0 +1,242 @@
+{
+  "cases": [
+    {
+      "acceptable_ids": [
+        "attr-fable5-fallback-disambiguation",
+        "fable5-fallback-modes",
+        "fable5-opus-fallback"
+      ],
+      "expected_attribute_id": "attr-fable5-fallback-disambiguation",
+      "expected_attribute_rank": 1,
+      "name": "fallback_disambiguation",
+      "query": "如何区分 Fable 5 官方回退到 Opus 4.8 与中转站偷偷替换模型？",
+      "query_vector_dimension": 1024,
+      "query_vector_norm": 1.0,
+      "rerank_semantic_top1": true,
+      "reranked_hits": [
+        {
+          "id": "attr-fable5-fallback-disambiguation",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.914062,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 1,
+          "vector_score": 0.61023
+        },
+        {
+          "id": "fable5-opus-fallback",
+          "rank": 2,
+          "record_type": "claim",
+          "rerank_score": 0.75,
+          "source_id": "03-anthropic-research",
+          "vector_rank": 2,
+          "vector_score": 0.584656
+        },
+        {
+          "id": "chunk-d806e35ecd3cbd6b94d0",
+          "rank": 3,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.625,
+          "source_id": "03-anthropic-research",
+          "vector_rank": 3,
+          "vector_score": 0.536321
+        },
+        {
+          "id": "fable5-model-id",
+          "rank": 4,
+          "record_type": "claim",
+          "rerank_score": 0.423828,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 5,
+          "vector_score": 0.499685
+        },
+        {
+          "id": "fable5-fallback-modes",
+          "rank": 5,
+          "record_type": "claim",
+          "rerank_score": 0.414062,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 4,
+          "vector_score": 0.520421
+        }
+      ],
+      "vector_semantic_top1": true,
+      "vector_top_ids": [
+        "attr-fable5-fallback-disambiguation",
+        "fable5-opus-fallback",
+        "chunk-d806e35ecd3cbd6b94d0",
+        "fable5-fallback-modes",
+        "fable5-model-id",
+        "fable5-refusal-billing",
+        "chunk-cdbb2a66abf8dad99c9b",
+        "chunk-91823fc6b9f78c921d14",
+        "chunk-603358d613d2ddb9d97c",
+        "attr-fable5-thinking-visibility",
+        "fable5-refusal-protocol",
+        "chunk-bc4a6aec7cb05ecb21f6"
+      ]
+    },
+    {
+      "acceptable_ids": [
+        "attr-fable5-adaptive-thinking",
+        "fable5-adaptive-thinking"
+      ],
+      "expected_attribute_id": "attr-fable5-adaptive-thinking",
+      "expected_attribute_rank": 3,
+      "name": "adaptive_thinking",
+      "query": "Claude Fable 5 能不能关闭 thinking，应该用什么参数控制推理深度？",
+      "query_vector_dimension": 1024,
+      "query_vector_norm": 1.0,
+      "rerank_semantic_top1": true,
+      "reranked_hits": [
+        {
+          "id": "fable5-adaptive-thinking",
+          "rank": 1,
+          "record_type": "claim",
+          "rerank_score": 0.957031,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 1,
+          "vector_score": 0.797412
+        },
+        {
+          "id": "chunk-bc4a6aec7cb05ecb21f6",
+          "rank": 2,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.902344,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 2,
+          "vector_score": 0.76638
+        },
+        {
+          "id": "attr-fable5-adaptive-thinking",
+          "rank": 3,
+          "record_type": "attribute",
+          "rerank_score": 0.898438,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 3,
+          "vector_score": 0.734963
+        },
+        {
+          "id": "fable5-thinking-visibility",
+          "rank": 4,
+          "record_type": "claim",
+          "rerank_score": 0.644531,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 4,
+          "vector_score": 0.724589
+        },
+        {
+          "id": "attr-fable5-thinking-visibility",
+          "rank": 5,
+          "record_type": "attribute",
+          "rerank_score": 0.496094,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 5,
+          "vector_score": 0.689742
+        }
+      ],
+      "vector_semantic_top1": true,
+      "vector_top_ids": [
+        "fable5-adaptive-thinking",
+        "chunk-bc4a6aec7cb05ecb21f6",
+        "attr-fable5-adaptive-thinking",
+        "fable5-thinking-visibility",
+        "attr-fable5-thinking-visibility",
+        "fable5-supported-features",
+        "fable5-refusal-billing",
+        "fable5-context-output",
+        "chunk-53aa4b985031696e4194",
+        "chunk-cdbb2a66abf8dad99c9b",
+        "fable5-opus-fallback",
+        "fable5-fallback-modes"
+      ]
+    },
+    {
+      "acceptable_ids": [
+        "attr-fable5-tools",
+        "fable5-supported-features"
+      ],
+      "expected_attribute_id": "attr-fable5-tools",
+      "expected_attribute_rank": 1,
+      "name": "tool_capabilities",
+      "query": "Fable 5 有哪些能够区分普通模型的复杂工具与 Agent 能力？",
+      "query_vector_dimension": 1024,
+      "query_vector_norm": 1.0,
+      "rerank_semantic_top1": true,
+      "reranked_hits": [
+        {
+          "id": "attr-fable5-tools",
+          "rank": 1,
+          "record_type": "attribute",
+          "rerank_score": 0.683594,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 1,
+          "vector_score": 0.604556
+        },
+        {
+          "id": "chunk-d806e35ecd3cbd6b94d0",
+          "rank": 2,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.511719,
+          "source_id": "03-anthropic-research",
+          "vector_rank": 4,
+          "vector_score": 0.575551
+        },
+        {
+          "id": "fable5-supported-features",
+          "rank": 3,
+          "record_type": "claim",
+          "rerank_score": 0.503906,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 3,
+          "vector_score": 0.582945
+        },
+        {
+          "id": "chunk-603358d613d2ddb9d97c",
+          "rank": 4,
+          "record_type": "evidence_chunk",
+          "rerank_score": 0.46875,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 5,
+          "vector_score": 0.554086
+        },
+        {
+          "id": "fable5-model-id",
+          "rank": 5,
+          "record_type": "claim",
+          "rerank_score": 0.453125,
+          "source_id": "02-claude-docs-introduction",
+          "vector_rank": 7,
+          "vector_score": 0.510743
+        }
+      ],
+      "vector_semantic_top1": true,
+      "vector_top_ids": [
+        "attr-fable5-tools",
+        "chunk-53aa4b985031696e4194",
+        "fable5-supported-features",
+        "chunk-d806e35ecd3cbd6b94d0",
+        "chunk-603358d613d2ddb9d97c",
+        "fable5-opus-fallback",
+        "fable5-model-id",
+        "chunk-bc4a6aec7cb05ecb21f6",
+        "chunk-91823fc6b9f78c921d14",
+        "fable5-adaptive-thinking",
+        "attr-fable5-adaptive-thinking",
+        "fable5-fallback-modes"
+      ]
+    }
+  ],
+  "metrics": {
+    "attribute_mrr": 0.7777777777777777,
+    "attribute_recall_at_rerank_k": 1.0,
+    "rerank_semantic_top1_accuracy": 1.0,
+    "vector_semantic_top1_accuracy": 1.0
+  },
+  "model_id": "claude-fable-5",
+  "rerank_top_k": 5,
+  "retrieval_top_k": 12,
+  "schema_version": 1,
+  "test_cases": 3,
+  "tested_at": "2026-08-24T08:12:39.871010+00:00"
+}

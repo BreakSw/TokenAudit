@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "model": "GLM-5.3",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P3",
+  "sourceId": "05-datalearner",
+  "label": "GLM-5.3 · DataLearner",
+  "requestedUrl": "https://www.datalearner.com/ai-models/pretrained-models/glm-5-3",
+  "finalUrl": "https://www.datalearner.com/ai-models/pretrained-models/glm-5-3",
+  "capturedAt": "2026-08-23T10:54:49.819Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 8494,
+  "markdownSha256": "87f90c0939b5aa4c0e78d039e51f42b65a00c06e223b541c5cbf866cf8cc3ba2",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GLM-5.3：智谱开放权重编程与安全模型，评测排名与规格 | DataLearnerAI",
+    "description": "智谱AI/Z.ai 于 2026-08-14 发布 GLM-5.3，沿用 GLM-5.2 的 7533.3 亿参数 MoE 基座，1M 上下文、128K 最大输出，面向复杂编程、长程 Agent 与网络安全任务。本页汇总官方规格、思考档位变化，以及 HLE 62.50（181 个模型中第 3）、Terminal-Bench 2.1 88.20（第 3）、CyberGym 84.50（第 1）等实测排名。",
+    "language": "zh-CN",
+    "sourceURL": "https://www.datalearner.com/ai-models/pretrained-models/glm-5-3",
+    "url": "https://www.datalearner.com/ai-models/pretrained-models/glm-5-3",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "author": "DataLearnerAI",
+    "ogTitle": "GLM-5.3：智谱开放权重编程与安全模型，评测排名与规格 | DataLearnerAI",
+    "ogDescription": "智谱AI/Z.ai 于 2026-08-14 发布 GLM-5.3，沿用 GLM-5.2 的 7533.3 亿参数 MoE 基座，1M 上下文、128K 最大输出，面向复杂编程、长程 Agent 与网络安全任务。本页汇总官方规格、思考档位变化，以及 HLE 62.50（181 个模型中第 3）、Terminal-Bench 2.1 88.20（第 3）、CyberGym 84.50（第 1）等实测排名。"
+  }
+}

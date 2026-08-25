@@ -1,0 +1,279 @@
+{
+  "coverage": [
+    {
+      "attributes": 6,
+      "claims": 9,
+      "coverage_gaps": [],
+      "model_id": "claude-fable-5",
+      "records": 22,
+      "source_review_status": "APPROVE"
+    },
+    {
+      "attributes": 7,
+      "claims": 7,
+      "coverage_gaps": [
+        "Source manifest review status is CONDITIONAL."
+      ],
+      "model_id": "claude-opus-4.6",
+      "records": 20,
+      "source_review_status": "CONDITIONAL",
+      "stats": {
+        "attributes": 7,
+        "chunks_after_dedup": 114,
+        "chunks_before_dedup": 114,
+        "claims": 8,
+        "documents": 5,
+        "duplicate_chunks_removed": 0,
+        "elements": 755,
+        "evidence_chunks": 6,
+        "ground_truth_claims": 7,
+        "image_unique_urls": 41,
+        "images_downloaded": 4,
+        "images_found": 44,
+        "ocr_success": 1,
+        "quarantined_claims": 1,
+        "records_for_embedding": 20,
+        "tables": 7
+      }
+    },
+    {
+      "attributes": 7,
+      "claims": 7,
+      "coverage_gaps": [],
+      "model_id": "deepseek-v4-pro",
+      "records": 19,
+      "source_review_status": "APPROVE",
+      "stats": {
+        "attributes": 7,
+        "chunks_after_dedup": 45,
+        "chunks_before_dedup": 45,
+        "claims": 7,
+        "documents": 5,
+        "duplicate_chunks_removed": 0,
+        "elements": 303,
+        "evidence_chunks": 5,
+        "ground_truth_claims": 7,
+        "image_unique_urls": 12,
+        "images_downloaded": 9,
+        "images_found": 12,
+        "ocr_success": 1,
+        "quarantined_claims": 0,
+        "records_for_embedding": 19,
+        "tables": 6
+      }
+    },
+    {
+      "attributes": 10,
+      "claims": 10,
+      "coverage_gaps": [],
+      "model_id": "glm-5.3",
+      "records": 27,
+      "source_review_status": "APPROVE",
+      "stats": {
+        "attributes": 10,
+        "chunks_after_dedup": 77,
+        "chunks_before_dedup": 77,
+        "claims": 10,
+        "documents": 5,
+        "duplicate_chunks_removed": 0,
+        "elements": 535,
+        "evidence_chunks": 7,
+        "ground_truth_claims": 10,
+        "image_unique_urls": 18,
+        "images_downloaded": 8,
+        "images_found": 29,
+        "ocr_success": 8,
+        "quarantined_claims": 0,
+        "records_for_embedding": 27,
+        "tables": 6
+      }
+    },
+    {
+      "attributes": 7,
+      "claims": 7,
+      "coverage_gaps": [],
+      "model_id": "gpt-5.6-luna",
+      "records": 16,
+      "source_review_status": "APPROVE",
+      "stats": {
+        "attributes": 7,
+        "chunks_after_dedup": 187,
+        "chunks_before_dedup": 188,
+        "claims": 9,
+        "documents": 5,
+        "duplicate_chunks_removed": 1,
+        "elements": 2576,
+        "evidence_chunks": 2,
+        "ground_truth_claims": 7,
+        "image_unique_urls": 75,
+        "images_downloaded": 63,
+        "images_found": 93,
+        "ocr_success": 50,
+        "quarantined_claims": 2,
+        "records_for_embedding": 16,
+        "tables": 20
+      }
+    },
+    {
+      "attributes": 10,
+      "claims": 10,
+      "coverage_gaps": [],
+      "model_id": "gpt-5.6-sol",
+      "records": 26,
+      "source_review_status": "APPROVE",
+      "stats": {
+        "attributes": 10,
+        "chunks_after_dedup": 207,
+        "chunks_before_dedup": 207,
+        "claims": 10,
+        "documents": 5,
+        "duplicate_chunks_removed": 0,
+        "elements": 1044,
+        "evidence_chunks": 6,
+        "ground_truth_claims": 10,
+        "image_unique_urls": 54,
+        "images_downloaded": 52,
+        "images_found": 56,
+        "ocr_success": 48,
+        "quarantined_claims": 0,
+        "records_for_embedding": 26,
+        "tables": 29
+      }
+    },
+    {
+      "attributes": 7,
+      "claims": 7,
+      "coverage_gaps": [],
+      "model_id": "gpt-5.6-terra",
+      "records": 16,
+      "source_review_status": "APPROVE",
+      "stats": {
+        "attributes": 7,
+        "chunks_after_dedup": 108,
+        "chunks_before_dedup": 108,
+        "claims": 9,
+        "documents": 5,
+        "duplicate_chunks_removed": 0,
+        "elements": 763,
+        "evidence_chunks": 2,
+        "ground_truth_claims": 7,
+        "image_unique_urls": 13,
+        "images_downloaded": 8,
+        "images_found": 18,
+        "ocr_success": 4,
+        "quarantined_claims": 2,
+        "records_for_embedding": 16,
+        "tables": 12
+      }
+    },
+    {
+      "attributes": 0,
+      "claims": 0,
+      "coverage_gaps": [
+        "No captured page body explicitly names the target model; front matter was ignored.",
+        "No P0/P1 chunk explicitly names the target model.",
+        "Source manifest review status is HOLD."
+      ],
+      "model_id": "grok-5",
+      "records": 0,
+      "source_review_status": "HOLD",
+      "stats": {
+        "attributes": 0,
+        "chunks_after_dedup": 209,
+        "chunks_before_dedup": 210,
+        "claims": 0,
+        "documents": 5,
+        "duplicate_chunks_removed": 1,
+        "elements": 2405,
+        "evidence_chunks": 0,
+        "ground_truth_claims": 0,
+        "image_unique_urls": 23,
+        "images_downloaded": 1,
+        "images_found": 38,
+        "ocr_success": 1,
+        "quarantined_claims": 0,
+        "records_for_embedding": 0,
+        "tables": 17
+      }
+    },
+    {
+      "attributes": 10,
+      "claims": 10,
+      "coverage_gaps": [],
+      "model_id": "kimi-k3",
+      "records": 29,
+      "source_review_status": "APPROVE",
+      "stats": {
+        "attributes": 10,
+        "chunks_after_dedup": 155,
+        "chunks_before_dedup": 156,
+        "claims": 10,
+        "documents": 5,
+        "duplicate_chunks_removed": 1,
+        "elements": 2240,
+        "evidence_chunks": 9,
+        "ground_truth_claims": 10,
+        "image_unique_urls": 34,
+        "images_downloaded": 24,
+        "images_found": 34,
+        "ocr_success": 12,
+        "quarantined_claims": 0,
+        "records_for_embedding": 29,
+        "tables": 5
+      }
+    },
+    {
+      "attributes": 0,
+      "claims": 0,
+      "coverage_gaps": [
+        "No P0/P1 chunk explicitly names the target model.",
+        "Source manifest review status is CONDITIONAL."
+      ],
+      "model_id": "qwen3-max",
+      "records": 0,
+      "source_review_status": "CONDITIONAL",
+      "stats": {
+        "attributes": 0,
+        "chunks_after_dedup": 123,
+        "chunks_before_dedup": 124,
+        "claims": 8,
+        "documents": 5,
+        "duplicate_chunks_removed": 1,
+        "elements": 2181,
+        "evidence_chunks": 0,
+        "ground_truth_claims": 0,
+        "image_unique_urls": 36,
+        "images_downloaded": 12,
+        "images_found": 71,
+        "ocr_success": 0,
+        "quarantined_claims": 8,
+        "records_for_embedding": 0,
+        "tables": 6
+      }
+    }
+  ],
+  "embedding": {
+    "dimension": 1024,
+    "model": "voyage-code-3",
+    "provider_endpoint": "https://api.voyageai.com/v1",
+    "records": 175
+  },
+  "fable_source_manifest": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\docs\\rag\\processed\\claude-fable-5\\processing-manifest.json",
+  "generated_at": "2026-08-24T09:10:13.416839+00:00",
+  "milvus": {
+    "collection": "tokenaudit_knowledge_v3",
+    "metric_type": "COSINE",
+    "rows_after_upsert": 175,
+    "upsert_count": 175,
+    "uri": "E:\\Desktop\\TokenAudit\\TokenAudit\\.worktrees\\dark-cyber-frontend\\data\\milvus\\tokenaudit.db"
+  },
+  "models_requested": 10,
+  "models_with_records": 8,
+  "record_types": {
+    "attribute": 64,
+    "claim": 67,
+    "evidence_chunk": 44
+  },
+  "records": 175,
+  "schema_version": 1
+}

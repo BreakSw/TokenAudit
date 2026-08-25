@@ -47,6 +47,7 @@ def deepseek_chat(
     sensitive_values: list[str] | None = None,
     timeout_s: float | None = None,
     max_tokens: int | None = None,
+    json_response: bool = False,
 ) -> dict[str, Any]:
     if not config.deepseek_api_key:
         raise DeepSeekError(
@@ -68,26 +69,37 @@ def deepseek_chat(
         "max_tokens": config.deepseek_max_tokens if max_tokens is None else max(1, int(max_tokens)),
         "messages": safe_messages,
     }
+    if json_response:
+        payload["response_format"] = {"type": "json_object"}
     headers = {
         "Authorization": f"Bearer {config.deepseek_api_key}",
         "Content-Type": "application/json",
     }
     start = time.perf_counter()
-    try:
-        resp = requests.post(
-            url,
-            json=payload,
-            headers=headers,
-            timeout=config.request_timeout_s if timeout_s is None else max(1.0, float(timeout_s)),
-        )
-    except Exception as e:
+    resp = None
+    last_network_error: requests.RequestException | None = None
+    for network_attempt in range(2):
+        try:
+            resp = requests.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=config.request_timeout_s if timeout_s is None else max(1.0, float(timeout_s)),
+            )
+            break
+        except requests.RequestException as exc:
+            last_network_error = exc
+            if network_attempt == 0:
+                time.sleep(1.0)
+    if resp is None:
         elapsed_ms = int((time.perf_counter() - start) * 1000)
+        assert last_network_error is not None
         raise DeepSeekError(
-            _safe_error_text(str(e), config.deepseek_api_key),
+            _safe_error_text(str(last_network_error), config.deepseek_api_key),
             reason="network_unreachable",
             elapsed_ms=elapsed_ms,
             url=url,
-        ) from e
+        ) from last_network_error
     elapsed_ms = int((time.perf_counter() - start) * 1000)
     content_type = resp.headers.get("content-type", "")
     try:
@@ -147,7 +159,13 @@ def _has_chat_completion(data: Any) -> bool:
     if not isinstance(first, dict):
         return False
     message = first.get("message")
-    return isinstance(message, dict) and isinstance(message.get("content"), str)
+    if not isinstance(message, dict):
+        return False
+    return (
+        isinstance(message.get("content"), (str, list))
+        or isinstance(message.get("reasoning_content"), str)
+        or isinstance(message.get("reasoning"), str)
+    )
 
 
 def _failure_reason(status_code: int) -> str:

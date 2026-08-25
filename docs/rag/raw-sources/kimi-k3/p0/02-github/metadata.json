@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Kimi K3",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P0",
+  "sourceId": "02-github",
+  "label": "MoonshotAI/Kimi-K3 · GitHub",
+  "requestedUrl": "https://github.com/MoonshotAI/Kimi-K3",
+  "finalUrl": "https://github.com/MoonshotAI/Kimi-K3",
+  "capturedAt": "2026-08-23T10:52:44.637Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 23292,
+  "markdownSha256": "2b7aff79e98ea5ed7e0b9db9875bedfe0827c783c51ca0b5569f51ee58fa8af1",
+  "error": null,
+  "sourceMetadata": {
+    "title": "GitHub - MoonshotAI/Kimi-K3: Open Frontier Intelligence · GitHub",
+    "description": "Open Frontier Intelligence. Contribute to MoonshotAI/Kimi-K3 development by creating an account on GitHub.",
+    "language": "en",
+    "sourceURL": "https://github.com/MoonshotAI/Kimi-K3",
+    "url": "https://github.com/MoonshotAI/Kimi-K3",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "GitHub - MoonshotAI/Kimi-K3: Open Frontier Intelligence",
+    "ogDescription": "Open Frontier Intelligence. Contribute to MoonshotAI/Kimi-K3 development by creating an account on GitHub."
+  }
+}

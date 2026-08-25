@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "model": "Qwen3-Max",
+  "modelReviewStatus": "CONDITIONAL",
+  "priority": "P3",
+  "sourceId": "05-benchlm",
+  "label": "Qwen3-Max · BenchLM",
+  "requestedUrl": "https://benchlm.ai/models/qwen3-max",
+  "finalUrl": "https://benchlm.ai/models/qwen3-max",
+  "capturedAt": "2026-08-23T10:55:46.800Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 9222,
+  "markdownSha256": "d976e69f3054bd7ce2a2419100e93104de141c4991cf14030f752af295f60ee3",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Qwen3 Max Benchmarks & Speed (August 2026) | BenchLM.ai",
+    "description": "Qwen3 Max by Alibaba ranks #142 of 224 with a public score of 48.13/100. Evidence: Estimated; this profile shows 2 source-displayable benchmark rows.",
+    "language": "en",
+    "sourceURL": "https://benchlm.ai/models/qwen3-max",
+    "url": "https://benchlm.ai/models/qwen3-max",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "modifiedTime": "2026-08-22T04:00:00.000Z",
+    "ogTitle": "Qwen3 Max Benchmarks & Speed (August 2026)",
+    "ogDescription": "Qwen3 Max by Alibaba ranks #142 of 224 with a public score of 48.13/100. Evidence: Estimated; this profile shows 2 source-displayable benchmark rows."
+  }
+}

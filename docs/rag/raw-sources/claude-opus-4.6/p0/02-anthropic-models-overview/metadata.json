@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Opus 4.6",
+  "modelReviewStatus": "CONDITIONAL",
+  "priority": "P0",
+  "sourceId": "02-anthropic-models-overview",
+  "label": "Claude models overview · Anthropic",
+  "requestedUrl": "https://platform.claude.com/docs/en/about-claude/models/overview",
+  "finalUrl": "https://platform.claude.com/docs/en/about-claude/models/overview",
+  "capturedAt": "2026-08-23T10:50:29.913Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 6537,
+  "markdownSha256": "d0986cc18e2ff087ad55413f20bbc975b4899256f1a5e6360e71e7c7362f8dca",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Models overview - Claude Platform Docs",
+    "description": "Claude is a family of state-of-the-art large language models developed by Anthropic. This guide introduces the available models and compares their performance.",
+    "language": "en-US",
+    "sourceURL": "https://platform.claude.com/docs/en/about-claude/models/overview",
+    "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Models overview",
+    "ogDescription": "Claude is a family of state-of-the-art large language models developed by Anthropic. This guide introduces the available models and compares their performance."
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "model": "Claude Fable 5",
+  "modelReviewStatus": "APPROVE",
+  "priority": "P0",
+  "sourceId": "01-anthropic-fable",
+  "label": "Claude Fable · Anthropic",
+  "requestedUrl": "https://www.anthropic.com/claude/fable",
+  "finalUrl": "https://www.anthropic.com/claude/fable",
+  "capturedAt": "2026-08-23T10:51:08.645Z",
+  "captureProvider": "firecrawl",
+  "endpointVersion": "2",
+  "firecrawlHttpStatus": 200,
+  "sourceHttpStatus": 200,
+  "apiSuccess": true,
+  "acceptedForReview": true,
+  "markdownCharacters": 14860,
+  "markdownSha256": "2a913cc0c002a0d5ec1492b7559e9002d8c9408e4f45e66beb73556588a8278f",
+  "error": null,
+  "sourceMetadata": {
+    "title": "Claude Fable \\ Anthropic",
+    "description": "Next generation of intelligence for the hardest knowledge work and coding problems.",
+    "language": "en",
+    "sourceURL": "https://www.anthropic.com/claude/fable",
+    "url": "https://www.anthropic.com/claude/fable",
+    "statusCode": 200,
+    "contentType": "text/html; charset=utf-8",
+    "ogTitle": "Claude Fable",
+    "ogDescription": "Next generation of intelligence for the hardest knowledge work and coding problems."
+  }
+}

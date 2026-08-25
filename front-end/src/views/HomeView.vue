@@ -112,8 +112,8 @@
           <div v-else class="panel-empty">
             <span class="state-code">NO AUDITS</span>
             <h3>暂无审计任务</h3>
-            <p>选择已录入的 Token 发起审计，执行记录会显示在这里。</p>
-            <el-button type="primary" @click="router.push('/audit')">发起审计</el-button>
+            <p>选择已录入的 Token 开始快速审计，执行记录会显示在这里。</p>
+            <el-button type="primary" @click="router.push('/audit')">快速审计</el-button>
           </div>
         </article>
 
@@ -126,8 +126,15 @@
           </div>
           <button class="action-link" type="button" @click="router.push('/audit')">
             <span>
-              <strong>发起审计</strong>
-              <small>选择 Token 并执行完整审计流程</small>
+              <strong>快速审计</strong>
+              <small>沿用七阶段核心，快速核验 Token 与模型行为</small>
+            </span>
+            <span aria-hidden="true">→</span>
+          </button>
+          <button class="action-link" type="button" @click="router.push('/audit/deep')">
+            <span>
+              <strong>深度审计</strong>
+              <small>进入独立工作区，当前兼容现有审计核心</small>
             </span>
             <span aria-hidden="true">→</span>
           </button>

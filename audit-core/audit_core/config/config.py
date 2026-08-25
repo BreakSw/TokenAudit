@@ -21,7 +21,7 @@ def load_config() -> AuditConfig:
     deepseek_model = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
     deepseek_temperature = float(os.getenv("DEEPSEEK_TEMPERATURE", "0.2"))
     deepseek_max_tokens = int(os.getenv("DEEPSEEK_MAX_TOKENS", "2048"))
-    request_timeout_s = float(os.getenv("AUDIT_REQUEST_TIMEOUT_S", "60"))
+    request_timeout_s = float(os.getenv("AUDIT_REQUEST_TIMEOUT_S", "600"))
     export_dir = os.getenv("AUDIT_EXPORT_DIR", os.path.abspath(os.path.join(os.getcwd(), "..", "data", "report")))
     return AuditConfig(
         deepseek_base_url=deepseek_base_url,

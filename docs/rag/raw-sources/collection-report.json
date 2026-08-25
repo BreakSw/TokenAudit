@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "generatedDate": "2026-08-23",
+  "models": 10,
+  "sources": 50,
+  "technicallyAccepted": 50,
+  "bodyExactModelMatch": 34,
+  "totalMarkdownCharacters": 1757068,
+  "modelsSummary": [
+    {
+      "model": "GPT-5.6 Sol",
+      "reviewStatus": "APPROVE",
+      "accepted": 5,
+      "bodyExactModelMatch": 5,
+      "sources": 5,
+      "markdownCharacters": 262308
+    },
+    {
+      "model": "GPT-5.6 Terra",
+      "reviewStatus": "APPROVE",
+      "accepted": 5,
+      "bodyExactModelMatch": 2,
+      "sources": 5,
+      "markdownCharacters": 91795
+    },
+    {
+      "model": "GPT-5.6 Luna",
+      "reviewStatus": "APPROVE",
+      "accepted": 5,
+      "bodyExactModelMatch": 4,
+      "sources": 5,
+      "markdownCharacters": 222805
+    },
+    {
+      "model": "Claude Opus 4.6",
+      "reviewStatus": "CONDITIONAL",
+      "accepted": 5,
+      "bodyExactModelMatch": 3,
+      "sources": 5,
+      "markdownCharacters": 199747
+    },
+    {
+      "model": "Claude Fable 5",
+      "reviewStatus": "APPROVE",
+      "accepted": 5,
+      "bodyExactModelMatch": 5,
+      "sources": 5,
+      "markdownCharacters": 99495
+    },
+    {
+      "model": "DeepSeek-V4-Pro",
+      "reviewStatus": "APPROVE",
+      "accepted": 5,
+      "bodyExactModelMatch": 3,
+      "sources": 5,
+      "markdownCharacters": 44715
+    },
+    {
+      "model": "Kimi K3",
+      "reviewStatus": "APPROVE",
+      "accepted": 5,
+      "bodyExactModelMatch": 5,
+      "sources": 5,
+      "markdownCharacters": 196257
+    },
+    {
+      "model": "Grok 5",
+      "reviewStatus": "HOLD",
+      "accepted": 5,
+      "bodyExactModelMatch": 0,
+      "sources": 5,
+      "markdownCharacters": 398248
+    },
+    {
+      "model": "GLM-5.3",
+      "reviewStatus": "APPROVE",
+      "accepted": 5,
+      "bodyExactModelMatch": 5,
+      "sources": 5,
+      "markdownCharacters": 75676
+    },
+    {
+      "model": "Qwen3-Max",
+      "reviewStatus": "CONDITIONAL",
+      "accepted": 5,
+      "bodyExactModelMatch": 2,
+      "sources": 5,
+      "markdownCharacters": 166022
+    }
+  ],
+  "notes": [
+    "Technical acceptance is not semantic Ground Truth approval.",
+    "Exact model-name matches are calculated after removing generated YAML front matter.",
+    "Grok 5 remains HOLD because none of its five source bodies explicitly names the target model."
+  ]
+}

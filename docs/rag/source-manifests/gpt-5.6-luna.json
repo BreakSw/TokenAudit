@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "model": "GPT-5.6 Luna",
+  "modelSlug": "gpt-5.6-luna",
+  "reviewStatus": "APPROVE",
+  "sources": [
+    {
+      "id": "01-openai-model-page",
+      "priority": "P0",
+      "label": "GPT-5.6 Luna Model · OpenAI API",
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.6-luna"
+    },
+    {
+      "id": "02-openai-family-release",
+      "priority": "P0",
+      "label": "GPT-5.6: Frontier intelligence",
+      "url": "https://openai.com/index/gpt-5-6/"
+    },
+    {
+      "id": "03-openai-help",
+      "priority": "P1",
+      "label": "GPT-5.6 in ChatGPT · OpenAI Help",
+      "url": "https://help.openai.com/en/articles/20001325-a-preview-of-gpt-56-sol-terra-and-luna"
+    },
+    {
+      "id": "04-artificial-analysis",
+      "priority": "P2",
+      "label": "GPT-5.6 Luna · Artificial Analysis",
+      "url": "https://artificialanalysis.ai/models/gpt-5-6-luna"
+    },
+    {
+      "id": "05-ai-souken",
+      "priority": "P3",
+      "label": "GPT-5.6 Sol/Terra/Luna analysis · AI Souken",
+      "url": "https://www.ai-souken.com/article/what-is-gpt-5-6"
+    }
+  ]
+}

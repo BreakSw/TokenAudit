@@ -2,6 +2,7 @@ package com.tokenaudit.mapper;
 
 import com.tokenaudit.entity.AuditEvent;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -16,7 +17,10 @@ public interface AuditEventMapper {
     @Select("SELECT * FROM audit_event WHERE audit_id = #{auditId} ORDER BY id ASC")
     List<AuditEvent> listByAuditId(@Param("auditId") Long auditId);
 
-    @Select("SELECT COUNT(*) FROM audit_event WHERE audit_id = #{auditId} AND event IN ('token_call_end','deepseek_call_end')")
+    @Select("SELECT COUNT(*) FROM audit_event WHERE audit_id = #{auditId} AND event IN ('token_call_end','deepseek_call_end','deep_target_call_end','deep_agent_end')")
     int countProgressOps(@Param("auditId") Long auditId);
+
+    @Delete("DELETE FROM audit_event WHERE audit_id = #{auditId}")
+    int deleteByAuditId(@Param("auditId") Long auditId);
 }
 

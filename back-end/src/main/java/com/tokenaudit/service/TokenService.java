@@ -90,6 +90,19 @@ public class TokenService {
         return toResponse(token);
     }
 
+    public TokenResponse updateTokenBaseUrl(Long id, String tokenBaseUrl) {
+        String normalizedUrl = outboundUrlValidator.validate(tokenBaseUrl);
+        int updated = tokenInfoMapper.updateTokenBaseUrl(id, normalizedUrl);
+        if (updated <= 0) {
+            throw new ApiException("token_not_found");
+        }
+        TokenInfo token = tokenInfoMapper.findById(id);
+        if (token == null) {
+            throw new ApiException("token_not_found");
+        }
+        return toResponse(token);
+    }
+
     private void decryptAndMigrate(TokenInfo token) {
         String stored = token.getToken();
         if (tokenCipher.isEncrypted(stored)) {
