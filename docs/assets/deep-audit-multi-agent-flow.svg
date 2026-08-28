@@ -1,0 +1,215 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040" role="img" aria-labelledby="title desc">
+  <title id="title">TokenAudit 深度审计多智能体执行流程</title>
+  <desc id="desc">展示 Vue 前端、Spring Boot 调度、RAG 基线构建、多轮动态探针、并行模糊变体、被测模型调用、三个并行 Judge Agent、红队复核与最终报告的执行关系。</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a1020"/>
+      <stop offset="1" stop-color="#101a33"/>
+    </linearGradient>
+    <linearGradient id="llmFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#292254"/>
+      <stop offset="1" stop-color="#3b2767"/>
+    </linearGradient>
+    <linearGradient id="coreFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#123452"/>
+      <stop offset="1" stop-color="#153f5d"/>
+    </linearGradient>
+    <linearGradient id="dataFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#173b3a"/>
+      <stop offset="1" stop-color="#194b43"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#020611" flood-opacity="0.42"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#88a4c7"/>
+    </marker>
+    <marker id="arrowAccent" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#a99bff"/>
+    </marker>
+    <style>
+      text { font-family: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", sans-serif; }
+      .title { fill: #f4f7ff; font-size: 34px; font-weight: 600; }
+      .subtitle { fill: #9fb0c9; font-size: 17px; }
+      .section { fill: #dce8f7; font-size: 19px; font-weight: 600; letter-spacing: .5px; }
+      .node-title { fill: #f7f9ff; font-size: 20px; font-weight: 600; }
+      .node-text { fill: #c8d5e7; font-size: 15px; }
+      .node-note { fill: #9eb1cb; font-size: 13px; }
+      .badge { fill: #d7d0ff; font-size: 12px; font-weight: 600; letter-spacing: .8px; }
+      .code-badge { fill: #9ddbf8; font-size: 12px; font-weight: 600; letter-spacing: .8px; }
+      .data-badge { fill: #9ee7cf; font-size: 12px; font-weight: 600; letter-spacing: .8px; }
+      .edge { fill: none; stroke: #88a4c7; stroke-width: 2.2; marker-end: url(#arrow); }
+      .edge-llm { fill: none; stroke: #a99bff; stroke-width: 2.2; marker-end: url(#arrowAccent); }
+      .edge-event { fill: none; stroke: #60748e; stroke-width: 1.8; stroke-dasharray: 7 7; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1040" rx="28" fill="url(#background)"/>
+  <text x="56" y="57" class="title">TokenAudit 深度审计 · 多智能体执行流程</text>
+  <text x="56" y="86" class="subtitle">Orchestrator + RAG + 并行 Agent Pool + 确定性评分 · 紫色节点表示由“审计者 LLM”推理</text>
+
+  <g transform="translate(1120,35)">
+    <rect x="0" y="0" width="22" height="14" rx="4" fill="#3b2767" stroke="#8f7bea"/>
+    <text x="31" y="12" class="node-note">审计者 LLM</text>
+    <rect x="148" y="0" width="22" height="14" rx="4" fill="#153f5d" stroke="#4b91b8"/>
+    <text x="179" y="12" class="node-note">程序调度 / 规则</text>
+    <rect x="322" y="0" width="22" height="14" rx="4" fill="#194b43" stroke="#4aa88e"/>
+    <text x="353" y="12" class="node-note">数据 / 外部服务</text>
+  </g>
+
+  <!-- Entry and orchestration -->
+  <text x="56" y="132" class="section">01 · 任务入口与基线构建</text>
+  <g filter="url(#shadow)">
+    <rect x="56" y="155" width="250" height="104" rx="14" fill="url(#coreFill)" stroke="#397ea6"/>
+    <text x="76" y="181" class="code-badge">UI</text>
+    <text x="76" y="211" class="node-title">Vue 3 前端</text>
+    <text x="76" y="235" class="node-text">选择 Token · 模型 · 1–5 轮</text>
+    <text x="76" y="253" class="node-note">实时订阅审计事件与报告</text>
+
+    <rect x="356" y="155" width="270" height="104" rx="14" fill="url(#coreFill)" stroke="#397ea6"/>
+    <text x="376" y="181" class="code-badge">SERVICE</text>
+    <text x="376" y="211" class="node-title">Spring Boot 调度层</text>
+    <text x="376" y="235" class="node-text">预检 · 多任务并行 · 终止控制</text>
+    <text x="376" y="253" class="node-note">SQLite 记录 / Redis 审计者配置</text>
+
+    <rect x="680" y="155" width="290" height="104" rx="14" fill="url(#coreFill)" stroke="#4b91b8"/>
+    <text x="700" y="181" class="code-badge">ORCHESTRATOR</text>
+    <text x="700" y="211" class="node-title">DeepAuditOrchestrator</text>
+    <text x="700" y="235" class="node-text">Python 状态机按阶段推进</text>
+    <text x="700" y="253" class="node-note">负责调度，不直接替代 Judge 评分</text>
+
+    <rect x="1024" y="143" width="245" height="128" rx="14" fill="url(#dataFill)" stroke="#4aa88e"/>
+    <text x="1044" y="169" class="data-badge">RAG</text>
+    <text x="1044" y="199" class="node-title">Knowledge Service</text>
+    <text x="1044" y="223" class="node-text">Milvus 混合检索 Top-12</text>
+    <text x="1044" y="245" class="node-text">Voyage Rerank → Top-5</text>
+    <text x="1044" y="263" class="node-note">规格证据 + 行为样本 + 对照样本</text>
+
+    <rect x="1321" y="143" width="223" height="128" rx="14" fill="url(#llmFill)" stroke="#8f7bea"/>
+    <text x="1341" y="169" class="badge">AUDITOR LLM</text>
+    <text x="1341" y="199" class="node-title">GroundTruth</text>
+    <text x="1341" y="222" class="node-title">CuratorAgent</text>
+    <text x="1341" y="247" class="node-text">整理硬约束与行为基线</text>
+    <text x="1341" y="265" class="node-note">证据不足时保守降级</text>
+  </g>
+  <path d="M306 207 H356" class="edge"/>
+  <path d="M626 207 H680" class="edge"/>
+  <path d="M970 207 H1024" class="edge"/>
+  <path d="M1269 207 H1321" class="edge-llm"/>
+
+  <!-- Loop -->
+  <rect x="56" y="315" width="1488" height="500" rx="24" fill="#0b1427" fill-opacity=".72" stroke="#435775" stroke-width="2" stroke-dasharray="9 8"/>
+  <text x="82" y="350" class="section">02 · 动态审计循环（第 1…N 轮，用户可配置；结果稳定时可提前结束）</text>
+
+  <g filter="url(#shadow)">
+    <rect x="90" y="384" width="250" height="125" rx="14" fill="url(#llmFill)" stroke="#8f7bea"/>
+    <text x="110" y="410" class="badge">AUDITOR LLM</text>
+    <text x="110" y="441" class="node-title">ProbeDesignerAgent</text>
+    <text x="110" y="466" class="node-text">按基线动态设计 3 道母题</text>
+    <text x="110" y="488" class="node-note">后续轮次针对弱项与矛盾补测</text>
+
+    <rect x="390" y="372" width="260" height="149" rx="14" fill="url(#llmFill)" stroke="#8f7bea"/>
+    <text x="410" y="398" class="badge">AUDITOR LLM · PARALLEL ×3</text>
+    <text x="410" y="429" class="node-title">FuzzAgent Pool</text>
+    <text x="410" y="454" class="node-text">每道母题独立并行模糊化</text>
+    <text x="410" y="478" class="node-text">释义 · 干扰 · 边界，共 3 变体</text>
+    <text x="410" y="502" class="node-note">3 母题 → 每轮 9 个测试请求</text>
+
+    <rect x="700" y="372" width="280" height="149" rx="14" fill="url(#dataFill)" stroke="#4aa88e"/>
+    <text x="720" y="398" class="data-badge">TARGET API · CONCURRENCY 1–6</text>
+    <text x="720" y="429" class="node-title">被测中转站 / 模型</text>
+    <text x="720" y="454" class="node-text">ThreadPool 并发执行各变体</text>
+    <text x="720" y="478" class="node-text">收集答案、耗时、状态与重试</text>
+    <text x="720" y="502" class="node-note">限流/瞬态故障恢复阶段自动串行</text>
+
+    <rect x="1030" y="384" width="220" height="125" rx="14" fill="url(#coreFill)" stroke="#4b91b8"/>
+    <text x="1050" y="410" class="code-badge">DETERMINISTIC</text>
+    <text x="1050" y="441" class="node-title">传输门控</text>
+    <text x="1050" y="466" class="node-text">只保留成功答案参与评分</text>
+    <text x="1050" y="488" class="node-note">网络失败降低置信度，不算能力 0 分</text>
+
+    <rect x="1300" y="384" width="210" height="125" rx="14" fill="url(#coreFill)" stroke="#4b91b8"/>
+    <text x="1320" y="410" class="code-badge">RULE CHECK</text>
+    <text x="1320" y="441" class="node-title">Objective Check</text>
+    <text x="1320" y="466" class="node-text">格式、数值、约束自动校验</text>
+    <text x="1320" y="488" class="node-note">无需 LLM，结果可复现</text>
+  </g>
+  <path d="M340 447 H390" class="edge-llm"/>
+  <path d="M650 447 H700" class="edge"/>
+  <path d="M980 447 H1030" class="edge"/>
+  <path d="M1250 447 H1300" class="edge"/>
+
+  <text x="90" y="568" class="section">并行评审扇出</text>
+  <path d="M1140 509 V548 H220 V594" class="edge-llm"/>
+  <path d="M1140 509 V560 H520 V594" class="edge-llm"/>
+  <path d="M1140 509 V572 H820 V594" class="edge-llm"/>
+  <g filter="url(#shadow)">
+    <rect x="90" y="594" width="260" height="132" rx="14" fill="url(#llmFill)" stroke="#8f7bea"/>
+    <text x="110" y="620" class="badge">AUDITOR LLM · JUDGE 1</text>
+    <text x="110" y="651" class="node-title">AuditJudgeAgent</text>
+    <text x="110" y="676" class="node-text">语义质量 + Ground Truth</text>
+    <text x="110" y="700" class="node-note">基于 rubric 与证据盲评</text>
+
+    <rect x="390" y="594" width="260" height="132" rx="14" fill="url(#llmFill)" stroke="#8f7bea"/>
+    <text x="410" y="620" class="badge">AUDITOR LLM · JUDGE 2</text>
+    <text x="410" y="651" class="node-title">BehaviorJudgeAgent</text>
+    <text x="410" y="676" class="node-text">宣称模型与对照模型差分</text>
+    <text x="410" y="700" class="node-note">风格仅作弱证据，不当作身份</text>
+
+    <rect x="690" y="594" width="260" height="132" rx="14" fill="url(#llmFill)" stroke="#8f7bea"/>
+    <text x="710" y="620" class="badge">AUDITOR LLM · JUDGE 3</text>
+    <text x="710" y="651" class="node-title">ConsistencyJudgeAgent</text>
+    <text x="710" y="676" class="node-text">三个等价变体的一致性</text>
+    <text x="710" y="700" class="node-note">识别能力波动与动态路由迹象</text>
+
+    <rect x="1010" y="594" width="235" height="132" rx="14" fill="url(#coreFill)" stroke="#4b91b8"/>
+    <text x="1030" y="620" class="code-badge">DETERMINISTIC</text>
+    <text x="1030" y="651" class="node-title">Score Fusion</text>
+    <text x="1030" y="676" class="node-text">固定权重融合 5 类信号</text>
+    <text x="1030" y="700" class="node-note">LLM 不得改分，只能解释</text>
+
+    <rect x="1290" y="594" width="220" height="132" rx="14" fill="url(#coreFill)" stroke="#4b91b8"/>
+    <text x="1310" y="620" class="code-badge">LOOP CONTROL</text>
+    <text x="1310" y="651" class="node-title">轮次决策</text>
+    <text x="1310" y="676" class="node-text">继续下一轮 / 稳定后早停</text>
+    <text x="1310" y="700" class="node-note">上一轮结果进入下一轮上下文</text>
+  </g>
+  <path d="M220 726 V754 H980 V678 H1010" class="edge-llm"/>
+  <path d="M520 726 V748 H990 V668 H1010" class="edge-llm"/>
+  <path d="M820 726 V742 H1000 V658 H1010" class="edge-llm"/>
+  <path d="M1245 660 H1290" class="edge"/>
+  <path d="M1400 726 V780 H215 V509" class="edge-event"/>
+  <text x="1110" y="788" class="node-note">循环反馈：弱项、矛盾、已用问题</text>
+
+  <!-- Review and report -->
+  <text x="56" y="862" class="section">03 · 反方复核、锁分结论与报告</text>
+  <g filter="url(#shadow)">
+    <rect x="90" y="890" width="280" height="112" rx="14" fill="url(#llmFill)" stroke="#8f7bea"/>
+    <text x="110" y="916" class="badge">AUDITOR LLM</text>
+    <text x="110" y="947" class="node-title">RedTeamReviewerAgent</text>
+    <text x="110" y="972" class="node-text">寻找替代解释，必要时限制置信度</text>
+    <text x="110" y="992" class="node-note">不修改确定性总分</text>
+
+    <rect x="440" y="890" width="280" height="112" rx="14" fill="url(#llmFill)" stroke="#8f7bea"/>
+    <text x="460" y="916" class="badge">AUDITOR LLM</text>
+    <text x="460" y="947" class="node-title">FinalDecisionAgent</text>
+    <text x="460" y="972" class="node-text">依据锁定分数生成中文结论</text>
+    <text x="460" y="992" class="node-note">输出支持证据、反证与风险提示</text>
+
+    <rect x="790" y="890" width="270" height="112" rx="14" fill="url(#coreFill)" stroke="#4b91b8"/>
+    <text x="810" y="916" class="code-badge">REPORT</text>
+    <text x="810" y="947" class="node-title">完整审计报告</text>
+    <text x="810" y="972" class="node-text">问题 · 答案 · 得分 · 证据 · 事件</text>
+    <text x="810" y="992" class="node-note">JSON / Markdown / Excel / PDF</text>
+
+    <rect x="1130" y="890" width="380" height="112" rx="14" fill="url(#dataFill)" stroke="#4aa88e"/>
+    <text x="1150" y="916" class="data-badge">PERSIST &amp; PRESENT</text>
+    <text x="1150" y="947" class="node-title">SQLite 历史记录 + 前端综合报告</text>
+    <text x="1150" y="972" class="node-text">实时事件、未读标记、详情查看与导出</text>
+    <text x="1150" y="992" class="node-note">结论是“与宣称基线的一致程度”，不是密码学身份证明</text>
+  </g>
+  <path d="M1128 726 V780 H230 V890" class="edge"/>
+  <path d="M370 946 H440" class="edge-llm"/>
+  <path d="M720 946 H790" class="edge"/>
+  <path d="M1060 946 H1130" class="edge"/>
+</svg>

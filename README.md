@@ -18,6 +18,10 @@ TokenAudit 是一个面向 OpenAI 兼容 API 与大模型中转站的 Token 审�
 
 ## 架构
 
+![TokenAudit 深度审计多智能体执行流程](docs/assets/deep-audit-multi-agent-flow.svg)
+
+图中紫色节点由用户配置的“审计者 LLM”执行推理；蓝色节点负责确定性调度、规则校验与锁分，绿色节点代表知识库或被测中转站。每轮的 Fuzz Agent 和三个 Judge Agent 均并行执行；目标请求支持可配置并发，并在限流或瞬态网络故障恢复时自动退化为串行，避免重复浪费 Token。
+
 ```text
 Vue 3 前端 :5173
     │
